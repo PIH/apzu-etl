@@ -1,0 +1,16 @@
+# Template that takes in the following parameters
+# ${tableName}
+# ${sourceDatasource}
+# ${targetDatasource}
+type: "sql-transfer"
+description: "Extracting from ${sourceDatasource} to ${tableName} in ${targetDatasource}"
+configuration:
+  extract:
+    datasource: "${sourceDatasource}.yml"
+    query:  "sql/extractions/${tableName}.sql"
+  load:
+    datasource: "${targetDatasource}.yml"
+    table: "${tableName}"
+    schema: "sql/schemas/${tableName}.sql"
+    bulkCopy:
+      batchSize: 400
