@@ -1,0 +1,16 @@
+type: "job-pipeline"
+description: "Refreshing Upper Neno data"
+parameters:
+  sourceDatasource: "upperNenoOpenmrs"
+  targetDatasource: "upperNenoReporting"
+configuration:
+  jobs:
+    - path: "create-source-views-and-functions.yml"
+    - type: "iterating-job"
+      description: "Extracting from ${sourceDatasource} to ${tableName} in ${targetDatasource}"
+      configuration:
+        maxConcurrentJobs: 1
+        jobTemplate:
+          path: "sql-extract-and-transfer-to-table.yml"
+        iterations:
+          - tableName: "mw_patient_2"
