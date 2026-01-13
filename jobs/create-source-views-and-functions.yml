@@ -1,0 +1,17 @@
+type: "job-pipeline"
+description: "Load from SQL from ${sourceDatasource}"
+configuration:
+  jobs:
+    - type: "sql-execution"
+      description: "Create functions for ${sourceDatasource}"
+      configuration:
+        datasource: "${sourceDatasource}.yml"
+        delimiter: "#"
+        scripts:
+          - "sql/functions/person_address_city_village.sql"
+          - "sql/functions/person_address_county_district.sql"
+          - "sql/functions/person_address_state_province.sql"
+          - "sql/functions/person_family_name.sql"
+          - "sql/functions/person_given_name.sql"
+          - "sql/functions/person_name.sql"
+          - "sql/functions/person_phone_number.sql"
