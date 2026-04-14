@@ -1,49 +1,38 @@
 type: "job-pipeline"
-description: "Refreshing OpenMRS data"
+description: "Refresh MySQL reporting database"
 configuration:
   jobs:
 
-    - type: "pentaho-job"
-      description: "Execute OpenMRS Pentaho pipeline"
+    # Step 1: Create MySQL functions and stored procedures
+    - path: "create-schema.yml"
 
-      parameters:
-        pih.pentahoHome: "${petl.jobDir}/pentaho"
-        openmrs.db.host: "${mysqlOpenmrs.host}"
-        openmrs.db.port: "${mysqlOpenmrs.port}"
-        openmrs.db.name: "${mysqlOpenmrs.databaseName}"
-        openmrs.db.user: "${mysqlOpenmrs.user}"
-        openmrs.db.password: "${mysqlOpenmrs.password}"
-        warehouse.db.host: "${mysqlReporting.host}"
-        warehouse.db.port: "${mysqlReporting.port}"
-        warehouse.db.name: "${mysqlReporting.databaseName}"
-        warehouse.db.user: "${mysqlReporting.user}"
-        warehouse.db.password: "${mysqlReporting.password}"
-
-      configuration:
-        job:
-          filePath: "pentaho/malawi/jobs/refresh-warehouse.kjb"
-          logLevel: "BASIC"
-        pih:
-          pentahoHome: "${pih.pentahoHome}"
-          country: "malawi"
-        openmrs:
-          db:
-            host: "${openmrs.db.host}"
-            port: "${openmrs.db.port}"
-            name: "${openmrs.db.name}"
-            user: "${openmrs.db.user}"
-            password: "${openmrs.db.password}"
-        warehouse:
-          db:
-            host: "${warehouse.db.host}"
-            port: "${warehouse.db.port}"
-            name: "${warehouse.db.name}"
-            user: "${warehouse.db.user}"
-            password: "${warehouse.db.password}"
-            key_prefix: "10"
-
+    # Step 2: Import OpenMRS source tables into the reporting database
     - type: "iterating-job"
-      description: "Refresh OpenMRS Derived MySQL Data"
+      description: "Import OpenMRS source tables"
+      configuration:
+        maxConcurrentJobs: 1
+        jobTemplate:
+          path: "import-openmrs-table.yml"
+        iterations:
+          - tableName: "omrs_encounter_provider"
+          - tableName: "omrs_encounter"
+          - tableName: "omrs_visit"
+          - tableName: "omrs_patient"
+          - tableName: "omrs_patient_identifier"
+          - tableName: "omrs_relationship"
+          - tableName: "omrs_obs_group"
+          - tableName: "omrs_obs"
+          - tableName: "omrs_program_enrollment"
+          - tableName: "omrs_program_state"
+
+    # Step 3: Derive Malawi warehouse tables from omrs_* source tables
+    # NOTE: This step will be populated during Phase 3 of the Pentaho migration.
+    #       Until Phase 3 is complete, this section is intentionally empty.
+    # TODO (Phase 3): Add iterating-job over import-warehouse-table.yml for all mw_* tables
+
+    # Step 4: Refresh derived MySQL tables (computed from mw_* tables)
+    - type: "iterating-job"
+      description: "Refresh derived MySQL tables"
       configuration:
         iterations:
           - datasourceName: "mysqlReporting"
