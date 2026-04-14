@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${mysqlOpenmrs.host}
+port: ${mysqlOpenmrs.port}
+databaseName: ${mysqlOpenmrs.databaseName}
+user: ${mysqlOpenmrs.user}
+password: ${mysqlOpenmrs.password}
+options: ${mysqlOpenmrs.options}

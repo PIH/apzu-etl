@@ -1,0 +1,10 @@
+type: "sql-transfer"
+description: "Import ${tableName} from OpenMRS to reporting database"
+configuration:
+  extract:
+    datasource: "mysqlOpenmrs.yml"
+    query: "sql/omrs_extractions/${tableName}.sql"
+  load:
+    datasource: "mysqlReporting.yml"
+    table: "${tableName}"
+    schema: "sql/omrs_schema/${tableName}.sql"

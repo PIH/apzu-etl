@@ -20,6 +20,7 @@ mysqlOpenmrs:
   databaseName: "neno"
   user: "root"
   password: "root"
+  options: "autoReconnect=true&useUnicode=true&characterEncoding=UTF-8"
 
 mysqlReporting:
   host: "localhost"

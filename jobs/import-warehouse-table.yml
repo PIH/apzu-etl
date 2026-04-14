@@ -1,0 +1,7 @@
+type: "sql-execution"
+description: "Derive warehouse table: ${tableName}"
+configuration:
+  datasource: "mysqlReporting.yml"
+  delimiter: ";"
+  scripts:
+    - "sql/mw_derivations/${tableName}.sql"
