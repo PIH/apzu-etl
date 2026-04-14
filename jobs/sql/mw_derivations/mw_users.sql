@@ -1,0 +1,4 @@
+-- mw_users is populated via sql-transfer from OpenMRS (not sql-execution).
+-- See: jobs/sql/omrs_extractions/mw_users.sql (extraction query)
+--      jobs/sql/omrs_schema/mw_users.sql (table DDL)
+-- This file is intentionally empty.

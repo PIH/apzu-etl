@@ -1,0 +1,83 @@
+-- Derivation script for mw_pdc_other_diagnosis_followup
+-- Generated from Pentaho transform: import-into-mw-pdc-other-diagnosis-followup.ktr
+
+DROP TABLE IF EXISTS mw_pdc_other_diagnosis_followup;
+CREATE TABLE mw_pdc_other_diagnosis_followup (
+  pdc_other_diagnosis_visit_id 		int NOT NULL AUTO_INCREMENT,
+  patient_id 				int NOT NULL,
+  visit_date 				date DEFAULT NULL,
+  location 				varchar(255) DEFAULT NULL,
+  age_adjusted				int DEFAULT NULL,
+  age_non_adjusted			int DEFAULT NULL,
+  weight 				int DEFAULT NULL,
+  height				int DEFAULT NULL,
+  muac 					int DEFAULT NULL,
+  weight_against_age			int DEFAULT NULL,
+  weight_against_height			int DEFAULT NULL,
+  complications_since_last_visit	varchar(255) DEFAULT NULL,
+  malnutrition				varchar(255) DEFAULT NULL,
+  head_circumference			int DEFAULT NULL,
+  convulsions_any_since_last_visit	varchar(255) DEFAULT NULL,
+  anticonvulsant			varchar(255) DEFAULT NULL,
+  drug_and_dose				varchar(255) DEFAULT NULL,
+  adjust_dose				varchar(255) DEFAULT NULL,
+  poor_suck				varchar(255) DEFAULT NULL,
+  refs_to_feed				varchar(255) DEFAULT NULL,
+  less_feed_concerns			varchar(255) DEFAULT NULL,
+  individual_counseling			varchar(255) DEFAULT NULL, 
+  feeding_counseling			varchar(255) DEFAULT NULL,
+  group_counselling			varchar(255) DEFAULT NULL,
+  play_therapy				varchar(255) DEFAULT NULL,
+  continue_followup			varchar(255) DEFAULT NULL,
+  physiotherapy				varchar(255) DEFAULT NULL,
+  poser					varchar(255) DEFAULT NULL,
+  referred_out				varchar(255) DEFAULT NULL,
+  referred_out_specify			varchar(255) DEFAULT NULL,
+  if_referred_out			varchar(255) DEFAULT NULL,
+  if_referred_out_specify		varchar(255) DEFAULT NULL,
+  mdat					varchar(255) DEFAULT NULL,
+  clinical_plan			varchar(255) DEFAULT NULL,
+  next_appointment_date 		date DEFAULT NULL,
+  PRIMARY KEY (pdc_other_diagnosis_visit_id)
+) ;
+
+INSERT INTO mw_pdc_other_diagnosis_followup
+SELECT
+    e.patient_id,
+    DATE(e.encounter_date) as visit_date,
+    e.location,
+    MAX(CASE WHEN o.concept = 'Adjust dose' THEN o.value_coded END) as adjust_dose,
+    MAX(CASE WHEN o.concept = 'Age of child' THEN o.value_numeric END) as age_adjusted,
+    MAX(CASE WHEN o.concept = 'Age' THEN o.value_numeric END) as age_non_adjusted,
+    MAX(CASE WHEN o.concept = 'Anticonvulsant' THEN o.value_coded END) as anticonvulsant,
+    MAX(CASE WHEN o.concept = 'Any since last visit' THEN o.value_coded END) as convulsions_any_since_last_visit,
+    MAX(CASE WHEN o.concept = 'Complications since last visit' THEN o.value_coded END) as complications_since_last_visit,
+    MAX(CASE WHEN o.concept = 'Continue followup' THEN o.value_coded END) as continue_followup,
+    MAX(CASE WHEN o.concept = 'Medications dispensed' THEN o.value_text END) as drug_and_dose,
+    MAX(CASE WHEN o.concept = 'Food supplement' THEN o.value_coded END) as feeding_Counseling,
+    MAX(CASE WHEN o.concept = 'Group Counselling' THEN o.value_coded END) as group_counselling,
+    MAX(CASE WHEN o.concept = 'Head circumference' THEN o.value_numeric END) as head_circumference,
+    MAX(CASE WHEN o.concept = 'Height (cm)' THEN o.value_numeric END) as height,
+    MAX(CASE WHEN o.concept = 'Referred out' THEN o.value_coded END) as if_referred_out,
+    MAX(CASE WHEN o.concept = 'Other non-coded (text)' THEN o.value_text END) as if_referred_out_specify,
+    MAX(CASE WHEN o.concept = 'Counseling' THEN o.value_coded END) as individual_counseling,
+    MAX(CASE WHEN o.concept = 'Less feed' THEN o.value_coded END) as less_feed_concerns,
+    MAX(CASE WHEN o.concept = 'Middle upper arm circumference (cm)' THEN o.value_numeric END) as muac,
+    MAX(CASE WHEN o.concept = 'Malawi Developmental Assessment Tool Summary (Normal)-(Coded)' THEN o.value_coded END) as mdat,
+    MAX(CASE WHEN o.concept = 'Wasting/malnutrition' THEN o.value_coded END) as malnutrition,
+    MAX(CASE WHEN o.concept = 'Appointment date' THEN o.value_date END) as next_appointment_date,
+    MAX(CASE WHEN o.concept = 'Poor Growth' THEN o.value_coded END) as poser,
+    MAX(CASE WHEN o.concept = 'Physiotherapy' THEN o.value_coded END) as physiotherapy,
+    MAX(CASE WHEN o.concept = 'Clinical impression comments' THEN o.value_text END) as clinical_plan,
+    MAX(CASE WHEN o.concept = 'Play therapy' THEN o.value_coded END) as play_therapy,
+    MAX(CASE WHEN o.concept = 'Poor Suck' THEN o.value_coded END) as poor_suck,
+    MAX(CASE WHEN o.concept = 'Referred out' THEN o.value_coded END) as referred_out,
+    MAX(CASE WHEN o.concept = 'Other non-coded (text)' THEN o.value_text END) as referred_out_specify,
+    MAX(CASE WHEN o.concept = 'Refs to feed' THEN o.value_coded END) as refs_to_feed,
+    MAX(CASE WHEN o.concept = 'Weight (kg)' THEN o.value_numeric END) as weight,
+    MAX(CASE WHEN o.concept = 'Numeric value or result' THEN o.value_numeric END) as weight_against_age,
+    MAX(CASE WHEN o.concept = 'Numeric value or result' THEN o.value_numeric END) as weight_against_height
+FROM omrs_encounter e
+LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
+WHERE e.encounter_type IN ('PDC_OTHER_DIAGNOSIS_FOLLOWUP')
+GROUP BY e.patient_id, e.encounter_date, e.location;

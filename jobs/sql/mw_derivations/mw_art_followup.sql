@@ -1,0 +1,83 @@
+-- Derivation script for mw_art_followup
+-- Generated from Pentaho transform: import-into-mw-art-followup.ktr
+
+DROP TABLE IF EXISTS mw_art_followup;
+CREATE TABLE mw_art_followup (
+  art_followup_visit_id 			INT NOT NULL AUTO_INCREMENT,
+  patient_id    				INT NOT NULL,
+  visit_date            			DATE,
+  location              			VARCHAR(255),
+  next_appointment_date 			DATE,
+  art_drugs_received 				VARCHAR(255),
+  pregnant_or_lactating			VARCHAR(255),
+  tb_status 					VARCHAR(255),
+  doses_missed					DECIMAL(10,2),
+  pill_count					INT,
+  no_side_effect				VARCHAR(255),
+  peripheral_neuropathy_side_effect		VARCHAR(255),
+  hepatitis_side_effect			VARCHAR(255),
+  skin_rash_side_effect			VARCHAR(255),
+  lipodystrophy_side_effect			VARCHAR(255),
+  other_side_effect				VARCHAR(255),
+  art_regimen					VARCHAR(255),
+  height					DECIMAL(10,2),
+  weight					DECIMAL(10,2),
+  arvs_given					INT,
+  arvs_given_to				VARCHAR(255),
+  ctx_960					VARCHAR(255),
+  ctx_960_pills		     		DECIMAL(10,2),
+  inh_300					VARCHAR(255),
+  inh_300_pills		     		DECIMAL(10,2),
+  rfp_150					VARCHAR(255),
+  rfp_150_pills		     		DECIMAL(10,2),
+  rfp_inh					VARCHAR(255),
+  rfp_inh_pills				DECIMAL(10,2),
+  pyridoxine					VARCHAR(255),
+  pyridoxine_pills		     		DECIMAL(10,2),
+  depo_given					VARCHAR(255),
+  systolic_bp		 			VARCHAR(255),
+  diastolic_bp					VARCHAR(255),
+  condoms_given				VARCHAR(255),
+     PRIMARY KEY (art_followup_visit_id)
+);
+
+INSERT INTO mw_art_followup
+SELECT
+    e.patient_id,
+    DATE(e.encounter_date) as visit_date,
+    e.location,
+    MAX(CASE WHEN o.concept = 'Malawi Antiretroviral drugs received' THEN o.value_coded END) as art_regimen,
+    MAX(CASE WHEN o.concept = 'Responsible person present' THEN o.value_coded END) as arvs_given_to,
+    MAX(CASE WHEN o.concept = 'Appointment date' THEN o.value_date END) as next_appointment_date,
+    MAX(CASE WHEN o.concept = 'HIV Preventive Therapy' AND o.value_coded = 'Trimethoprim and sulfamethoxazole' THEN o.value_coded END) as ctx_960,
+    MAX(CASE WHEN o.concept = 'Amount Dispensed' THEN o.value_numeric END) as ctx_960_pills,
+    MAX(CASE WHEN o.concept = 'Number of Condoms dispensed' THEN o.value_numeric END) as condoms_given,
+    MAX(CASE WHEN o.concept = 'Depo-Provera given' THEN o.value_coded END) as depo_given,
+    MAX(CASE WHEN o.concept = 'Diastolic blood pressure' THEN o.value_numeric END) as diastolic_bp,
+    MAX(CASE WHEN o.concept = 'Number of HIV drug doses missed' THEN o.value_numeric END) as doses_missed,
+    MAX(CASE WHEN o.concept = 'Height (cm)' THEN o.value_numeric END) as height,
+    MAX(CASE WHEN o.concept = 'HIV Preventive Therapy' AND o.value_coded = 'Isoniazid' THEN o.value_coded END) as inh_300,
+    MAX(CASE WHEN o.concept = 'Amount Dispensed' THEN o.value_numeric END) as inh_300_pills,
+    MAX(CASE WHEN o.concept = 'Malawi Antiretroviral drugs received' THEN o.value_coded END) as art_drugs_received,
+    MAX(CASE WHEN o.concept = 'Number of antiretrovirals given' THEN o.value_numeric END) as arvs_given,
+    MAX(CASE WHEN o.concept = 'Amount of drug brought to clinic' THEN o.value_numeric END) as pill_count,
+    MAX(CASE WHEN o.concept = 'Pregnant/Lactating' THEN o.value_coded END) as pregnant_or_lactating,
+    MAX(CASE WHEN o.concept = 'HIV Preventive Therapy' AND o.value_coded = 'Pyridoxine' THEN o.value_coded END) as pyridoxine,
+    MAX(CASE WHEN o.concept = 'Amount Dispensed' THEN o.value_numeric END) as pyridoxine_pills,
+    MAX(CASE WHEN o.concept = 'HIV Preventive Therapy' AND o.value_coded = 'Rifapentine' THEN o.value_coded END) as rfp_150,
+    MAX(CASE WHEN o.concept = 'Amount Dispensed' THEN o.value_numeric END) as rfp_150_pills,
+    MAX(CASE WHEN o.concept = 'HIV Preventive Therapy' AND o.value_coded = '3HP (Rifapentine and Isoniazid)' THEN o.value_coded END) as rfp_inh,
+    MAX(CASE WHEN o.concept = 'Amount Dispensed' THEN o.value_numeric END) as rfp_inh_pills,
+    MAX(CASE WHEN o.concept = 'Malawi ART side effects' AND o.value_coded = 'No' THEN o.value_coded END) as no_side_effect,
+    MAX(CASE WHEN o.concept = 'Malawi ART side effects' AND o.value_coded = 'Peripheral neuropathy' THEN o.value_coded END) as peripheral_neuropathy_side_effect,
+    MAX(CASE WHEN o.concept = 'Malawi ART side effects' AND o.value_coded = 'Hepatitis' THEN o.value_coded END) as hepatitis_side_effect,
+    MAX(CASE WHEN o.concept = 'Malawi ART side effects' AND o.value_coded = 'Skin rash' THEN o.value_coded END) as skin_rash_side_effect,
+    MAX(CASE WHEN o.concept = 'Malawi ART side effects' AND o.value_coded = 'Lipodystrophy' THEN o.value_coded END) as lipodystrophy_side_effect,
+    MAX(CASE WHEN o.concept = 'Malawi ART side effects' AND o.value_coded = 'Other' THEN o.value_coded END) as other_side_effect,
+    MAX(CASE WHEN o.concept = 'Systolic blood pressure' THEN o.value_numeric END) as systolic_bp,
+    MAX(CASE WHEN o.concept = 'TB status' THEN o.value_coded END) as tb_status,
+    MAX(CASE WHEN o.concept = 'Weight (kg)' THEN o.value_numeric END) as weight
+FROM omrs_encounter e
+LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
+WHERE e.encounter_type IN ('ART_FOLLOWUP')
+GROUP BY e.patient_id, e.encounter_date, e.location;
