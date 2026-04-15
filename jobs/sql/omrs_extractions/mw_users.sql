@@ -43,4 +43,4 @@ LEFT JOIN (
         AND up.property = 'authentication.secondaryType'
     GROUP BY u2.user_id, up.property_value
 ) mfa ON mfa.user_id = u.user_id
-WHERE u.voided = 0;
+;

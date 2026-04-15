@@ -1,5 +1,6 @@
 DROP FUNCTION IF EXISTS get_parent_health_facility#
 CREATE FUNCTION `get_parent_health_facility`( location VARCHAR(100) ) RETURNS varchar(100) CHARSET utf8
+DETERMINISTIC
 BEGIN
 
     IF location IN ("Binje Outreach Clinic","Ntaja Outreach Clinic","Golden Outreach Clinic") 
