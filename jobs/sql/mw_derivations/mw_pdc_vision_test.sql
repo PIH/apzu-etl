@@ -1,27 +1,27 @@
 -- Derivation script for mw_pdc_vision_test
 -- Generated from Pentaho transform: import-into-mw-pdc-vision-test.ktr
 
-DROP TABLE IF EXISTS mw_pdc_vision_test;
-CREATE TABLE mw_pdc_vision_test(
-  pdc_vision_test_id 			int NOT NULL AUTO_INCREMENT,
-  patient_id 				int NOT NULL,
-  visit_date 				date DEFAULT NULL,
-  location 				varchar(255) DEFAULT NULL,
-  test_results				varchar(255) DEFAULT NULL,
-  referred_out				varchar(255) DEFAULT NULL,
-  referred_out_specify			varchar(255) DEFAULT NULL,
-  PRIMARY KEY (pdc_vision_test_id)
+drop table if exists mw_pdc_vision_test;
+create table mw_pdc_vision_test(
+  pdc_vision_test_id 			int not null auto_increment,
+  patient_id 				int not null,
+  visit_date 				date default null,
+  location 				varchar(255) default null,
+  test_results				varchar(255) default null,
+  referred_out				varchar(255) default null,
+  referred_out_specify			varchar(255) default null,
+  primary key (pdc_vision_test_id)
 ) ;
 
-INSERT INTO mw_pdc_vision_test
-SELECT
+insert into mw_pdc_vision_test
+select
     e.patient_id,
-    DATE(e.encounter_date) as visit_date,
+    date(e.encounter_date) as visit_date,
     e.location,
-    MAX(CASE WHEN o.concept = 'Referred out' THEN o.value_coded END) as referred_out,
-    MAX(CASE WHEN o.concept = 'Other non-coded (text)' THEN o.value_text END) as referred_out_specify,
-    MAX(CASE WHEN o.concept = 'Test Result' THEN o.value_coded END) as test_results
-FROM omrs_encounter e
-LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
-WHERE e.encounter_type IN ('VISION_TEST')
-GROUP BY e.patient_id, e.encounter_date, e.location;
+    max(case when o.concept = 'Referred out' then o.value_coded end) as referred_out,
+    max(case when o.concept = 'Other non-coded (text)' then o.value_text end) as referred_out_specify,
+    max(case when o.concept = 'Test Result' then o.value_coded end) as test_results
+from omrs_encounter e
+left join omrs_obs o on o.encounter_id = e.encounter_id
+where e.encounter_type in ('VISION_TEST')
+group by e.patient_id, e.encounter_date, e.location;

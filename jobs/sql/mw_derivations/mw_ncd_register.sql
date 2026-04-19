@@ -1,57 +1,57 @@
 -- Derivation script for mw_ncd_register
 -- Generated from Pentaho transform: import-into-mw-ncd-register.ktr
 
-DROP TABLE IF EXISTS mw_ncd_register;
+drop table if exists mw_ncd_register;
 create table mw_ncd_register (
-  enrollment_id INT NOT NULL,
-  patient_id    INT NOT NULL,
-  location      VARCHAR(255),
-  ncd_number    VARCHAR(50),
-  start_date    DATE,
-  end_date      DATE,
-  outcome       VARCHAR(100),
-  cv_disease    BOOLEAN
+  enrollment_id int not null,
+  patient_id    int not null,
+  location      varchar(255),
+  ncd_number    varchar(50),
+  start_date    date,
+  end_date      date,
+  outcome       varchar(100),
+  cv_disease    boolean
 );
 alter table mw_ncd_register add index mw_ncd_register_patient_idx (patient_id);
 alter table mw_ncd_register add index mw_ncd_register_patient_location_idx (patient_id, location);
 
-INSERT INTO mw_ncd_register
-SELECT
-    p.program_enrollment_id AS enrollment_id,
+insert into mw_ncd_register
+select
+    p.program_enrollment_id as enrollment_id,
     p.patient_id,
     p.location,
-    i.identifier AS ncd_number,
-    p.enrollment_date AS start_date,
-    p.completion_date AS end_date,
-    IF(p.completion_date IS NULL, NULL, IFNULL(latest_state.state, p.outcome)) AS outcome,
-    MAX(CASE WHEN o.value_coded = 'Cardiovascular disease' THEN TRUE ELSE FALSE END) AS cv_disease
-FROM omrs_program_enrollment p
-LEFT JOIN (
-    SELECT i.patient_id, i.location, i.identifier
-    FROM omrs_patient_identifier i
-    WHERE i.patient_identifier_id = (
-        SELECT i1.patient_identifier_id
-        FROM omrs_patient_identifier i1
-        WHERE i1.patient_id = i.patient_id
-        AND i1.location = i.location
-        AND i1.type = 'Chronic Care Number'
-        ORDER BY i1.date_created DESC
-        LIMIT 1
+    i.identifier as ncd_number,
+    p.enrollment_date as start_date,
+    p.completion_date as end_date,
+    if(p.completion_date is null, null, ifnull(latest_state.state, p.outcome)) as outcome,
+    max(case when o.value_coded = 'Cardiovascular disease' then TRUE else FALSE end) as cv_disease
+from omrs_program_enrollment p
+left join (
+    select i.patient_id, i.location, i.identifier
+    from omrs_patient_identifier i
+    where i.patient_identifier_id = (
+        select i1.patient_identifier_id
+        from omrs_patient_identifier i1
+        where i1.patient_id = i.patient_id
+        and i1.location = i.location
+        and i1.type = 'Chronic Care Number'
+        order by i1.date_created desc
+        limit 1
     )
-) i ON i.patient_id = p.patient_id AND i.location = p.location
-LEFT JOIN (
-    SELECT s.program_enrollment_id, s.state
-    FROM omrs_program_state s
-    WHERE s.program_state_id = (
-        SELECT s1.program_state_id
-        FROM omrs_program_state s1
-        WHERE s1.program_enrollment_id = s.program_enrollment_id
-        AND s1.program = 'Chronic care program'
-        AND s1.workflow = 'Chronic care treatment status'
-        ORDER BY s1.start_date DESC
-        LIMIT 1
+) i on i.patient_id = p.patient_id and i.location = p.location
+left join (
+    select s.program_enrollment_id, s.state
+    from omrs_program_state s
+    where s.program_state_id = (
+        select s1.program_state_id
+        from omrs_program_state s1
+        where s1.program_enrollment_id = s.program_enrollment_id
+        and s1.program = 'Chronic care program'
+        and s1.workflow = 'Chronic care treatment status'
+        order by s1.start_date desc
+        limit 1
     )
-) latest_state ON latest_state.program_enrollment_id = p.program_enrollment_id
-LEFT JOIN omrs_obs o ON o.patient_id = p.patient_id
-WHERE p.program = 'Chronic care program'
-GROUP BY p.program_enrollment_id, p.patient_id, p.location, p.enrollment_date, p.completion_date, p.outcome, i.identifier, latest_state.state;
+) latest_state on latest_state.program_enrollment_id = p.program_enrollment_id
+left join omrs_obs o on o.patient_id = p.patient_id
+where p.program = 'Chronic care program'
+group by p.program_enrollment_id, p.patient_id, p.location, p.enrollment_date, p.completion_date, p.outcome, i.identifier, latest_state.state;

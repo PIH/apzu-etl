@@ -1,65 +1,65 @@
 -- Derivation script for mw_eid_register
 -- Generated from Pentaho transform: import-into-mw-eid-register.ktr
 
-DROP TABLE IF EXISTS mw_eid_register;
-CREATE TABLE mw_eid_register (
-  enrollment_id                    INT NOT NULL,
-  patient_id                       INT NOT NULL,
-  location                         VARCHAR(255),
-  eid_number                       VARCHAR(50),
-  mother_art_number				   VARCHAR(100),
-  start_date                       DATE,
-  end_date                         DATE,
-  outcome                          VARCHAR(100),
-  last_eid_visit_id                INT
+drop table if exists mw_eid_register;
+create table mw_eid_register (
+  enrollment_id                    int not null,
+  patient_id                       int not null,
+  location                         varchar(255),
+  eid_number                       varchar(50),
+  mother_art_number				   varchar(100),
+  start_date                       date,
+  end_date                         date,
+  outcome                          varchar(100),
+  last_eid_visit_id                int
 );
 alter table mw_eid_register add index mw_eid_register_patient_idx (patient_id);
 alter table mw_eid_register add index mw_eid_register_patient_location_idx (patient_id, location);
 
-INSERT INTO mw_eid_register
-SELECT
-    p.program_enrollment_id AS enrollment_id,
+insert into mw_eid_register
+select
+    p.program_enrollment_id as enrollment_id,
     s.patient_id,
     s.location,
-    i.identifier AS eid_number,
+    i.identifier as eid_number,
     mo.mother_art_number,
     s.start_date,
-    IFNULL(s.end_date, p.completion_date) AS end_date,
-    IFNULL(nextStateForEnrollment(p.program_enrollment_id, s.end_date), p.outcome) AS outcome,
+    ifnull(s.end_date, p.completion_date) as end_date,
+    ifnull(nextStateForEnrollment(p.program_enrollment_id, s.end_date), p.outcome) as outcome,
     lv.last_eid_visit_id
-FROM omrs_program_state s
-INNER JOIN omrs_program_enrollment p ON p.program_enrollment_id = s.program_enrollment_id
-LEFT JOIN (
-    SELECT i.patient_id, i.location, i.identifier
-    FROM omrs_patient_identifier i
-    WHERE i.patient_identifier_id = (
-        SELECT i1.patient_identifier_id
-        FROM omrs_patient_identifier i1
-        WHERE i1.patient_id = i.patient_id
-        AND i1.location = i.location
-        AND i1.type = 'HCC Number'
-        ORDER BY i1.date_created DESC
-        LIMIT 1
+from omrs_program_state s
+inner join omrs_program_enrollment p on p.program_enrollment_id = s.program_enrollment_id
+left join (
+    select i.patient_id, i.location, i.identifier
+    from omrs_patient_identifier i
+    where i.patient_identifier_id = (
+        select i1.patient_identifier_id
+        from omrs_patient_identifier i1
+        where i1.patient_id = i.patient_id
+        and i1.location = i.location
+        and i1.type = 'HCC Number'
+        order by i1.date_created desc
+        limit 1
     )
-    AND i.type = 'HCC Number'
-) i ON i.patient_id = s.patient_id AND i.location = s.location
-LEFT JOIN (
-    SELECT o.patient_id, GROUP_CONCAT(o.value_text) AS mother_art_number
-    FROM omrs_obs o
-    WHERE o.concept = 'Mother ART registration number'
-    GROUP BY o.patient_id
-) mo ON mo.patient_id = s.patient_id
-LEFT JOIN (
-    SELECT v.patient_id, v.eid_visit_id AS last_eid_visit_id
-    FROM mw_eid_visits v
-    WHERE v.eid_visit_id = (
-        SELECT v1.eid_visit_id
-        FROM mw_eid_visits v1
-        WHERE v1.patient_id = v.patient_id
-        ORDER BY v1.visit_date DESC
-        LIMIT 1
+    and i.type = 'HCC Number'
+) i on i.patient_id = s.patient_id and i.location = s.location
+left join (
+    select o.patient_id, group_concat(o.value_text) as mother_art_number
+    from omrs_obs o
+    where o.concept = 'Mother ART registration number'
+    group by o.patient_id
+) mo on mo.patient_id = s.patient_id
+left join (
+    select v.patient_id, v.eid_visit_id as last_eid_visit_id
+    from mw_eid_visits v
+    where v.eid_visit_id = (
+        select v1.eid_visit_id
+        from mw_eid_visits v1
+        where v1.patient_id = v.patient_id
+        order by v1.visit_date desc
+        limit 1
     )
-) lv ON lv.patient_id = s.patient_id
-WHERE s.program = 'HIV program'
-AND s.workflow = 'Treatment status'
-AND s.state = 'Exposed Child (Continue)';
+) lv on lv.patient_id = s.patient_id
+where s.program = 'HIV program'
+and s.workflow = 'Treatment status'
+and s.state = 'Exposed Child (Continue)';

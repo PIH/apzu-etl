@@ -26,6 +26,7 @@ configuration:
           - functionName: "get_regimen"
           - functionName: "get_regimen_start"
           - functionName: "get_parent_health_facility"
+          - functionName: "nextStateForEnrollment"
 
     - type: "iterating-job"
       description: "Create MySQL procedures"

@@ -1,8 +1,8 @@
-CREATE TABLE mw_tb_test_results (
-  tb_test_results_id 					INT NOT NULL AUTO_INCREMENT,
-  patient_id    						INT NOT NULL,
-  visit_date            				DATE,
-  location              				VARCHAR(255),
+create table mw_tb_test_results (
+  tb_test_results_id 					int not null auto_increment,
+  patient_id    						int not null,
+  visit_date            				date,
+  location              				varchar(255),
   initiation_month_smear_test	varchar(255),
   initiation_month_smear_test_date	date,
   initiation_month_smaer_lab_serial_number	varchar(255),
@@ -39,5 +39,5 @@ CREATE TABLE mw_tb_test_results (
   month_six_lab_serial_number	varchar(255),
   month_six_result	varchar(255),
   month_six_weight	int(11),
-   PRIMARY KEY (tb_test_results_id )
+   primary key (tb_test_results_id )
 );

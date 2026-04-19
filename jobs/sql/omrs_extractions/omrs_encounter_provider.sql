@@ -1,20 +1,20 @@
-SELECT      ep.encounter_provider_id,
+select      ep.encounter_provider_id,
             ep.uuid,
             e.encounter_id,
             e.uuid as encounter_uuid,
-            COALESCE(CONCAT_WS(' ', n.given_name, n.middle_name, n.family_name_prefix, n.family_name, n.family_name2, n.family_name_suffix), pr.name, pr.identifier, 'Unknown') as provider,
+            coalesce(CONCAT_WS(' ', n.given_name, n.middle_name, n.family_name_prefix, n.family_name, n.family_name2, n.family_name_suffix), pr.name, pr.identifier, 'Unknown') as provider,
             er.name as provider_role
-FROM        encounter_provider ep
-INNER JOIN  encounter e ON e.encounter_id = ep.encounter_id
-LEFT JOIN   provider pr ON pr.provider_id = ep.provider_id
-LEFT JOIN   encounter_role er ON er.encounter_role_id = ep.encounter_role_id
-LEFT JOIN   person_name n ON pr.person_id = n.person_id
-            AND n.person_name_id = (
-                SELECT  n2.person_name_id
-                FROM    person_name n2
-                WHERE   n2.voided = 0
-                AND     n2.person_id = pr.person_id
-                ORDER BY n2.preferred DESC, n2.date_created DESC LIMIT 1
+from        encounter_provider ep
+inner join  encounter e on e.encounter_id = ep.encounter_id
+left join   provider pr on pr.provider_id = ep.provider_id
+left join   encounter_role er on er.encounter_role_id = ep.encounter_role_id
+left join   person_name n on pr.person_id = n.person_id
+            and n.person_name_id = (
+                select  n2.person_name_id
+                from    person_name n2
+                where   n2.voided = 0
+                and     n2.person_id = pr.person_id
+                order by n2.preferred desc, n2.date_created desc limit 1
             )
-WHERE       ep.voided = 0
-AND         e.voided = 0
+where       ep.voided = 0
+and         e.voided = 0

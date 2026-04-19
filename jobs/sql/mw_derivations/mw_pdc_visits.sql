@@ -1,46 +1,46 @@
 -- Derivation script for mw_pdc_visits
 -- Generated from Pentaho transform: import-into-mw-pdc-visits.ktr
 
-DROP TABLE IF EXISTS mw_pdc_visits;
+drop table if exists mw_pdc_visits;
 create table mw_pdc_visits (
-  pdc_visit_id                      INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  patient_id                        INT NOT NULL,
-  visit_date                        DATE,
-  location                          VARCHAR(255),
-  visit_types                       VARCHAR(255),
-  pdc_initial          	     BOOLEAN,
-  pdc_cleft_clip_palate_initial     BOOLEAN,
-  pdc_cleft_clip_palate_followup    BOOLEAN,
-  pdc_developmental_delay_initial   BOOLEAN,
-  pdc_developmental_delay_followup  BOOLEAN,
-  pdc_other_diagnosis_initial       BOOLEAN,
-  pdc_other_diagnosis_followup      BOOLEAN,
-  pdc_trisomy21_initial      	     BOOLEAN,
-  pdc_trisomy21_followup  	     BOOLEAN,
-  next_appointment_date             DATE
+  pdc_visit_id                      int not null auto_increment primary key,
+  patient_id                        int not null,
+  visit_date                        date,
+  location                          varchar(255),
+  visit_types                       varchar(255),
+  pdc_initial          	     boolean,
+  pdc_cleft_clip_palate_initial     boolean,
+  pdc_cleft_clip_palate_followup    boolean,
+  pdc_developmental_delay_initial   boolean,
+  pdc_developmental_delay_followup  boolean,
+  pdc_other_diagnosis_initial       boolean,
+  pdc_other_diagnosis_followup      boolean,
+  pdc_trisomy21_initial      	     boolean,
+  pdc_trisomy21_followup  	     boolean,
+  next_appointment_date             date
 );
 alter table mw_pdc_visits add index mw_pdc_visit_patient_idx (patient_id);
 alter table mw_pdc_visits add index mw_pdc_visit_patient_location_idx (patient_id, location);
 
-INSERT INTO mw_pdc_visits
-SELECT
+insert into mw_pdc_visits
+select
     e.patient_id,
-    DATE(e.encounter_date) as visit_date,
+    date(e.encounter_date) as visit_date,
     e.location,
-    GROUP_CONCAT(DISTINCT e.encounter_type ORDER BY e.encounter_type ASC SEPARATOR ', ') as visit_types,
-    MAX(CASE WHEN e.encounter_type = 'PDC_INITIAL' THEN TRUE ELSE FALSE END) as pdc_initial,
-    MAX(CASE WHEN e.encounter_type = 'PDC_CLEFT_CLIP_PALLET_INITIAL' THEN TRUE ELSE FALSE END) as pdc_cleft_clip_palate_initial,
-    MAX(CASE WHEN e.encounter_type = 'PDC_CLEFT_CLIP_PALLET_FOLLOWUP' THEN TRUE ELSE FALSE END) as pdc_cleft_clip_palate_followup,
-    MAX(CASE WHEN e.encounter_type = 'PDC_DEVELOPMENTAL_DELAY_INITIAL' THEN TRUE ELSE FALSE END) as pdc_developmental_delay_initial,
-    MAX(CASE WHEN e.encounter_type = 'PDC_DEVELOPMENTAL_DELAY_FOLLOWUP' THEN TRUE ELSE FALSE END) as pdc_developmental_delay_followup,
-    MAX(CASE WHEN e.encounter_type = 'PDC_OTHER_DIAGNOSIS_INITIAL' THEN TRUE ELSE FALSE END) as pdc_other_diagnosis_initial,
-    MAX(CASE WHEN e.encounter_type = 'PDC_OTHER_DIAGNOSIS_FOLLOWUP' THEN TRUE ELSE FALSE END) as pdc_other_diagnosis_followup,
-    MAX(CASE WHEN e.encounter_type = 'PDC_TRISOMY21_INITIAL' THEN TRUE ELSE FALSE END) as pdc_trisomy21_initial,
-    MAX(CASE WHEN e.encounter_type = 'PDC_TRISOMY21_FOLLOWUP' THEN TRUE ELSE FALSE END) as pdc_trisomy21_followup,
-    MIN(CASE WHEN o.concept = 'Appointment date' THEN o.value_date END) as next_appointment_date
-FROM omrs_encounter e
-LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
-WHERE e.encounter_type IN (
+    group_concat(distinct e.encounter_type order by e.encounter_type asc SEPARATOR ', ') as visit_types,
+    max(case when e.encounter_type = 'PDC_INITIAL' then TRUE else FALSE end) as pdc_initial,
+    max(case when e.encounter_type = 'PDC_CLEFT_CLIP_PALLET_INITIAL' then TRUE else FALSE end) as pdc_cleft_clip_palate_initial,
+    max(case when e.encounter_type = 'PDC_CLEFT_CLIP_PALLET_FOLLOWUP' then TRUE else FALSE end) as pdc_cleft_clip_palate_followup,
+    max(case when e.encounter_type = 'PDC_DEVELOPMENTAL_DELAY_INITIAL' then TRUE else FALSE end) as pdc_developmental_delay_initial,
+    max(case when e.encounter_type = 'PDC_DEVELOPMENTAL_DELAY_FOLLOWUP' then TRUE else FALSE end) as pdc_developmental_delay_followup,
+    max(case when e.encounter_type = 'PDC_OTHER_DIAGNOSIS_INITIAL' then TRUE else FALSE end) as pdc_other_diagnosis_initial,
+    max(case when e.encounter_type = 'PDC_OTHER_DIAGNOSIS_FOLLOWUP' then TRUE else FALSE end) as pdc_other_diagnosis_followup,
+    max(case when e.encounter_type = 'PDC_TRISOMY21_INITIAL' then TRUE else FALSE end) as pdc_trisomy21_initial,
+    max(case when e.encounter_type = 'PDC_TRISOMY21_FOLLOWUP' then TRUE else FALSE end) as pdc_trisomy21_followup,
+    min(case when o.concept = 'Appointment date' then o.value_date end) as next_appointment_date
+from omrs_encounter e
+left join omrs_obs o on o.encounter_id = e.encounter_id
+where e.encounter_type in (
     'PDC_INITIAL',
     'PDC_CLEFT_CLIP_PALLET_INITIAL',
     'PDC_CLEFT_CLIP_PALLET_FOLLOWUP',
@@ -51,4 +51,4 @@ WHERE e.encounter_type IN (
     'PDC_TRISOMY21_INITIAL',
     'PDC_TRISOMY21_FOLLOWUP'
 )
-GROUP BY e.patient_id, e.encounter_date, e.location;
+group by e.patient_id, e.encounter_date, e.location;

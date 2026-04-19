@@ -1,10 +1,10 @@
-CREATE TABLE mw_pdc_vision_test(
-  pdc_vision_test_id 			int NOT NULL AUTO_INCREMENT,
-  patient_id 				int NOT NULL,
-  visit_date 				date DEFAULT NULL,
-  location 				varchar(255) DEFAULT NULL,
-  test_results				varchar(255) DEFAULT NULL,
-  referred_out				varchar(255) DEFAULT NULL,
-  referred_out_specify			varchar(255) DEFAULT NULL,
-  PRIMARY KEY (pdc_vision_test_id)
+create table mw_pdc_vision_test(
+  pdc_vision_test_id 			int not null auto_increment,
+  patient_id 				int not null,
+  visit_date 				date default null,
+  location 				varchar(255) default null,
+  test_results				varchar(255) default null,
+  referred_out				varchar(255) default null,
+  referred_out_specify			varchar(255) default null,
+  primary key (pdc_vision_test_id)
 ) ;

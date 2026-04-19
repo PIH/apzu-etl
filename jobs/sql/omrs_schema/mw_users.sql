@@ -1,13 +1,14 @@
-CREATE TABLE mw_users (
-    user_id             INT,
-    username            VARCHAR(50),
-    first_name          VARCHAR(50),
-    last_name           VARCHAR(50),
-    email               VARCHAR(500),
-    account_enabled     INT,
-    created_date        DATETIME,
-    created_by          VARCHAR(50),
-    last_login_date     DATETIME,
-    num_logins_recorded INT,
-    mfa_status          VARCHAR(50)
+drop table if exists mw_users;
+create table mw_users (
+    user_id             int,
+    username            varchar(50),
+    first_name          varchar(50),
+    last_name           varchar(50),
+    email               varchar(500),
+    account_enabled     int,
+    created_date        datetime,
+    created_by          varchar(50),
+    last_login_date     datetime,
+    num_logins_recorded int,
+    mfa_status          varchar(50)
 );

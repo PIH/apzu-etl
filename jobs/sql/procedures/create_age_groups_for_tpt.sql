@@ -1,16 +1,16 @@
-DROP PROCEDURE IF EXISTS create_age_groups_for_tpt#
-CREATE PROCEDURE `create_age_groups_for_tpt`()
-BEGIN
-	DROP TEMPORARY TABLE IF EXISTS age_groups_tpt;
+drop procedure if exists create_age_groups_for_tpt#
+create procedure `create_age_groups_for_tpt`()
+begin
+	drop TEMPORARY table if exists age_groups_tpt;
 
-    CREATE TEMPORARY TABLE age_groups_tpt(
-		sort_value INT PRIMARY KEY auto_increment,
+    create TEMPORARY table age_groups_tpt(
+		sort_value int primary key auto_increment,
         district varchar(50),
-		age_group Varchar(50),
+		age_group varchar(50),
 		gender varchar(10)
-	) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
-    INSERT INTO age_groups_tpt (district, age_group, gender)
-    VALUES
+	) default CHARACTER set utf8 default COLLATE utf8_general_ci;
+    insert into age_groups_tpt (district, age_group, gender)
+    values
 	("Neno","<1 year","F"),
 	("Neno","1-4 years","F"),
 	("Neno","5-9 years","F"),
@@ -52,5 +52,5 @@ BEGIN
 	("Neno","85-89 years","M"),
 	("Neno","90 plus years","M")
 ;
-END
+end
 #

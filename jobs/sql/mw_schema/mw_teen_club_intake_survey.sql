@@ -1,9 +1,9 @@
-CREATE TABLE mw_teen_club_intake_survey (
-  teen_club_intake_surevy_visit_id int NOT NULL AUTO_INCREMENT,
-  patient_id int NOT NULL,
-  visit_date date DEFAULT NULL,
-  location varchar(255) DEFAULT NULL,
-  interview_date date DEFAULT NULL,
+create table mw_teen_club_intake_survey (
+  teen_club_intake_surevy_visit_id int not null auto_increment,
+  patient_id int not null,
+  visit_date date default null,
+  location varchar(255) default null,
+  interview_date date default null,
   interviewer_name varchar(255),
   village_name varchar(255),
   health_facility varchar(255),
@@ -71,5 +71,5 @@ CREATE TABLE mw_teen_club_intake_survey (
   how_is_hiv_prevented varchar(255),
   how_is_hiv_transmitted varchar(255),
   rate_your_hiv_knowledge varchar(255),
-  PRIMARY KEY (teen_club_intake_surevy_visit_id)
+  primary key (teen_club_intake_surevy_visit_id)
 );

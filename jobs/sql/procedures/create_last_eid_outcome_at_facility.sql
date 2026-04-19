@@ -1,10 +1,10 @@
-DROP PROCEDURE IF EXISTS create_last_eid_outcome_at_facility#
-CREATE  PROCEDURE `create_last_eid_outcome_at_facility`(IN _endDate DATE, IN _location VARCHAR(255))
-BEGIN
-	DROP TEMPORARY TABLE IF EXISTS last_eid_facility_outcome;
+drop procedure if exists create_last_eid_outcome_at_facility#
+create  procedure `create_last_eid_outcome_at_facility`(in _endDate date, in _location varchar(255))
+begin
+	drop TEMPORARY table if exists last_eid_facility_outcome;
 
-    CREATE TEMPORARY TABLE last_eid_facility_outcome(
-		id INT PRIMARY KEY auto_increment,
+    create TEMPORARY table last_eid_facility_outcome(
+		id int primary key auto_increment,
 		index_desc int,
 		pat int,
 		identifier varchar(50),
@@ -14,11 +14,11 @@ BEGIN
         start_date date,
 		end_date date,
 		location varchar(150)
-	) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
-	 INSERT INTO last_eid_facility_outcome (index_desc, pat,identifier, state,program,program_state_id, start_date,end_date,location)
+	) default CHARACTER set utf8 default COLLATE utf8_general_ci;
+	 insert into last_eid_facility_outcome (index_desc, pat,identifier, state,program,program_state_id, start_date,end_date,location)
     select index_desc, pat,identifier, state,program,program_state_id, start_date,end_date,location
 from (
-	SELECT
+	select
 index_desc,
             opi.patient_id as pat,
             opi.identifier,
@@ -28,8 +28,8 @@ index_desc,
 start_date,
             program_state_id,
             end_date
-FROM (SELECT
-            @r:= IF(@u = patient_id, @r + 1,1) index_desc,
+from (select
+            @r:= if(@u = patient_id, @r + 1,1) index_desc,
             location,
             state,
             program,
@@ -38,18 +38,18 @@ FROM (SELECT
             patient_id,
             program_state_id,
             @u:= patient_id
-      FROM omrs_program_state,
-                    (SELECT @r:= 1) AS r,
-                    (SELECT @u:= 0) AS u
+      from omrs_program_state,
+                    (select @r:= 1) as r,
+                    (select @u:= 0) as u
                     where program = "HIV program"
                     and start_date <= _endDate
                     and location =  _location
-            ORDER BY patient_id DESC, start_date DESC, program_state_id DESC
+            order by patient_id desc, start_date desc, program_state_id desc
             ) index_descending
             join omrs_patient_identifier opi on index_descending.patient_id = opi.patient_id
             and opi.location = index_descending.location
             and opi.type = "HCC Number"
             where index_desc = 1
 ) each_outcome_at_facility;
-END
+end
 #

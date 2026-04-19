@@ -1,22 +1,22 @@
-DROP FUNCTION IF EXISTS first_test_result_by_date_entered#
+drop function if exists first_test_result_by_date_entered#
 /*
   Extract the lab_test_id that identifies the first test result of the given type for the given patient
 */
-CREATE FUNCTION first_test_result_by_date_entered(patientId INT, testType VARCHAR(100), endDate DATE)
-  RETURNS INT
-DETERMINISTIC
-  BEGIN
-    DECLARE ret INT;
+create function first_test_result_by_date_entered(patientId int, testType varchar(100), endDate date)
+  returns int
+deterministic
+  begin
+    declare ret int;
 
-    SELECT    t.lab_test_id into ret
-    FROM      mw_lab_tests t
-    WHERE     t.patient_id = patientId
-    AND       t.test_type = testType
-    AND       (t.result_numeric is not null or t.result_coded is not null or t.result_exception is not null)
-    AND       (endDate is null or t.date_result_entered <= endDate)
-    ORDER BY  t.date_result_entered asc
-    LIMIT     1;
+    select    t.lab_test_id into ret
+    from      mw_lab_tests t
+    where     t.patient_id = patientId
+    and       t.test_type = testType
+    and       (t.result_numeric is not null or t.result_coded is not null or t.result_exception is not null)
+    and       (endDate is null or t.date_result_entered <= endDate)
+    order by  t.date_result_entered asc
+    limit     1;
 
     return ret;
-  END
+  end
 #

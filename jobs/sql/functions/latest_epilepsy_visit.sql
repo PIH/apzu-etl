@@ -1,21 +1,21 @@
-DROP FUNCTION IF EXISTS latest_epilepsy_visit#
+drop function if exists latest_epilepsy_visit#
 /*
   Extract the ncd_visit_id that identifies the most recent epilepsy visit
 */
-CREATE FUNCTION latest_epilepsy_visit(patientId INT, endDate DATE)
-  RETURNS INT
-DETERMINISTIC
-  BEGIN
-    DECLARE ret INT;
+create function latest_epilepsy_visit(patientId int, endDate date)
+  returns int
+deterministic
+  begin
+    declare ret int;
 
-    SELECT    v.ncd_visit_id INTO ret
-    FROM      mw_ncd_visits v
-    WHERE     v.patient_id = patientId
-    AND       (v.epilepsy_initial = TRUE || v.epilepsy_followup = TRUE)
-    AND       v.visit_date <= endDate
-    order BY  v.visit_date DESC
-    LIMIT     1;
+    select    v.ncd_visit_id into ret
+    from      mw_ncd_visits v
+    where     v.patient_id = patientId
+    and       (v.epilepsy_initial = TRUE || v.epilepsy_followup = TRUE)
+    and       v.visit_date <= endDate
+    order by  v.visit_date desc
+    limit     1;
 
     return ret;
-  END
+  end
 #

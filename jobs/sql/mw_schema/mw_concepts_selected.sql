@@ -1,3 +1,3 @@
-CREATE TABLE mw_concepts_selected (
-	concept VARCHAR(255)	
+create table mw_concepts_selected (
+	concept varchar(255)	
 ); 

@@ -1,4 +1,4 @@
-CREATE TABLE mw_users (
+create table mw_users (
     user_id             int,
     username            varchar(50),
     first_name          varchar(50),

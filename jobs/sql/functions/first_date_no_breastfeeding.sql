@@ -1,30 +1,30 @@
-DROP FUNCTION IF EXISTS first_date_no_breastfeeding#
+drop function if exists first_date_no_breastfeeding#
 /*
 	Extract date on which patient first stopped breastfeeding over 6 weeks ago
 	For all patients in the register, first recorded breastfeeding status obs date, if the value is stopped over 6 weeks ago,
 	and after any other different status is recorded.
 	We intentionally do not restrict this by location, as we want Observations to span all locations
 */
-CREATE FUNCTION first_date_no_breastfeeding(patientId INT, endDate DATE)
-  RETURNS DATE
-DETERMINISTIC
-  BEGIN
-    DECLARE ret DATE;
+create function first_date_no_breastfeeding(patientId int, endDate date)
+  returns date
+deterministic
+  begin
+    declare ret date;
 
-    DECLARE lastInvalidDate DATE;
+    declare lastInvalidDate date;
 
-    SELECT  max(visit_date) INTO lastInvalidDate
-    FROM 		mw_eid_visits
-    WHERE   breastfeeding_status != 'Breastfeeding stopped over 6 weeks ago'
-    AND     patient_id = patientId
-    AND     visit_date <= endDate;
+    select  max(visit_date) into lastInvalidDate
+    from 		mw_eid_visits
+    where   breastfeeding_status != 'Breastfeeding stopped over 6 weeks ago'
+    and     patient_id = patientId
+    and     visit_date <= endDate;
 
-    SELECT  min(visit_date) INTO ret
-    FROM 		mw_eid_visits
-    WHERE   breastfeeding_status = 'Breastfeeding stopped over 6 weeks ago'
-    AND     patient_id = patientId
-    AND     (lastInvalidDate is null OR (visit_date <= endDate AND visit_date <= lastInvalidDate));
+    select  min(visit_date) into ret
+    from 		mw_eid_visits
+    where   breastfeeding_status = 'Breastfeeding stopped over 6 weeks ago'
+    and     patient_id = patientId
+    and     (lastInvalidDate is null or (visit_date <= endDate and visit_date <= lastInvalidDate));
 
     return ret;
-  END
+  end
 #

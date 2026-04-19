@@ -1,39 +1,39 @@
 -- Derivation script for mw_eid_initial
 -- Generated from Pentaho transform: import-into-mw-eid-initial.ktr
 
-DROP TABLE IF EXISTS mw_eid_initial;
-CREATE TABLE mw_eid_initial (
-  eid_initial_visit_id int NOT NULL AUTO_INCREMENT,
-  patient_id int NOT NULL,
-  visit_date date DEFAULT NULL,
-  location varchar(255) DEFAULT NULL,
-  mother_hiv_status varchar(255) DEFAULT NULL,
-  mother_art_reg_no varchar(255) DEFAULT NULL,
-  mother_art_start_date date DEFAULT NULL,
-  age int DEFAULT NULL,
-  age_when_starting_nvp int DEFAULT NULL,
-  duration_type_when_starting_nvp varchar(255) DEFAULT NULL,
-  nvp_duration int DEFAULT NULL,
-  nvp_duration_type varchar(255) DEFAULT NULL,
-  birth_weight decimal(10,2) DEFAULT NULL,
-  PRIMARY KEY (eid_initial_visit_id)
+drop table if exists mw_eid_initial;
+create table mw_eid_initial (
+  eid_initial_visit_id int not null auto_increment,
+  patient_id int not null,
+  visit_date date default null,
+  location varchar(255) default null,
+  mother_hiv_status varchar(255) default null,
+  mother_art_reg_no varchar(255) default null,
+  mother_art_start_date date default null,
+  age int default null,
+  age_when_starting_nvp int default null,
+  duration_type_when_starting_nvp varchar(255) default null,
+  nvp_duration int default null,
+  nvp_duration_type varchar(255) default null,
+  birth_weight decimal(10,2) default null,
+  primary key (eid_initial_visit_id)
 );
 
-INSERT INTO mw_eid_initial
-SELECT
+insert into mw_eid_initial
+select
     e.patient_id,
-    DATE(e.encounter_date) as visit_date,
+    date(e.encounter_date) as visit_date,
     e.location,
-    MAX(CASE WHEN o.concept = 'Age' THEN o.value_numeric END) as age,
-    MAX(CASE WHEN o.concept = 'Patient age when result to guardian' THEN o.value_numeric END) as age_when_starting_nvp,
-    MAX(CASE WHEN o.concept = 'Birth weight' THEN o.value_numeric END) as birth_weight,
-    MAX(CASE WHEN o.concept = 'Units of age of child' THEN o.value_coded END) as duration_type_when_starting_nvp,
-    MAX(CASE WHEN o.concept = 'Mother ART registration number' THEN o.value_text END) as mother_art_reg_no,
-    MAX(CASE WHEN o.concept = 'Mother art start date' THEN o.value_date END) as mother_art_start_date,
-    MAX(CASE WHEN o.concept = 'Mother HIV Status' THEN o.value_coded END) as mother_hiv_status,
-    MAX(CASE WHEN o.concept = 'Medication duration' THEN o.value_numeric END) as nvp_duration,
-    MAX(CASE WHEN o.concept = 'Time units' THEN o.value_coded END) as nvp_duration_type
-FROM omrs_encounter e
-LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
-WHERE e.encounter_type IN ('EXPOSED_CHILD_INITIAL')
-GROUP BY e.patient_id, e.encounter_date, e.location;
+    max(case when o.concept = 'Age' then o.value_numeric end) as age,
+    max(case when o.concept = 'Patient age when result to guardian' then o.value_numeric end) as age_when_starting_nvp,
+    max(case when o.concept = 'Birth weight' then o.value_numeric end) as birth_weight,
+    max(case when o.concept = 'Units of age of child' then o.value_coded end) as duration_type_when_starting_nvp,
+    max(case when o.concept = 'Mother ART registration number' then o.value_text end) as mother_art_reg_no,
+    max(case when o.concept = 'Mother art start date' then o.value_date end) as mother_art_start_date,
+    max(case when o.concept = 'Mother HIV Status' then o.value_coded end) as mother_hiv_status,
+    max(case when o.concept = 'Medication duration' then o.value_numeric end) as nvp_duration,
+    max(case when o.concept = 'Time units' then o.value_coded end) as nvp_duration_type
+from omrs_encounter e
+left join omrs_obs o on o.encounter_id = e.encounter_id
+where e.encounter_type in ('EXPOSED_CHILD_INITIAL')
+group by e.patient_id, e.encounter_date, e.location;

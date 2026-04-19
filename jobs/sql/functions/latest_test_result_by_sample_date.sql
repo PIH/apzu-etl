@@ -1,23 +1,23 @@
-DROP FUNCTION IF EXISTS latest_test_result_by_sample_date#
+drop function if exists latest_test_result_by_sample_date#
 /*
   Extract the lab_test_id that identifies the most recent test result of the given type for the given patient
 */
-CREATE FUNCTION latest_test_result_by_sample_date(patientId INT, testType VARCHAR(100), fromDate DATE, toDate DATE, offsetNum INT)
-  RETURNS INT
-DETERMINISTIC
-  BEGIN
-    DECLARE ret INT;
+create function latest_test_result_by_sample_date(patientId int, testType varchar(100), fromDate date, toDate date, offsetNum int)
+  returns int
+deterministic
+  begin
+    declare ret int;
 
-    SELECT    t.lab_test_id into ret
-    FROM      mw_lab_tests t
-    WHERE     t.patient_id = patientId
-    AND       t.test_type = testType
-    AND       (fromDate is null or t.date_collected >= fromDate)
-    AND       (toDate is null or t.date_collected <= toDate)
-    ORDER BY  t.date_collected desc
-    LIMIT     1
-    OFFSET    offsetNum;
+    select    t.lab_test_id into ret
+    from      mw_lab_tests t
+    where     t.patient_id = patientId
+    and       t.test_type = testType
+    and       (fromDate is null or t.date_collected >= fromDate)
+    and       (toDate is null or t.date_collected <= toDate)
+    order by  t.date_collected desc
+    limit     1
+    offset    offsetNum;
 
     return ret;
-  END
+  end
 #

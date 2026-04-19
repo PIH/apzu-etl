@@ -1,63 +1,63 @@
-DROP PROCEDURE IF EXISTS create_patients_next_appointment#
+drop procedure if exists create_patients_next_appointment#
 /************************************************************************
   Get all patients (PID) with appointment dates for a given enrollment location
   for EID, ART, and NCD programs.
 *************************************************************************/
-CREATE PROCEDURE create_patients_next_appointment(IN _location VARCHAR(255))
-  BEGIN
+create procedure create_patients_next_appointment(in _location varchar(255))
+  begin
 
-    DROP TEMPORARY TABLE IF EXISTS patients_next_appointment;
-    CREATE TEMPORARY TABLE patients_next_appointment (
-      patient_id        INT NOT NULL,
-      last_visit_date DATE,
-      last_appt_date    DATE
+    drop TEMPORARY table if exists patients_next_appointment;
+    create TEMPORARY table patients_next_appointment (
+      patient_id        int not null,
+      last_visit_date date,
+      last_appt_date    date
     );
-    CREATE INDEX patients_next_appointment_id_idx ON patients_next_appointment(patient_id);
+    create index patients_next_appointment_id_idx on patients_next_appointment(patient_id);
 
-    INSERT INTO patients_next_appointment (patient_id, last_visit_date, last_appt_date)
-      SELECT patient_id, visit_date, next_appointment_date
-      FROM   (
+    insert into patients_next_appointment (patient_id, last_visit_date, last_appt_date)
+      select patient_id, visit_date, next_appointment_date
+      from   (
                -- sub-query to get the latest appointment date (from last visit)
-               SELECT *
-               FROM  (
+               select *
+               from  (
                        -- three joined sub-queries to get all appointment dates (from EID, NCD, & ART)
-                       SELECT v.patient_id, v.visit_date, v.next_appointment_date, r.location
-                       FROM mw_art_visits v
-                         JOIN (
-                                SELECT patient_id, location
-                                FROM mw_art_register
-                                WHERE location = _location
+                       select v.patient_id, v.visit_date, v.next_appointment_date, r.location
+                       from mw_art_visits v
+                         join (
+                                select patient_id, location
+                                from mw_art_register
+                                where location = _location
                               ) r
-                           ON r.patient_id = v.patient_id
-                       WHERE next_appointment_date IS NOT NULL
+                           on r.patient_id = v.patient_id
+                       where next_appointment_date is not null
 
-                       UNION
+                       union
 
-                       SELECT v.patient_id, v.visit_date, v.next_appointment_date, r.location
-                       FROM mw_eid_visits v
-                         JOIN (
-                                SELECT patient_id, location
-                                FROM mw_eid_register
-                                WHERE location = _location
+                       select v.patient_id, v.visit_date, v.next_appointment_date, r.location
+                       from mw_eid_visits v
+                         join (
+                                select patient_id, location
+                                from mw_eid_register
+                                where location = _location
                               ) r
-                           ON r.patient_id = v.patient_id
-                       WHERE next_appointment_date IS NOT NULL
+                           on r.patient_id = v.patient_id
+                       where next_appointment_date is not null
 
-                       UNION
+                       union
 
-                       SELECT v.patient_id, v.visit_date, v.next_appointment_date, r.location
-                       FROM mw_ncd_visits v
-                         JOIN (
-                                SELECT patient_id, location
-                                FROM mw_ncd_register
-                                WHERE location = _location
+                       select v.patient_id, v.visit_date, v.next_appointment_date, r.location
+                       from mw_ncd_visits v
+                         join (
+                                select patient_id, location
+                                from mw_ncd_register
+                                where location = _location
                               ) r
-                           ON r.patient_id = v.patient_id
-                       WHERE next_appointment_date IS NOT NULL
-                       ORDER BY visit_date desc
+                           on r.patient_id = v.patient_id
+                       where next_appointment_date is not null
+                       order by visit_date desc
                      ) itable
-               GROUP BY patient_id
+               group by patient_id
              ) appt_temp;
 
-  END
+  end
 #

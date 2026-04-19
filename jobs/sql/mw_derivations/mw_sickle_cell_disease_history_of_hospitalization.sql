@@ -1,28 +1,28 @@
 -- Derivation script for mw_sickle_cell_disease_history_of_hospitalization
 -- Generated from Pentaho transform: import-into-mw-sickle-cell-disease-history-of-hospitalization.ktr
 
-DROP TABLE IF EXISTS mw_sickle_cell_disease_history_of_hospitalization;
-CREATE TABLE mw_sickle_cell_disease_history_of_hospitalization (
-  sickle_cell_disease_history_of_hospitalization int NOT NULL AUTO_INCREMENT,
-  patient_id 				int NOT NULL,
-  visit_date 				date DEFAULT NULL,
-  location 				varchar(255) DEFAULT NULL,
-  length_of_stay			int NOT NULL,
-  reason_for_admission			varchar(255) DEFAULT NULL,
-  discharge_diagnosis			varchar(255) DEFAULT NULL,
-  discharge_medications			varchar(255) DEFAULT NULL,
-  PRIMARY KEY (sickle_cell_disease_history_of_hospitalization));
+drop table if exists mw_sickle_cell_disease_history_of_hospitalization;
+create table mw_sickle_cell_disease_history_of_hospitalization (
+  sickle_cell_disease_history_of_hospitalization int not null auto_increment,
+  patient_id 				int not null,
+  visit_date 				date default null,
+  location 				varchar(255) default null,
+  length_of_stay			int not null,
+  reason_for_admission			varchar(255) default null,
+  discharge_diagnosis			varchar(255) default null,
+  discharge_medications			varchar(255) default null,
+  primary key (sickle_cell_disease_history_of_hospitalization));
 
-INSERT INTO mw_sickle_cell_disease_history_of_hospitalization
-SELECT
+insert into mw_sickle_cell_disease_history_of_hospitalization
+select
     e.patient_id,
-    DATE(e.encounter_date) as visit_date,
+    date(e.encounter_date) as visit_date,
     e.location,
-    MAX(CASE WHEN o.concept = 'Hospitalization discharge date' THEN o.value_date END) as discharge_date,
-    MAX(CASE WHEN o.concept = 'Discharge medications (text)' THEN o.value_text END) as discharge_medications,
-    MAX(CASE WHEN o.concept = 'Discharge diagnosis (text)' THEN o.value_text END) as discharge_diagnosis,
-    MAX(CASE WHEN o.concept = 'Reason for admission (text)' THEN o.value_text END) as reason_for_admission
-FROM omrs_encounter e
-LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
-WHERE e.encounter_type IN ('PDC_HOSPITALIZATION_HISTORY')
-GROUP BY e.patient_id, e.encounter_date, e.location;
+    max(case when o.concept = 'Hospitalization discharge date' then o.value_date end) as discharge_date,
+    max(case when o.concept = 'Discharge medications (text)' then o.value_text end) as discharge_medications,
+    max(case when o.concept = 'Discharge diagnosis (text)' then o.value_text end) as discharge_diagnosis,
+    max(case when o.concept = 'Reason for admission (text)' then o.value_text end) as reason_for_admission
+from omrs_encounter e
+left join omrs_obs o on o.encounter_id = e.encounter_id
+where e.encounter_type in ('PDC_HOSPITALIZATION_HISTORY')
+group by e.patient_id, e.encounter_date, e.location;

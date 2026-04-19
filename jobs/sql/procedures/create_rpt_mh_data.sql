@@ -1,35 +1,35 @@
-DROP PROCEDURE IF EXISTS create_rpt_mh_data#
-CREATE  PROCEDURE `create_rpt_mh_data`(IN _endDate DATE, IN _location VARCHAR(255))
-BEGIN
+drop procedure if exists create_rpt_mh_data#
+create  procedure `create_rpt_mh_data`(in _endDate date, in _location varchar(255))
+begin
 
   
-  DROP TABLE IF EXISTS rpt_ic3_patient_ids;
-  CREATE TEMPORARY TABLE rpt_ic3_patient_ids AS
-    SELECT DISTINCT(patient_id)
-    FROM mw_mental_health_initial
+  drop table if exists rpt_ic3_patient_ids;
+  create TEMPORARY table rpt_ic3_patient_ids as
+    select distinct(patient_id)
+    from mw_mental_health_initial
 
-    UNION
+    union
 
-    SELECT DISTINCT(patient_id)
-    FROM mw_mental_health_followup
+    select distinct(patient_id)
+    from mw_mental_health_followup
 
-    UNION
+    union
 
-    SELECT DISTINCT(patient_id)
-    FROM mw_epilepsy_initial
+    select distinct(patient_id)
+    from mw_epilepsy_initial
 
-    UNION
+    union
 
-    SELECT DISTINCT(patient_id)
-    FROM mw_epilepsy_followup;
+    select distinct(patient_id)
+    from mw_epilepsy_followup;
 
-  CREATE INDEX patient_id_index ON rpt_ic3_patient_ids(patient_id);
+  create index patient_id_index on rpt_ic3_patient_ids(patient_id);
 
   
-  DROP TABLE IF EXISTS rpt_mh_data_table;
-  CREATE TABLE rpt_mh_data_table AS
+  drop table if exists rpt_mh_data_table;
+  create table rpt_mh_data_table as
     
-    SELECT
+    select
       ic3.patient_id,
       birthdate,
       gender,
@@ -78,64 +78,64 @@ BEGIN
       - (DATE_FORMAT(lastMHVisitDate, '%m%d') < DATE_FORMAT(birthdate, '%m%d')) as ageAtLastMHVisit,
       visitLocation,
       nextMHAppt
-    FROM 			rpt_ic3_patient_ids ic3
-      INNER JOIN 		(SELECT patient_id,
+    from 			rpt_ic3_patient_ids ic3
+      inner join 		(select patient_id,
                       birthdate,
                       gender
-                    FROM mw_patient
+                    from mw_patient
                    ) pdetails
-        ON pdetails.patient_id = ic3.patient_id
-      LEFT JOIN 		(SELECT patient_id,
-                      CASE WHEN diagnosis IS NOT NULL THEN 'X' END AS epilepsyDx
-                    FROM mw_ncd_diagnoses
-                    WHERE diagnosis = "Epilepsy"
-                          AND diagnosis_date < _endDate
-                    GROUP BY patient_id
+        on pdetails.patient_id = ic3.patient_id
+      left join 		(select patient_id,
+                      case when diagnosis is not null then 'X' end as epilepsyDx
+                    from mw_ncd_diagnoses
+                    where diagnosis = "Epilepsy"
+                          and diagnosis_date < _endDate
+                    group by patient_id
                    ) epilepsyDx
-        ON epilepsyDx.patient_id = ic3.patient_id
-      LEFT JOIN		(SELECT *
-                    FROM 	(SELECT patient_id,
-                             visit_date AS epilepsyIntakeVisitDate,
-                             location AS epilepsyIntakeLocation
-                           FROM mw_epilepsy_initial
-                           ORDER BY visit_date DESC
-                          ) epilepsyInner GROUP BY patient_id
-                   ) epilepsyIntake ON epilepsyIntake.patient_id = ic3.patient_id
-      LEFT JOIN		(SELECT *
-                    FROM 	(SELECT patient_id,
-                             visit_date AS lastEpilepsyVisitDate,
-                             location AS lastEpilepsyVisitLocation,
-                             next_appointment_date AS nextEpilepsyAppt
-                           FROM mw_epilepsy_followup
-                           WHERE location= _location
-                                 AND visit_date < _endDate
-                           ORDER BY visit_date DESC
-                          ) epilepsyFollowupInner GROUP BY patient_id
-                   ) epilepsyVisit ON epilepsyVisit.patient_id = ic3.patient_id
-      LEFT JOIN		(SELECT *
-                    FROM 	(SELECT patient_id,
-                             visit_date AS mhIntakeVisitDate,
-                             location AS mhIntakeLocation,
+        on epilepsyDx.patient_id = ic3.patient_id
+      left join		(select *
+                    from 	(select patient_id,
+                             visit_date as epilepsyIntakeVisitDate,
+                             location as epilepsyIntakeLocation
+                           from mw_epilepsy_initial
+                           order by visit_date desc
+                          ) epilepsyInner group by patient_id
+                   ) epilepsyIntake on epilepsyIntake.patient_id = ic3.patient_id
+      left join		(select *
+                    from 	(select patient_id,
+                             visit_date as lastEpilepsyVisitDate,
+                             location as lastEpilepsyVisitLocation,
+                             next_appointment_date as nextEpilepsyAppt
+                           from mw_epilepsy_followup
+                           where location= _location
+                                 and visit_date < _endDate
+                           order by visit_date desc
+                          ) epilepsyFollowupInner group by patient_id
+                   ) epilepsyVisit on epilepsyVisit.patient_id = ic3.patient_id
+      left join		(select *
+                    from 	(select patient_id,
+                             visit_date as mhIntakeVisitDate,
+                             location as mhIntakeLocation,
                              diagnosis_organic_mental_disorder_chronic as dx_organic_mental_disorder_chronic,
-                             CASE WHEN diagnosis_organic_mental_disorder_chronic IS NOT NULL AND diagnosis_date_organic_mental_disorder_chronic IS NOT NULL THEN diagnosis_date_organic_mental_disorder_chronic
-                                  WHEN diagnosis_organic_mental_disorder_chronic IS NOT NULL AND diagnosis_date_organic_mental_disorder_chronic IS NULL THEN visit_date
-                              ELSE NULL
-                             END AS dx_date_organic_mental_disorder_chronic,
+                             case when diagnosis_organic_mental_disorder_chronic is not null and diagnosis_date_organic_mental_disorder_chronic is not null then diagnosis_date_organic_mental_disorder_chronic
+                                  when diagnosis_organic_mental_disorder_chronic is not null and diagnosis_date_organic_mental_disorder_chronic is null then visit_date
+                              else null
+                             end as dx_date_organic_mental_disorder_chronic,
                              diagnosis_organic_mental_disorder_acute as dx_organic_mental_disorder_acute,
-                             CASE WHEN diagnosis_organic_mental_disorder_acute IS NOT NULL AND diagnosis_date_organic_mental_disorder_acute IS NOT NULL THEN diagnosis_date_organic_mental_disorder_acute
-                                  WHEN diagnosis_organic_mental_disorder_acute IS NOT NULL AND diagnosis_date_organic_mental_disorder_acute IS NULL THEN visit_date
-                             ELSE NULL
-                             END AS dx_date_organic_mental_disorder_acute,
+                             case when diagnosis_organic_mental_disorder_acute is not null and diagnosis_date_organic_mental_disorder_acute is not null then diagnosis_date_organic_mental_disorder_acute
+                                  when diagnosis_organic_mental_disorder_acute is not null and diagnosis_date_organic_mental_disorder_acute is null then visit_date
+                             else null
+                             end as dx_date_organic_mental_disorder_acute,
                              diagnosis_alcohol_use_mental_disorder as dx_alcohol_use_mental_disorder,
-                             CASE WHEN diagnosis_alcohol_use_mental_disorder IS NOT NULL AND diagnosis_date_alcohol_use_mental_disorder IS NOT NULL THEN diagnosis_date_alcohol_use_mental_disorder
-                                  WHEN diagnosis_alcohol_use_mental_disorder IS NOT NULL AND diagnosis_date_alcohol_use_mental_disorder IS NULL THEN visit_date
-                             ELSE NULL
-                             END AS dx_date_alcohol_use_mental_disorder,
+                             case when diagnosis_alcohol_use_mental_disorder is not null and diagnosis_date_alcohol_use_mental_disorder is not null then diagnosis_date_alcohol_use_mental_disorder
+                                  when diagnosis_alcohol_use_mental_disorder is not null and diagnosis_date_alcohol_use_mental_disorder is null then visit_date
+                             else null
+                             end as dx_date_alcohol_use_mental_disorder,
                              diagnosis_drug_use_mental_disorder as dx_drug_use_mental_disorder,
-                             CASE WHEN diagnosis_drug_use_mental_disorder IS NOT NULL AND diagnosis_date_drug_use_mental_disorder IS NOT NULL THEN diagnosis_date_drug_use_mental_disorder
-                                  WHEN diagnosis_drug_use_mental_disorder IS NOT NULL AND diagnosis_date_drug_use_mental_disorder IS NULL THEN visit_date
-                             ELSE NULL
-                             END AS dx_date_drug_use_mental_disorder,
+                             case when diagnosis_drug_use_mental_disorder is not null and diagnosis_date_drug_use_mental_disorder is not null then diagnosis_date_drug_use_mental_disorder
+                                  when diagnosis_drug_use_mental_disorder is not null and diagnosis_date_drug_use_mental_disorder is null then visit_date
+                             else null
+                             end as dx_date_drug_use_mental_disorder,
                              diagnosis_schizophrenia as dx_schizophrenia,
                              diagnosis_acute_and_transient_psychotic as dx_acute_and_transient_psychotic,
                              diagnosis_schizoaffective_disorder as dx_schizoaffective_disorder,
@@ -154,24 +154,24 @@ BEGIN
                              diagnosis_other_1 as dx_mh_other_1,
                              diagnosis_other_2 as dx_mh_other_2,
                              diagnosis_other_3 as dx_mh_other_3
-                           FROM mw_mental_health_initial
-                           ORDER BY visit_date DESC
-                          ) mhInner GROUP BY patient_id
-                   ) mhIntake ON mhIntake.patient_id = ic3.patient_id
-      LEFT JOIN		(SELECT *
-                    FROM 	(SELECT patient_id,
-                             visit_date AS lastMHVisitDate,
-                             location AS visitLocation,
-                             next_appointment_date AS nextMHAppt
-                           FROM mw_mental_health_followup
-                           WHERE location= _location
-                                 AND visit_date < _endDate
-                           ORDER BY visit_date DESC
-                          ) mhFollowupInner GROUP BY patient_id
-                   ) mentalHealthVisit ON mentalHealthVisit.patient_id = ic3.patient_id
+                           from mw_mental_health_initial
+                           order by visit_date desc
+                          ) mhInner group by patient_id
+                   ) mhIntake on mhIntake.patient_id = ic3.patient_id
+      left join		(select *
+                    from 	(select patient_id,
+                             visit_date as lastMHVisitDate,
+                             location as visitLocation,
+                             next_appointment_date as nextMHAppt
+                           from mw_mental_health_followup
+                           where location= _location
+                                 and visit_date < _endDate
+                           order by visit_date desc
+                          ) mhFollowupInner group by patient_id
+                   ) mentalHealthVisit on mentalHealthVisit.patient_id = ic3.patient_id
   ;
 
-  DROP TABLE IF EXISTS rpt_ic3_patient_ids;
+  drop table if exists rpt_ic3_patient_ids;
 
-END
+end
 #

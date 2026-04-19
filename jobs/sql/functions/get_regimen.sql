@@ -1,4 +1,4 @@
-DROP FUNCTION IF EXISTS get_regimen#
+drop function if exists get_regimen#
 /*
   This is a helper function specifically for the Consecutive High Viral Load Report. 
   See: api/src/main/resources/org/openmrs/module/pihmalawi/reporting/datasets/sql/consecutive-high-viral-load.sql
@@ -9,19 +9,19 @@ DROP FUNCTION IF EXISTS get_regimen#
 
 */
 
-CREATE FUNCTION get_regimen(patientId INT, offsetNum INT)
-  RETURNS VARCHAR(100)
-DETERMINISTIC
-  BEGIN
-    DECLARE ret VARCHAR(100);
+create function get_regimen(patientId int, offsetNum int)
+  returns varchar(100)
+deterministic
+  begin
+    declare ret varchar(100);
     
-    SELECT regimen into ret 
-    FROM regimenStartTable 
-    WHERE patient_id = patientId 
-    ORDER BY start_date DESC 
-    LIMIT 1 
-    OFFSET offsetNum;
+    select regimen into ret 
+    from regimenStartTable 
+    where patient_id = patientId 
+    order by start_date desc 
+    limit 1 
+    offset offsetNum;
 
     return ret;
-  END
+  end
 #

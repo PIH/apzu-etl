@@ -1,10 +1,10 @@
-DROP TABLE IF EXISTS mw_nutrition_adult_initial;
-CREATE TABLE mw_nutrition_adult_initial (
-    nutrition_initial_visit_id INT NOT NULL AUTO_INCREMENT,
-    patient_id INT NOT NULL,
-    visit_date DATE,
-    location VARCHAR(255),
-    enrollment_reason_tb VARCHAR(255),
-    enrollment_reason_hiv VARCHAR(255),
-    enrollment_reason_ncd VARCHAR(255),
-    PRIMARY KEY (nutrition_initial_visit_id));
+drop table if exists mw_nutrition_adult_initial;
+create table mw_nutrition_adult_initial (
+    nutrition_initial_visit_id int not null auto_increment,
+    patient_id int not null,
+    visit_date date,
+    location varchar(255),
+    enrollment_reason_tb varchar(255),
+    enrollment_reason_hiv varchar(255),
+    enrollment_reason_ncd varchar(255),
+    primary key (nutrition_initial_visit_id));

@@ -1,16 +1,16 @@
-DROP PROCEDURE IF EXISTS create_weight_groups#
-CREATE PROCEDURE `create_weight_groups`()
-BEGIN
-	DROP TEMPORARY TABLE IF EXISTS weight_groups;
+drop procedure if exists create_weight_groups#
+create procedure `create_weight_groups`()
+begin
+	drop TEMPORARY table if exists weight_groups;
 
-    CREATE TEMPORARY TABLE weight_groups(
-		sort_value INT PRIMARY KEY auto_increment,
-		weight_group Varchar(50),
+    create TEMPORARY table weight_groups(
+		sort_value int primary key auto_increment,
+		weight_group varchar(50),
 		gender varchar(10),
         gender_full varchar(10)
-	) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
-    INSERT INTO weight_groups (weight_group, gender, gender_full)
-    VALUES
+	) default CHARACTER set utf8 default COLLATE utf8_general_ci;
+    insert into weight_groups (weight_group, gender, gender_full)
+    values
 ("3 - 3.9 Kg", "F", "Female"),
 ("4 - 4.9 Kg", "F", "Female"),
 ("5 - 9.9 Kg", "F", "Female"),
@@ -36,5 +36,5 @@ BEGIN
 ("50 Kg +", "M", "Male"),
 ("Unknown", "M", "Male")
 ;
-END
+end
 #

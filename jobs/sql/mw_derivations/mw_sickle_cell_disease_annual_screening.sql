@@ -1,32 +1,32 @@
 -- Derivation script for mw_sickle_cell_disease_annual_screening
 -- Generated from Pentaho transform: import-into-mw-sickle-cell-disease-annual-screening.ktr
 
-DROP TABLE IF EXISTS mw_sickle_cell_disease_annual_screening;
-CREATE TABLE mw_sickle_cell_disease_annual_screening (
-  sickle_cell_disease_annual_screening_visit_id INT NOT NULL AUTO_INCREMENT,
-  patient_id INT(11) NOT NULL,
-  visit_date DATE NULL DEFAULT NULL,
-  location VARCHAR(255) NULL DEFAULT NULL,
-  cr INT NULL DEFAULT NULL,
-  alt INT NULL DEFAULT NULL,
-  ast INT NULL DEFAULT NULL,
-  bil INT NULL,
-  dir_bil INT NULL,
-  in_bili INT NULL,
-  PRIMARY KEY (sickle_cell_disease_annual_screening_visit_id));
+drop table if exists mw_sickle_cell_disease_annual_screening;
+create table mw_sickle_cell_disease_annual_screening (
+  sickle_cell_disease_annual_screening_visit_id int not null auto_increment,
+  patient_id int(11) not null,
+  visit_date date null default null,
+  location varchar(255) null default null,
+  cr int null default null,
+  alt int null default null,
+  ast int null default null,
+  bil int null,
+  dir_bil int null,
+  in_bili int null,
+  primary key (sickle_cell_disease_annual_screening_visit_id));
 
-INSERT INTO mw_sickle_cell_disease_annual_screening
-SELECT
+insert into mw_sickle_cell_disease_annual_screening
+select
     e.patient_id,
-    DATE(e.encounter_date) as visit_date,
+    date(e.encounter_date) as visit_date,
     e.location,
-    MAX(CASE WHEN o.concept = 'Creatinine' THEN o.value_numeric END) as cr,
-    MAX(CASE WHEN o.concept = 'Serum glutamic-pyruvic transaminase' THEN o.value_numeric END) as alt,
-    MAX(CASE WHEN o.concept = 'Total bilirubin' THEN o.value_numeric END) as bil,
-    MAX(CASE WHEN o.concept = 'Serum glutamic-oxaloacetic transaminase' THEN o.value_numeric END) as ast,
-    MAX(CASE WHEN o.concept = 'Direct bilirubin' THEN o.value_numeric END) as dir_bil,
-    MAX(CASE WHEN o.concept = 'Indirect bilirubin' THEN o.value_numeric END) as in_bili
-FROM omrs_encounter e
-LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
-WHERE e.encounter_type IN ('SICKLE_CELL_ANNUAL_SCREENING')
-GROUP BY e.patient_id, e.encounter_date, e.location;
+    max(case when o.concept = 'Creatinine' then o.value_numeric end) as cr,
+    max(case when o.concept = 'Serum glutamic-pyruvic transaminase' then o.value_numeric end) as alt,
+    max(case when o.concept = 'Total bilirubin' then o.value_numeric end) as bil,
+    max(case when o.concept = 'Serum glutamic-oxaloacetic transaminase' then o.value_numeric end) as ast,
+    max(case when o.concept = 'Direct bilirubin' then o.value_numeric end) as dir_bil,
+    max(case when o.concept = 'Indirect bilirubin' then o.value_numeric end) as in_bili
+from omrs_encounter e
+left join omrs_obs o on o.encounter_id = e.encounter_id
+where e.encounter_type in ('SICKLE_CELL_ANNUAL_SCREENING')
+group by e.patient_id, e.encounter_date, e.location;

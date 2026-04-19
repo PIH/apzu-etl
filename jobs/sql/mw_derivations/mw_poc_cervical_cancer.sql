@@ -1,24 +1,24 @@
 -- Derivation script for mw_poc_cervical_cancer
 -- Generated from Pentaho transform: import-into-mw-poc-cervical-cancer.ktr
 
-DROP TABLE IF EXISTS mw_poc_cervical_cancer;
-CREATE TABLE mw_poc_cervical_cancer (
-    poc_cervical_cancer_visit_id INT NOT NULL AUTO_INCREMENT,
-    patient_id int NOT NULL,
-    visit_date date DEFAULT NULL,
-    location varchar(255) DEFAULT NULL,
-    creator varchar(255) DEFAULT NULL,
-    colposcopy_of_cervix_with_acetic_acid VARCHAR(255),
-    PRIMARY KEY (poc_cervical_cancer_visit_id)
+drop table if exists mw_poc_cervical_cancer;
+create table mw_poc_cervical_cancer (
+    poc_cervical_cancer_visit_id int not null auto_increment,
+    patient_id int not null,
+    visit_date date default null,
+    location varchar(255) default null,
+    creator varchar(255) default null,
+    colposcopy_of_cervix_with_acetic_acid varchar(255),
+    primary key (poc_cervical_cancer_visit_id)
 );
 
-INSERT INTO mw_poc_cervical_cancer
-SELECT
+insert into mw_poc_cervical_cancer
+select
     e.patient_id,
-    DATE(e.encounter_date) as visit_date,
+    date(e.encounter_date) as visit_date,
     e.location,
-    MAX(CASE WHEN o.concept = 'Colposcopy of cervix with acetic acid' THEN o.value_coded END) as colposcopy_of_cervix_with_acetic_acid
-FROM omrs_encounter e
-LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
-WHERE e.encounter_type IN ('Cervical Cancer Screening')
-GROUP BY e.patient_id, e.encounter_date, e.location;
+    max(case when o.concept = 'Colposcopy of cervix with acetic acid' then o.value_coded end) as colposcopy_of_cervix_with_acetic_acid
+from omrs_encounter e
+left join omrs_obs o on o.encounter_id = e.encounter_id
+where e.encounter_type in ('Cervical Cancer Screening')
+group by e.patient_id, e.encounter_date, e.location;

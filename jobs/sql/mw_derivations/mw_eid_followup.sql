@@ -1,41 +1,41 @@
 -- Derivation script for mw_eid_followup
 -- Generated from Pentaho transform: import-into-mw-eid-followup.ktr
 
-DROP TABLE IF EXISTS mw_eid_followup;
-CREATE TABLE mw_eid_followup (
-  eid_followup_visit_id int NOT NULL AUTO_INCREMENT,
-  patient_id int NOT NULL,
-  visit_date date DEFAULT NULL,
-  location varchar(255) DEFAULT NULL,
-  height INT default null,
-  weight INT default null,
-  muac decimal(16,4) DEFAULT NULL,
-  wasting_or_malnutrition varchar(255) DEFAULT NULL,
-  breast_feeding varchar(255) DEFAULT NULL,
-  mother_status varchar(255) DEFAULT NULL,
-  clinical_monitoring varchar(255) DEFAULT NULL,
-  hiv_infection varchar(255) DEFAULT NULL,
-  cpt int DEFAULT NULL,
-  next_appointment_date date DEFAULT NULL,
-  PRIMARY KEY (eid_followup_visit_id)
+drop table if exists mw_eid_followup;
+create table mw_eid_followup (
+  eid_followup_visit_id int not null auto_increment,
+  patient_id int not null,
+  visit_date date default null,
+  location varchar(255) default null,
+  height int default null,
+  weight int default null,
+  muac decimal(16,4) default null,
+  wasting_or_malnutrition varchar(255) default null,
+  breast_feeding varchar(255) default null,
+  mother_status varchar(255) default null,
+  clinical_monitoring varchar(255) default null,
+  hiv_infection varchar(255) default null,
+  cpt int default null,
+  next_appointment_date date default null,
+  primary key (eid_followup_visit_id)
 );
 
-INSERT INTO mw_eid_followup
-SELECT
+insert into mw_eid_followup
+select
     e.patient_id,
-    DATE(e.encounter_date) as visit_date,
+    date(e.encounter_date) as visit_date,
     e.location,
-    MAX(CASE WHEN o.concept = 'Breast feeding' THEN o.value_coded END) as breast_feeding,
-    MAX(CASE WHEN o.concept = 'Clinical Monitoring Exposed Child' THEN o.value_coded END) as clinical_monitoring,
-    MAX(CASE WHEN o.concept = 'Height (cm)' THEN o.value_numeric END) as height,
-    MAX(CASE WHEN o.concept = 'Mother HIV Status' THEN o.value_coded END) as mother_status,
-    MAX(CASE WHEN o.concept = 'Appointment date' THEN o.value_date END) as next_appointment_date,
-    MAX(CASE WHEN o.concept = 'Wasting/malnutrition' THEN o.value_coded END) as wasting_or_malnutrition,
-    MAX(CASE WHEN o.concept = 'Weight (kg)' THEN o.value_numeric END) as weight,
-    MAX(CASE WHEN o.concept = 'Number of CPT tablets dispensed' THEN o.value_numeric END) as cpt,
-    MAX(CASE WHEN o.concept = 'Childs current HIV status' THEN o.value_coded END) as hiv_infection,
-    MAX(CASE WHEN o.concept = 'Middle upper arm circumference (cm)' THEN o.value_numeric END) as muac
-FROM omrs_encounter e
-LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
-WHERE e.encounter_type IN ('EXPOSED_CHILD_FOLLOWUP')
-GROUP BY e.patient_id, e.encounter_date, e.location;
+    max(case when o.concept = 'Breast feeding' then o.value_coded end) as breast_feeding,
+    max(case when o.concept = 'Clinical Monitoring Exposed Child' then o.value_coded end) as clinical_monitoring,
+    max(case when o.concept = 'Height (cm)' then o.value_numeric end) as height,
+    max(case when o.concept = 'Mother HIV Status' then o.value_coded end) as mother_status,
+    max(case when o.concept = 'Appointment date' then o.value_date end) as next_appointment_date,
+    max(case when o.concept = 'Wasting/malnutrition' then o.value_coded end) as wasting_or_malnutrition,
+    max(case when o.concept = 'Weight (kg)' then o.value_numeric end) as weight,
+    max(case when o.concept = 'Number of CPT tablets dispensed' then o.value_numeric end) as cpt,
+    max(case when o.concept = 'Childs current HIV status' then o.value_coded end) as hiv_infection,
+    max(case when o.concept = 'Middle upper arm circumference (cm)' then o.value_numeric end) as muac
+from omrs_encounter e
+left join omrs_obs o on o.encounter_id = e.encounter_id
+where e.encounter_type in ('EXPOSED_CHILD_FOLLOWUP')
+group by e.patient_id, e.encounter_date, e.location;

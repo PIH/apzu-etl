@@ -1,20 +1,20 @@
-DROP FUNCTION IF EXISTS get_parent_health_facility#
-CREATE FUNCTION `get_parent_health_facility`( location VARCHAR(100) ) RETURNS varchar(100) CHARSET utf8
-DETERMINISTIC
-BEGIN
+drop function if exists get_parent_health_facility#
+create function `get_parent_health_facility`( location varchar(100) ) returns varchar(100) CHARSET utf8
+deterministic
+begin
 
-    IF location IN ("Binje Outreach Clinic","Ntaja Outreach Clinic","Golden Outreach Clinic") 
-    THEN
-         RETURN "Neno District Hospital";
-	ELSEIF location IN ("Felemu Outreach Clinic") 
-    THEN
-		RETURN "Chifunga HC";
-	ELSEIF location IN ("Kasamba Outreach Clinic ") 
-    THEN
-		RETURN "Midzemba HC";
-	ELSE
-		RETURN location;
-	END IF;
+    if location in ("Binje Outreach Clinic","Ntaja Outreach Clinic","Golden Outreach Clinic") 
+    then
+         return "Neno District Hospital";
+	ELSEIF location in ("Felemu Outreach Clinic") 
+    then
+		return "Chifunga HC";
+	ELSEIF location in ("Kasamba Outreach Clinic ") 
+    then
+		return "Midzemba HC";
+	else
+		return location;
+	end if;
 
-END
+end
 #

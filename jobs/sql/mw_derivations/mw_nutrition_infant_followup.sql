@@ -1,35 +1,35 @@
 -- Derivation script for mw_nutrition_infant_followup
 -- Generated from Pentaho transform: import-into-mw-nutrition-infant-followup.ktr
 
-DROP TABLE IF EXISTS mw_nutrition_infant_followup;
-CREATE TABLE mw_nutrition_infant_followup (
-nutrition_infant_followup_id INT NOT NULL AUTO_INCREMENT,
-patient_id INT NOT NULL,
-visit_date DATE,
-location VARCHAR(255),
-weight DECIMAL(10,2),
-height DECIMAL(10,2),
-muac DECIMAL(10,2),
-lactogen_tins VARCHAR(255),
-next_appointment_date DATE,
-ration VARCHAR(255),
-comments VARCHAR(255),
-PRIMARY KEY (nutrition_infant_followup_id)
+drop table if exists mw_nutrition_infant_followup;
+create table mw_nutrition_infant_followup (
+nutrition_infant_followup_id int not null auto_increment,
+patient_id int not null,
+visit_date date,
+location varchar(255),
+weight decimal(10,2),
+height decimal(10,2),
+muac decimal(10,2),
+lactogen_tins varchar(255),
+next_appointment_date date,
+ration varchar(255),
+comments varchar(255),
+primary key (nutrition_infant_followup_id)
 );
 
-INSERT INTO mw_nutrition_infant_followup
-SELECT
+insert into mw_nutrition_infant_followup
+select
     e.patient_id,
-    DATE(e.encounter_date) as visit_date,
+    date(e.encounter_date) as visit_date,
     e.location,
-    MAX(CASE WHEN o.concept = 'Given name' THEN o.value_text END) as ration,
-    MAX(CASE WHEN o.concept = 'Clinical impression comments' THEN o.value_text END) as comments,
-    MAX(CASE WHEN o.concept = 'Height (cm)' THEN o.value_numeric END) as height,
-    MAX(CASE WHEN o.concept = 'Number of lactogen tins' THEN o.value_numeric END) as lactogen_tins,
-    MAX(CASE WHEN o.concept = 'muac' THEN o.value_numeric END) as muac,
-    MAX(CASE WHEN o.concept = 'Appointment date' THEN o.value_date END) as next_appointment_date,
-    MAX(CASE WHEN o.concept = 'Weight (kg)' THEN o.value_numeric END) as weight
-FROM omrs_encounter e
-LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
-WHERE e.encounter_type IN ('NUTRITION_INFANT_FOLLOWUP')
-GROUP BY e.patient_id, e.encounter_date, e.location;
+    max(case when o.concept = 'Given name' then o.value_text end) as ration,
+    max(case when o.concept = 'Clinical impression comments' then o.value_text end) as comments,
+    max(case when o.concept = 'Height (cm)' then o.value_numeric end) as height,
+    max(case when o.concept = 'Number of lactogen tins' then o.value_numeric end) as lactogen_tins,
+    max(case when o.concept = 'muac' then o.value_numeric end) as muac,
+    max(case when o.concept = 'Appointment date' then o.value_date end) as next_appointment_date,
+    max(case when o.concept = 'Weight (kg)' then o.value_numeric end) as weight
+from omrs_encounter e
+left join omrs_obs o on o.encounter_id = e.encounter_id
+where e.encounter_type in ('NUTRITION_INFANT_FOLLOWUP')
+group by e.patient_id, e.encounter_date, e.location;

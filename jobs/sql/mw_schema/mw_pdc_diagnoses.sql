@@ -1,9 +1,9 @@
 create table mw_pdc_diagnoses (
-  patient_id     	INT          NOT NULL,
-  diagnosis    	VARCHAR(255) NOT NULL,
-  comments		VARCHAR(255) DEFAULT NULL,
-  encounter_type 	VARCHAR(255) NOT NULL,
-  location  		VARCHAR(255) NOT NULL,
-  visit_date		DATE
+  patient_id     	int          not null,
+  diagnosis    	varchar(255) not null,
+  comments		varchar(255) default null,
+  encounter_type 	varchar(255) not null,
+  location  		varchar(255) not null,
+  visit_date		date
 );
 alter table mw_pdc_diagnoses add index mw_pdc_diagnoses_patient_idx (patient_id);

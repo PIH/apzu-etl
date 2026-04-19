@@ -1,7 +1,7 @@
-DROP TABLE IF EXISTS mw_concepts_selected;
-CREATE TABLE mw_concepts_selected (
-	concept VARCHAR(255)
+drop table if exists mw_concepts_selected;
+create table mw_concepts_selected (
+	concept varchar(255)
 );
 
-INSERT INTO mw_concepts_selected (concept)
-VALUES ('HIV VIRAL LOAD');
+insert into mw_concepts_selected (concept)
+values ('HIV VIRAL LOAD');

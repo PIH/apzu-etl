@@ -1,25 +1,25 @@
 -- Derivation script for mw_pdc_hearing_test
 -- Generated from Pentaho transform: import-into-mw-pdc-hearing-test.ktr
 
-DROP TABLE IF EXISTS mw_pdc_hearing_test;
-CREATE TABLE mw_pdc_hearing_test (
-  pdc_hearing_test_id 			int NOT NULL AUTO_INCREMENT,
-  patient_id 				int NOT NULL,
-  visit_date 				date DEFAULT NULL,
-  location 				varchar(255) DEFAULT NULL,
-  left_ear				varchar(255) DEFAULT NULL,
-  right_ear				varchar(255) DEFAULT NULL,
-  PRIMARY KEY (pdc_hearing_test_id)
+drop table if exists mw_pdc_hearing_test;
+create table mw_pdc_hearing_test (
+  pdc_hearing_test_id 			int not null auto_increment,
+  patient_id 				int not null,
+  visit_date 				date default null,
+  location 				varchar(255) default null,
+  left_ear				varchar(255) default null,
+  right_ear				varchar(255) default null,
+  primary key (pdc_hearing_test_id)
 ) ;
 
-INSERT INTO mw_pdc_hearing_test
-SELECT
+insert into mw_pdc_hearing_test
+select
     e.patient_id,
-    DATE(e.encounter_date) as visit_date,
+    date(e.encounter_date) as visit_date,
     e.location,
-    MAX(CASE WHEN o.concept = 'Left Ear' THEN o.value_coded END) as left_ear,
-    MAX(CASE WHEN o.concept = 'Right Ear' THEN o.value_coded END) as right_ear
-FROM omrs_encounter e
-LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
-WHERE e.encounter_type IN ('HEARING_TEST')
-GROUP BY e.patient_id, e.encounter_date, e.location;
+    max(case when o.concept = 'Left Ear' then o.value_coded end) as left_ear,
+    max(case when o.concept = 'Right Ear' then o.value_coded end) as right_ear
+from omrs_encounter e
+left join omrs_obs o on o.encounter_id = e.encounter_id
+where e.encounter_type in ('HEARING_TEST')
+group by e.patient_id, e.encounter_date, e.location;

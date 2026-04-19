@@ -1,27 +1,27 @@
 -- Derivation script for mw_nutrition_adult_initial
 -- Generated from Pentaho transform: import-into-mw-nutrition-adult-initial.ktr
 
-DROP TABLE IF EXISTS mw_nutrition_adult_initial;
-DROP TABLE IF EXISTS mw_nutrition_adult_initial;
-CREATE TABLE mw_nutrition_adult_initial (
-    nutrition_initial_visit_id INT NOT NULL AUTO_INCREMENT,
-    patient_id INT NOT NULL,
-    visit_date DATE,
-    location VARCHAR(255),
-    enrollment_reason_tb VARCHAR(255),
-    enrollment_reason_hiv VARCHAR(255),
-    enrollment_reason_ncd VARCHAR(255),
-    PRIMARY KEY (nutrition_initial_visit_id));
+drop table if exists mw_nutrition_adult_initial;
+drop table if exists mw_nutrition_adult_initial;
+create table mw_nutrition_adult_initial (
+    nutrition_initial_visit_id int not null auto_increment,
+    patient_id int not null,
+    visit_date date,
+    location varchar(255),
+    enrollment_reason_tb varchar(255),
+    enrollment_reason_hiv varchar(255),
+    enrollment_reason_ncd varchar(255),
+    primary key (nutrition_initial_visit_id));
 
-INSERT INTO mw_nutrition_adult_initial
-SELECT
+insert into mw_nutrition_adult_initial
+select
     e.patient_id,
-    DATE(e.encounter_date) as visit_date,
+    date(e.encounter_date) as visit_date,
     e.location,
-    MAX(CASE WHEN o.concept = 'Reason enrolled in food program' AND o.value_coded = 'Patient in tuberculosis treatment' THEN o.value_coded END) as enrollment_reason_tb,
-    MAX(CASE WHEN o.concept = 'Reason enrolled in food program' AND o.value_coded = 'Patient in HIV treatment' THEN o.value_coded END) as enrollment_reason_hiv,
-    MAX(CASE WHEN o.concept = 'Reason enrolled in food program' AND o.value_coded = 'Enrolled in NCD' THEN o.value_coded END) as enrollment_reason_ncd
-FROM omrs_encounter e
-LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
-WHERE e.encounter_type IN ('NUTRITION_ADULTS_INITIAL')
-GROUP BY e.patient_id, e.encounter_date, e.location;
+    max(case when o.concept = 'Reason enrolled in food program' and o.value_coded = 'Patient in tuberculosis treatment' then o.value_coded end) as enrollment_reason_tb,
+    max(case when o.concept = 'Reason enrolled in food program' and o.value_coded = 'Patient in HIV treatment' then o.value_coded end) as enrollment_reason_hiv,
+    max(case when o.concept = 'Reason enrolled in food program' and o.value_coded = 'Enrolled in NCD' then o.value_coded end) as enrollment_reason_ncd
+from omrs_encounter e
+left join omrs_obs o on o.encounter_id = e.encounter_id
+where e.encounter_type in ('NUTRITION_ADULTS_INITIAL')
+group by e.patient_id, e.encounter_date, e.location;

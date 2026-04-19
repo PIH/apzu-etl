@@ -1,34 +1,34 @@
-DROP TABLE IF EXISTS mw_selected_periods;
-CREATE TABLE mw_selected_periods (
-	year INT,
-    quarter INT,
-    yearquarter VARCHAR(255),
-    start_date DATE,
-    end_date DATE,
-    zero INT
+drop table if exists mw_selected_periods;
+create table mw_selected_periods (
+	year int,
+    quarter int,
+    yearquarter varchar(255),
+    start_date date,
+    end_date date,
+    zero int
 );
 
 -- Generate quarterly periods from 2016Q1 through the current quarter
-INSERT INTO mw_selected_periods (year, quarter, yearquarter, start_date, end_date, zero)
-WITH RECURSIVE quarters AS (
-    SELECT 2016 AS yr, 1 AS q
-    UNION ALL
-    SELECT CASE WHEN q = 4 THEN yr + 1 ELSE yr END,
-           CASE WHEN q = 4 THEN 1 ELSE q + 1 END
-    FROM quarters
-    WHERE yr < YEAR(NOW()) OR (yr = YEAR(NOW()) AND q <= QUARTER(NOW()))
+insert into mw_selected_periods (year, quarter, yearquarter, start_date, end_date, zero)
+WITH RECURSIVE quarters as (
+    select 2016 as yr, 1 as q
+    union all
+    select case when q = 4 then yr + 1 else yr end,
+           case when q = 4 then 1 else q + 1 end
+    from quarters
+    where yr < YEAR(NOW()) or (yr = YEAR(NOW()) and q <= QUARTER(NOW()))
 )
-SELECT
+select
     yr,
     q,
-    CONCAT(yr, 'Q', q),
-    CASE q WHEN 1 THEN DATE(CONCAT(yr, '-01-01'))
-            WHEN 2 THEN DATE(CONCAT(yr, '-04-01'))
-            WHEN 3 THEN DATE(CONCAT(yr, '-07-01'))
-            WHEN 4 THEN DATE(CONCAT(yr, '-10-01')) END,
-    CASE q WHEN 1 THEN DATE(CONCAT(yr, '-03-31'))
-            WHEN 2 THEN DATE(CONCAT(yr, '-06-30'))
-            WHEN 3 THEN DATE(CONCAT(yr, '-09-30'))
-            WHEN 4 THEN DATE(CONCAT(yr, '-12-31')) END,
+    concat(yr, 'Q', q),
+    case q when 1 then date(concat(yr, '-01-01'))
+            when 2 then date(concat(yr, '-04-01'))
+            when 3 then date(concat(yr, '-07-01'))
+            when 4 then date(concat(yr, '-10-01')) end,
+    case q when 1 then date(concat(yr, '-03-31'))
+            when 2 then date(concat(yr, '-06-30'))
+            when 3 then date(concat(yr, '-09-30'))
+            when 4 then date(concat(yr, '-12-31')) end,
     0
-FROM quarters;
+from quarters;

@@ -1,21 +1,21 @@
 -- Derivation script for mw_poc_checkin
 -- Generated from Pentaho transform: import-into-mw-poc-checkin.ktr
 
-DROP TABLE IF EXISTS mw_poc_checkin;
-CREATE TABLE mw_poc_checkin (
-  poc_checkin_visit_id int NOT NULL AUTO_INCREMENT,
-  patient_id int NOT NULL,
-  visit_date date DEFAULT NULL,
-  location varchar(255) DEFAULT NULL,
-  creator varchar(255) DEFAULT NULL,
-  PRIMARY KEY (poc_checkin_visit_id)
+drop table if exists mw_poc_checkin;
+create table mw_poc_checkin (
+  poc_checkin_visit_id int not null auto_increment,
+  patient_id int not null,
+  visit_date date default null,
+  location varchar(255) default null,
+  creator varchar(255) default null,
+  primary key (poc_checkin_visit_id)
 );
 
-INSERT INTO mw_poc_checkin
-SELECT
+insert into mw_poc_checkin
+select
     e.patient_id,
-    DATE(e.encounter_date) as visit_date,
+    date(e.encounter_date) as visit_date,
     e.location
-FROM omrs_encounter e
-LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
-GROUP BY e.patient_id, e.encounter_date, e.location;
+from omrs_encounter e
+left join omrs_obs o on o.encounter_id = e.encounter_id
+group by e.patient_id, e.encounter_date, e.location;

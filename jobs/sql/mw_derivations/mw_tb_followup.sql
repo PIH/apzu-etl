@@ -1,29 +1,29 @@
 -- Derivation script for mw_tb_followup
 -- Generated from Pentaho transform: import-into-mw-tb-followup.ktr
 
-DROP TABLE IF EXISTS mw_tb_followup;
-CREATE TABLE mw_tb_followup (
-  tb_followup_visit_id 			INT NOT NULL AUTO_INCREMENT,
-  patient_id    				INT NOT NULL,
-  visit_date            		DATE,
-  location              		VARCHAR(255),
-  rhze_regimen 					INT,
-  rh_regimen 					INT,
-  meningitis_regimen			INT,
-  next_appointment_date 		DATE,
-     PRIMARY KEY (tb_followup_visit_id)
+drop table if exists mw_tb_followup;
+create table mw_tb_followup (
+  tb_followup_visit_id 			int not null auto_increment,
+  patient_id    				int not null,
+  visit_date            		date,
+  location              		varchar(255),
+  rhze_regimen 					int,
+  rh_regimen 					int,
+  meningitis_regimen			int,
+  next_appointment_date 		date,
+     primary key (tb_followup_visit_id)
 );
 
-INSERT INTO mw_tb_followup
-SELECT
+insert into mw_tb_followup
+select
     e.patient_id,
-    DATE(e.encounter_date) as visit_date,
+    date(e.encounter_date) as visit_date,
     e.location,
-    MAX(CASE WHEN o.concept = 'Appointment date' THEN o.value_date END) as next_appointment_date,
-    MAX(CASE WHEN o.concept = 'RH Meningitis Tablets' THEN o.value_numeric END) as meningitis_regimen,
-    MAX(CASE WHEN o.concept = 'RH Regimen Tablets' THEN o.value_numeric END) as rh_regimen,
-    MAX(CASE WHEN o.concept = 'Number of RHZE Tablets' THEN o.value_numeric END) as rhze_regimen
-FROM omrs_encounter e
-LEFT JOIN omrs_obs o ON o.encounter_id = e.encounter_id
-WHERE e.encounter_type IN ('TB_FOLLOWUP')
-GROUP BY e.patient_id, e.encounter_date, e.location;
+    max(case when o.concept = 'Appointment date' then o.value_date end) as next_appointment_date,
+    max(case when o.concept = 'RH Meningitis Tablets' then o.value_numeric end) as meningitis_regimen,
+    max(case when o.concept = 'RH Regimen Tablets' then o.value_numeric end) as rh_regimen,
+    max(case when o.concept = 'Number of RHZE Tablets' then o.value_numeric end) as rhze_regimen
+from omrs_encounter e
+left join omrs_obs o on o.encounter_id = e.encounter_id
+where e.encounter_type in ('TB_FOLLOWUP')
+group by e.patient_id, e.encounter_date, e.location;

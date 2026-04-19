@@ -1,16 +1,16 @@
-DROP PROCEDURE IF EXISTS create_age_groups#
-CREATE PROCEDURE `create_age_groups`()
-BEGIN
-	DROP TEMPORARY TABLE IF EXISTS age_groups;
+drop procedure if exists create_age_groups#
+create procedure `create_age_groups`()
+begin
+	drop TEMPORARY table if exists age_groups;
 
-    CREATE TEMPORARY TABLE age_groups(
-		sort_value INT PRIMARY KEY auto_increment,
-		age_group Varchar(50),
+    create TEMPORARY table age_groups(
+		sort_value int primary key auto_increment,
+		age_group varchar(50),
 		gender varchar(10),
 		gender_full varchar(10)
-	) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
-    INSERT INTO age_groups (age_group,gender, gender_full)
-    VALUES
+	) default CHARACTER set utf8 default COLLATE utf8_general_ci;
+    insert into age_groups (age_group,gender, gender_full)
+    values
     ("<1 year","F","Female"),
     ("1-4 years","F","Female"),
     ("5-9 years","F","Female"),
@@ -53,5 +53,5 @@ BEGIN
     ("90 plus years","M","Male")
     
 ;
-END
+end
 #

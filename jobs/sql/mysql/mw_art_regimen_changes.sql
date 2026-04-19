@@ -62,19 +62,19 @@ select
     t.art_drugs_received,
     t.art_regimen,
     t.previous_art_regimen,
-CASE
-  WHEN
-    t.previous_art_regimen IS NOT NULL
-                AND t.art_regimen <> t.previous_art_regimen
-        THEN
+case
+  when
+    t.previous_art_regimen is not null
+                and t.art_regimen <> t.previous_art_regimen
+        then
             'Yes'
-        ELSE 'No'
-   END AS Switched_Regimen
+        else 'No'
+   end as Switched_Regimen
  from temp_art_regimens t
  inner join temp_art_regimens_distinct d  -- ensure no duplicates are returned
  	on d.patient_id = t.patient_id
  	and d.visit_date = t.visit_date
  	and d.art_followup_visit_id = t.art_followup_visit_id
-where t.previous_art_regimen IS NOT NULL  -- ensure only switched regimens are returned
-  AND t.art_regimen <> t.previous_art_regimen
+where t.previous_art_regimen is not null  -- ensure only switched regimens are returned
+  and t.art_regimen <> t.previous_art_regimen
 ;

@@ -1,24 +1,24 @@
-DROP FUNCTION IF EXISTS latest_test_result_by_date_entered#
+drop function if exists latest_test_result_by_date_entered#
 /*
   Extract the lab_test_id that identifies the most recent test result of the given type for the given patient
 */
-CREATE FUNCTION latest_test_result_by_date_entered(patientId INT, testType VARCHAR(100), fromDate DATE, toDate DATE, offsetNum INT)
-  RETURNS INT
-DETERMINISTIC
-  BEGIN
-    DECLARE ret INT;
+create function latest_test_result_by_date_entered(patientId int, testType varchar(100), fromDate date, toDate date, offsetNum int)
+  returns int
+deterministic
+  begin
+    declare ret int;
 
-    SELECT    t.lab_test_id into ret
-    FROM      mw_lab_tests t
-    WHERE     t.patient_id = patientId
-    AND       t.test_type = testType
-    AND       (t.result_numeric is not null or t.result_coded is not null or t.result_exception is not null)
-    AND       (fromDate is null or t.date_result_entered >= fromDate)
-    AND       (toDate is null or t.date_result_entered <= toDate)
-    ORDER BY  t.date_result_entered desc
-    LIMIT     1
-    OFFSET    offsetNum;
+    select    t.lab_test_id into ret
+    from      mw_lab_tests t
+    where     t.patient_id = patientId
+    and       t.test_type = testType
+    and       (t.result_numeric is not null or t.result_coded is not null or t.result_exception is not null)
+    and       (fromDate is null or t.date_result_entered >= fromDate)
+    and       (toDate is null or t.date_result_entered <= toDate)
+    order by  t.date_result_entered desc
+    limit     1
+    offset    offsetNum;
 
     return ret;
-  END
+  end
 #

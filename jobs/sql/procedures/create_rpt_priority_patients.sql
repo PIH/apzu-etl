@@ -1,75 +1,75 @@
-DROP PROCEDURE IF EXISTS create_rpt_priority_patients#
+drop procedure if exists create_rpt_priority_patients#
 /************************************************************************
   Get priority conditions for each patient
 *************************************************************************/
-CREATE PROCEDURE create_rpt_priority_patients(IN _endDate DATE) BEGIN
+create procedure create_rpt_priority_patients(in _endDate date) begin
 
-  DROP TEMPORARY TABLE IF EXISTS rpt_priority_patients;
-  CREATE TEMPORARY TABLE rpt_priority_patients (
-    patient_id  INT NOT NULL,
-    priority   VARCHAR(50)
+  drop TEMPORARY table if exists rpt_priority_patients;
+  create TEMPORARY table rpt_priority_patients (
+    patient_id  int not null,
+    priority   varchar(50)
   );
-  CREATE INDEX rpt_priority_patients_patient_id_idx ON rpt_priority_patients(patient_id);
+  create index rpt_priority_patients_patient_id_idx on rpt_priority_patients(patient_id);
 
   -- HIV:  HIV patients (all)
 
-  INSERT INTO rpt_priority_patients(patient_id, priority)
-    SELECT DISTINCT p.patient_id, 'HIV'
-    FROM
+  insert into rpt_priority_patients(patient_id, priority)
+    select distinct p.patient_id, 'HIV'
+    from
       (
-        SELECT patient_id FROM mw_pre_art_register WHERE start_date <= _endDate
-        UNION
-        SELECT patient_id FROM mw_art_register WHERE start_date <= _endDate
+        select patient_id from mw_pre_art_register where start_date <= _endDate
+        union
+        select patient_id from mw_art_register where start_date <= _endDate
       ) p
   ;
 
   -- BP > 180/110:  Hypertension patients with BP ever greater than 180/110 (both systolic and diastolic should exceed threshold)
 
-  INSERT INTO rpt_priority_patients(patient_id, priority)
-    SELECT  DISTINCT p.patient_id, 'BP > 180/110'
-    FROM
+  insert into rpt_priority_patients(patient_id, priority)
+    select  distinct p.patient_id, 'BP > 180/110'
+    from
       (
-        SELECT  v.patient_id
-        FROM    mw_ncd_visits v
-        WHERE   v.systolic_bp > 180 and v.diastolic_bp > 110
+        select  v.patient_id
+        from    mw_ncd_visits v
+        where   v.systolic_bp > 180 and v.diastolic_bp > 110
       ) p
   ;
 
   -- ON INSULIN:  Diabetes patients on insulin
 
-  INSERT INTO rpt_priority_patients(patient_id, priority)
-    SELECT  DISTINCT p.patient_id, 'ON INSULIN'
-    FROM
+  insert into rpt_priority_patients(patient_id, priority)
+    select  distinct p.patient_id, 'ON INSULIN'
+    from
       (
-        SELECT  v.patient_id
-        FROM    mw_ncd_visits v
-        WHERE   v.on_insulin = TRUE
+        select  v.patient_id
+        from    mw_ncd_visits v
+        where   v.on_insulin = TRUE
       ) p
   ;
 
   -- SEVERE PERSISTENT ASTHMA:  Asthma patients with severity of “severe persistent” at last visit
 
-  INSERT INTO rpt_priority_patients(patient_id, priority)
-    SELECT  DISTINCT p.patient_id, 'SEVERE PERSISTENT ASTHMA'
-    FROM
+  insert into rpt_priority_patients(patient_id, priority)
+    select  distinct p.patient_id, 'SEVERE PERSISTENT ASTHMA'
+    from
       (
-        SELECT  v.patient_id
-        FROM    mw_ncd_visits v
-        WHERE   v.asthma_classification = 'Severe persistent'
-        AND     v.ncd_visit_id = latest_asthma_visit(v.patient_id, _endDate)
+        select  v.patient_id
+        from    mw_ncd_visits v
+        where   v.asthma_classification = 'Severe persistent'
+        and     v.ncd_visit_id = latest_asthma_visit(v.patient_id, _endDate)
       ) p
   ;
 
   -- "> 5 SEIZURES / MONTH":  Epilepsy patients reporting over 5 seizures per month at last visit
 
-  INSERT INTO rpt_priority_patients(patient_id, priority)
-    SELECT  DISTINCT p.patient_id, '> 5 SEIZURES / MONTH'
-    FROM
+  insert into rpt_priority_patients(patient_id, priority)
+    select  distinct p.patient_id, '> 5 SEIZURES / MONTH'
+    from
       (
-        SELECT  v.patient_id
-        FROM    mw_ncd_visits v
-        WHERE   v.num_seizures > 5
-        AND     v.ncd_visit_id = latest_epilepsy_visit(v.patient_id, _endDate)
+        select  v.patient_id
+        from    mw_ncd_visits v
+        where   v.num_seizures > 5
+        and     v.ncd_visit_id = latest_epilepsy_visit(v.patient_id, _endDate)
       ) p
   ;
 
@@ -78,17 +78,17 @@ CREATE PROCEDURE create_rpt_priority_patients(IN _endDate DATE) BEGIN
   -- Rheumatic Heart Disease patients (all)
   -- Congestive Heart Failure patients (all)
 
-  INSERT INTO rpt_priority_patients(patient_id, priority)
-    SELECT  DISTINCT p.patient_id, p.diagnosis
-    FROM
+  insert into rpt_priority_patients(patient_id, priority)
+    select  distinct p.patient_id, p.diagnosis
+    from
       (
-        SELECT    d.patient_id, d.diagnosis
-        FROM      mw_ncd_diagnoses d
-        WHERE     d.diagnosis in ('Sickle cell disease' , 'Chronic kidney disease', 'Rheumatic heart disease', 'Congestive heart failure')
-        AND       d.diagnosis_date <= _endDate
-        GROUP BY  d.patient_id, d.diagnosis
+        select    d.patient_id, d.diagnosis
+        from      mw_ncd_diagnoses d
+        where     d.diagnosis in ('Sickle cell disease' , 'Chronic kidney disease', 'Rheumatic heart disease', 'Congestive heart failure')
+        and       d.diagnosis_date <= _endDate
+        group by  d.patient_id, d.diagnosis
       ) p
   ;
 
-END
+end
 #
