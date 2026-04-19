@@ -1,5 +1,3 @@
-drop table if exists omrs_program_state;
-
 create table omrs_program_state (
   program_state_id int not null,
   uuid char(38) not null,

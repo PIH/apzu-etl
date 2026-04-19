@@ -1,5 +1,3 @@
-drop table if exists omrs_patient;
-
 create table omrs_patient (
   patient_id int not null,
   patient_uuid char(38) not null,

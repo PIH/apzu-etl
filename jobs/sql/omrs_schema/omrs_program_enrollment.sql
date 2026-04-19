@@ -1,5 +1,3 @@
-drop table if exists omrs_program_enrollment;
-
 create table omrs_program_enrollment (
   program_enrollment_id int not null,
   uuid char(38) not null,

@@ -1,5 +1,3 @@
-drop table if exists omrs_visit;
-
 create table omrs_visit (
   visit_id int not null,
   uuid char(38) not null,

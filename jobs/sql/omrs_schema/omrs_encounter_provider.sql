@@ -1,5 +1,3 @@
-drop table if exists omrs_encounter_provider;
-
 create table omrs_encounter_provider (
   encounter_provider_id int not null,
   uuid char(38) not null,

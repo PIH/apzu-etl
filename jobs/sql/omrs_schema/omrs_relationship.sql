@@ -1,5 +1,3 @@
-drop table if exists omrs_relationship;
-
 create table omrs_relationship (
   relationship_id int not null,
   uuid char(38) not null,

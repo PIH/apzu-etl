@@ -1,5 +1,3 @@
-drop table if exists omrs_obs;
-
 create table omrs_obs (
   obs_id int not null,
   uuid char(38) not null,
