@@ -6,5 +6,3 @@ create table omrs_encounter_provider (
   provider varchar(255),
   provider_role varchar(255)
 );
-
-alter table omrs_encounter_provider add index encounter_provider_id_idx (encounter_provider_id);

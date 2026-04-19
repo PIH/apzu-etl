@@ -26,6 +26,15 @@ configuration:
           - tableName: "omrs_obs_group"
           - tableName: "omrs_obs"
 
+    - type: "sql-execution"
+      description: "Create omrs indexes and views"
+      configuration:
+        datasource: "mysqlReporting.yml"
+        delimiter: ";"
+        scripts:
+          - "sql/omrs_schema/omrs_indexes.sql"
+          - "sql/omrs_schema/omrs_views.sql"
+
     # Step 3: Derive Malawi warehouse tables from omrs_* source tables
     # Table order follows dependency chain from jobs/pentaho/malawi/schema/schema.csv
     - type: "iterating-job"

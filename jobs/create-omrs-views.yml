@@ -1,7 +1,0 @@
-type: "sql-execution"
-description: "Create omrs views"
-configuration:
-  datasource: "mysqlReporting.yml"
-  delimiter: ";"
-  scripts:
-    - "sql/omrs_schema/omrs_views.sql"
