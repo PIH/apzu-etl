@@ -19,7 +19,7 @@ drop temporary table if exists temp_hiv_status;
 create temporary table temp_hiv_status as select encounter_id, value_coded from omrs_obs where concept = 'HIV status';
 alter table temp_hiv_status add index temp_hiv_status_encounter_idx (encounter_id);
 
-insert into mw_sickle_cell_disease_quarterly_screening
+insert into mw_sickle_cell_disease_quarterly_screening (patient_id, visit_date, location, fcb, hiv_status)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

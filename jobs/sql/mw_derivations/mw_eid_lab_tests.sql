@@ -40,7 +40,7 @@ drop temporary table if exists temp_lab_test_serial_number;
 create temporary table temp_lab_test_serial_number as select encounter_id, value_text from omrs_obs where concept = 'Lab test serial number';
 alter table temp_lab_test_serial_number add index temp_lab_test_serial_number_encounter_idx (encounter_id);
 
-insert into mw_eid_lab_tests
+insert into mw_eid_lab_tests (patient_id, visit_date, location, result_date, test_type, lab_laboratory, reasons_for_testing, hiv_result, sample_id)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

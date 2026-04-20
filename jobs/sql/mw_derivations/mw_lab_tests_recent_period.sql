@@ -14,7 +14,7 @@ create table mw_lab_tests_recent_period (
 );
 
 -- Most recent lab test result per patient per reporting period
-insert into mw_lab_tests_recent_period
+insert into mw_lab_tests_recent_period (lab_test_id, patient_id, encounter_id, date_collected, test_type, date_result_received, date_result_entered, result_coded, result_numeric, result_exception, end_date)
 select
     t.lab_test_id,
     t.patient_id,

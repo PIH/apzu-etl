@@ -57,7 +57,7 @@ create table mw_poc (
 
 drop temporary table if exists temp_colposcopy_of_cervix_with_acetic_acid;
 create temporary table temp_colposcopy_of_cervix_with_acetic_acid as select encounter_id, value_coded from omrs_obs where concept = 'Colposcopy of cervix with acetic acid';
-alter table temp_colposcopy_of_cervix_with_acetic_acid add index temp_colposcopy_of_cervix_with_acetic_acid_encounter_idx (encounter_id);
+alter table temp_colposcopy_of_cervix_with_acetic_acid add index temp_colposcopy_cervix_acetic_acid_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_sample_taken_for_viral_load;
 create temporary table temp_sample_taken_for_viral_load as select encounter_id, value_coded from omrs_obs where concept = 'Sample taken for Viral Load';
@@ -137,15 +137,15 @@ alter table temp_medication_adherence_percent add index temp_medication_adherenc
 
 drop temporary table if exists temp_middle_upper_arm_circumference_cm;
 create temporary table temp_middle_upper_arm_circumference_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Middle upper arm circumference (cm)';
-alter table temp_middle_upper_arm_circumference_cm add index temp_middle_upper_arm_circumference_cm_encounter_idx (encounter_id);
+alter table temp_middle_upper_arm_circumference_cm add index temp_middle_upper_arm_circumference_cm_encounter (encounter_id);
 
 drop temporary table if exists temp_name_of_support_provider;
 create temporary table temp_name_of_support_provider as select encounter_id, value_text from omrs_obs where concept = 'Name of support provider';
 alter table temp_name_of_support_provider add index temp_name_of_support_provider_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_number_of_missed_medication_doses_in_past_7_days;
-create temporary table temp_number_of_missed_medication_doses_in_past_7_days as select encounter_id, value_numeric from omrs_obs where concept = 'Number of missed medication doses in past 7 days';
-alter table temp_number_of_missed_medication_doses_in_past_7_days add index temp_number_of_missed_medication_doses_in_past_7_days_encounter_idx (encounter_id);
+drop temporary table if exists temp_number_missed_medication_doses_past_7_days;
+create temporary table temp_number_missed_medication_doses_past_7_days as select encounter_id, value_numeric from omrs_obs where concept = 'Number of missed medication doses in past 7 days';
+alter table temp_number_missed_medication_doses_past_7_days add index temp_number_missed_medication_doses_past_7_days_2 (encounter_id);
 
 drop temporary table if exists temp_outcome;
 create temporary table temp_outcome as select encounter_id, value_coded from omrs_obs where concept = 'Outcome';
@@ -219,7 +219,7 @@ drop temporary table if exists temp_weight_kg;
 create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
-insert into mw_poc
+insert into mw_poc (patient_id, visit_date, location, colposcopy_of_cervix_with_acetic_acid, sample_taken_for_viral_load, adherence_counselling, adherence_session_number, age, appointment_date, clinical_impression_comments, date_of_blood_sample, date_of_returned_result, date_result_to_guardian, diastolic_blood_pressure, height, hiv_test_time_period, hiv_test_type, hiv_test_type_htc, lab_id, lab_location, lab_test_serial_number, less_than_limit, lower_than_detection_limit, medication_adherence_percent, muac, name_of_support_provider, number_of_missed_medication_doses_in_past_week, outcome, is_patient_preg, pulse, qualitative_time, reason_for_no_result, reason_for_no_sample, reason_for_no_sample_eid, reason_for_testing, reason_for_testing_coded, reason_to_stop_care, refer_to_screening_station, result_of_hiv_test, result_of_hiv_test_htc, viral_load_sample_id, symptom_absent, symptom_present, systolic_blood_pressure, transfer_out_to, units_of_age_of_child, viral_load_counseling, weight)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -292,7 +292,7 @@ left join temp_lower_than_detection_limit lower_than_detection_limit on e.encoun
 left join temp_medication_adherence_percent medication_adherence_percent on e.encounter_id = medication_adherence_percent.encounter_id
 left join temp_middle_upper_arm_circumference_cm middle_upper_arm_circumference_cm on e.encounter_id = middle_upper_arm_circumference_cm.encounter_id
 left join temp_name_of_support_provider name_of_support_provider on e.encounter_id = name_of_support_provider.encounter_id
-left join temp_number_of_missed_medication_doses_in_past_7_days number_of_missed_medication_doses_in_past_7_days on e.encounter_id = number_of_missed_medication_doses_in_past_7_days.encounter_id
+left join temp_number_missed_medication_doses_past_7_days number_of_missed_medication_doses_in_past_7_days on e.encounter_id = number_of_missed_medication_doses_in_past_7_days.encounter_id
 left join temp_outcome outcome on e.encounter_id = outcome.encounter_id
 left join temp_is_patient_pregnant is_patient_pregnant on e.encounter_id = is_patient_pregnant.encounter_id
 left join temp_pulse pulse on e.encounter_id = pulse.encounter_id

@@ -50,7 +50,7 @@ drop temporary table if exists temp_hiv_viral_load;
 create temporary table temp_hiv_viral_load as select encounter_id, value_numeric from omrs_obs where concept = 'HIV viral load';
 alter table temp_hiv_viral_load add index temp_hiv_viral_load_encounter_idx (encounter_id);
 
-insert into mw_art_viral_load
+insert into mw_art_viral_load (patient_id, visit_date, location, ldl, bled, lab_location, less_than_limit, other_results, reason_for_test, sample_id, viral_load_result)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

@@ -14,7 +14,7 @@ create table mw_pdc_register (
 alter table mw_pdc_register add index mw_pdc_register_patient_idx (patient_id);
 alter table mw_pdc_register add index mw_pdc_register_patient_location_idx (patient_id, location);
 
-insert into mw_pdc_register
+insert into mw_pdc_register (enrollment_id, patient_id, location, pdc_number, start_date, end_date, outcome)
 select
     p.program_enrollment_id as enrollment_id,
     p.patient_id,

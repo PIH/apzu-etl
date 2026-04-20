@@ -45,7 +45,7 @@ drop temporary table if exists temp_weight_kg;
 create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
-insert into mw_nutrition_infant_followup
+insert into mw_nutrition_infant_followup (patient_id, visit_date, location, ration, comments, height, lactogen_tins, muac, next_appointment_date, weight)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

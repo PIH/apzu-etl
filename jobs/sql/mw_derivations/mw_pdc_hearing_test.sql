@@ -20,7 +20,7 @@ drop temporary table if exists temp_right_ear;
 create temporary table temp_right_ear as select encounter_id, value_coded from omrs_obs where concept = 'Right Ear';
 alter table temp_right_ear add index temp_right_ear_encounter_idx (encounter_id);
 
-insert into mw_pdc_hearing_test
+insert into mw_pdc_hearing_test (patient_id, visit_date, location, left_ear, right_ear)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

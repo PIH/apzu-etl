@@ -15,7 +15,7 @@ create table mw_ncd_register (
 alter table mw_ncd_register add index mw_ncd_register_patient_idx (patient_id);
 alter table mw_ncd_register add index mw_ncd_register_patient_location_idx (patient_id, location);
 
-insert into mw_ncd_register
+insert into mw_ncd_register (enrollment_id, patient_id, location, ncd_number, start_date, end_date, outcome, cv_disease)
 select
     p.program_enrollment_id as enrollment_id,
     p.patient_id,

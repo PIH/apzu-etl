@@ -16,7 +16,7 @@ drop temporary table if exists temp_appointment_date;
 create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
-insert into mw_pre_art_visits
+insert into mw_pre_art_visits (patient_id, visit_date, location, next_appointment_date)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

@@ -14,13 +14,13 @@ create table mw_tb_post_lung_disease (
 
 drop temporary table if exists temp_date_registered_in_post_tb_lung_disease_ptld;
 create temporary table temp_date_registered_in_post_tb_lung_disease_ptld as select encounter_id, value_date from omrs_obs where concept = 'Date registered in Post TB Lung Disease (PTLD)';
-alter table temp_date_registered_in_post_tb_lung_disease_ptld add index temp_date_registered_in_post_tb_lung_disease_ptld_encounter_idx (encounter_id);
+alter table temp_date_registered_in_post_tb_lung_disease_ptld add index temp_date_registered_post_tb_lung_disease_ptld (encounter_id);
 
 drop temporary table if exists temp_number_of_weeks_on_treatment;
 create temporary table temp_number_of_weeks_on_treatment as select encounter_id, value_numeric from omrs_obs where concept = 'Number of weeks on treatment';
 alter table temp_number_of_weeks_on_treatment add index temp_number_of_weeks_on_treatment_encounter_idx (encounter_id);
 
-insert into mw_tb_post_lung_disease
+insert into mw_tb_post_lung_disease (patient_id, visit_date, location, second_visit_date, number_of_weeks)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

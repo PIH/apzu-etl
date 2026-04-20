@@ -30,7 +30,7 @@ drop temporary table if exists temp_reason_for_admission_text;
 create temporary table temp_reason_for_admission_text as select encounter_id, value_text from omrs_obs where concept = 'Reason for admission (text)';
 alter table temp_reason_for_admission_text add index temp_reason_for_admission_text_encounter_idx (encounter_id);
 
-insert into mw_pdc_history_of_hospitalization
+insert into mw_pdc_history_of_hospitalization (patient_id, visit_date, location, discharge_date, discharge_medications, discharge_diagnosis, reason_for_admission)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

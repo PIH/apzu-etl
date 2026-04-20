@@ -114,7 +114,7 @@ create table mw_ckd_followup (
 
 drop temporary table if exists temp_quantity_of_medication_prescribed_per_dose;
 create temporary table temp_quantity_of_medication_prescribed_per_dose as select encounter_id, value_numeric from omrs_obs where concept = 'Quantity of medication prescribed per dose';
-alter table temp_quantity_of_medication_prescribed_per_dose add index temp_quantity_of_medication_prescribed_per_dose_encounter_idx (encounter_id);
+alter table temp_quantity_of_medication_prescribed_per_dose add index temp_quantity_medication_prescribed_per_dose (encounter_id);
 
 drop temporary table if exists temp_dosing_unit;
 create temporary table temp_dosing_unit as select encounter_id, value_coded from omrs_obs where concept = 'Dosing unit';
@@ -206,7 +206,7 @@ alter table temp_appointment_date add index temp_appointment_date_encounter_idx 
 
 drop temporary table if exists temp_nonsteroidal_anti_inflammatory_drug_use;
 create temporary table temp_nonsteroidal_anti_inflammatory_drug_use as select encounter_id, value_coded from omrs_obs where concept = 'Nonsteroidal anti-inflammatory drug use';
-alter table temp_nonsteroidal_anti_inflammatory_drug_use add index temp_nonsteroidal_anti_inflammatory_drug_use_encounter_idx (encounter_id);
+alter table temp_nonsteroidal_anti_inflammatory_drug_use add index temp_nonsteroidal_anti_inflammatory_drug_use_2 (encounter_id);
 
 drop temporary table if exists temp_oedema;
 create temporary table temp_oedema as select encounter_id, value_coded from omrs_obs where concept = 'Oedema';
@@ -214,7 +214,7 @@ alter table temp_oedema add index temp_oedema_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_other_chronic_heart_failure_drugs;
 create temporary table temp_other_chronic_heart_failure_drugs as select encounter_id, value_text from omrs_obs where concept = 'Other chronic heart failure drugs';
-alter table temp_other_chronic_heart_failure_drugs add index temp_other_chronic_heart_failure_drugs_encounter_idx (encounter_id);
+alter table temp_other_chronic_heart_failure_drugs add index temp_other_chronic_heart_failure_drugs_encounter (encounter_id);
 
 drop temporary table if exists temp_review_of_symptoms_other;
 create temporary table temp_review_of_symptoms_other as select encounter_id, value_text from omrs_obs where concept = 'Review of symptoms other';
@@ -244,7 +244,7 @@ drop temporary table if exists temp_weight_change;
 create temporary table temp_weight_change as select encounter_id, value_text from omrs_obs where concept = 'Weight change';
 alter table temp_weight_change add index temp_weight_change_encounter_idx (encounter_id);
 
-insert into mw_ckd_followup
+insert into mw_ckd_followup (patient_id, visit_date, location, ace_i_enal_dose, diuretic_furp_dose, ccb_nif_dose, diuretic_spiro_dose, ccb_aml_dose, ccb_aml_dosing_unit, ccb_aml_duration, ccb_aml_duration_units, ccb_aml_frequency, ccb_aml_route, bb_aten_dose, bb_aten_dosing_unit, bb_aten_duration, bb_aten_duration_units, bb_aten_frequency, bb_aten_route, bb_bis_dose, bb_bis_dosing_unit, bb_bis_duration, bb_bis_duration_units, bb_bis_frequency, bb_bis_route, ace_i_capt_dose, ace_i_capt_dosing_unit, ace_i_capt_duration, ace_i_capt_duration_units, ace_i_capt_frequency, ace_i_capt_route, ace_i_enal_dosing_unit, ace_i_enal_duration, ace_i_enal_duration_units, ace_i_enal_frequency, ace_i_enal_route, diuretic_furp_dosing_unit, diuretic_furp_duration, diuretic_furp_duration_units, diuretic_furp_frequency, diuretic_furp_route, diuretic_hctz_dose, diuretic_hctz_dosing_unit, diuretic_hctz_duration, diuretic_hctz_duration_units, diuretic_hctz_frequency, diuretic_hctz_route, ace_i_lisin_dose, ace_i_lisin_dosing_unit, ace_i_lisin_duration, ace_i_lisin_duration_units, ace_i_lisin_frequency, ace_i_lisin_route, ccb_nif_dosing_unit, ccb_nif_duration, ccb_nif_frequency, ccb_nif_route, ccb_nif_duration_units, bb_prop_dose, bb_prop_dosing_unit, bb_prop_duration, bb_prop_duration_units, bb_prop_frequency, bb_prop_route, diuretic_spiro_dosing_unit, diuretic_spiro_duration, diuretic_spiro_duration_units, diuretic_spiro_frequency, diuretic_spiro_route, ace_i_capt, ace_i_enal, ace_i_lisin, alcohol, anorexia, ascites, bb_aten, bb_bis, bb_prop, bp_diastolic, bp_systolic, ccb_aml, ccb_nif, ckd_stage, confusion, conjunctiva, creatinine, diet_recommendations, diuretic_furo, diuretic_hctz, diuretic_spiro, fatigue, gfr, heart_rate, height, nausea, next_appointment_date, nsaid_use, oedema, other_medications, other_symptoms, pruritus, tobacco, took_medications_today, urine_protein, weight, weight_change)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

@@ -43,7 +43,7 @@ create table mw_art_followup (
 
 drop temporary table if exists temp_malawi_antiretroviral_drugs_received;
 create temporary table temp_malawi_antiretroviral_drugs_received as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Antiretroviral drugs received';
-alter table temp_malawi_antiretroviral_drugs_received add index temp_malawi_antiretroviral_drugs_received_encounter_idx (encounter_id);
+alter table temp_malawi_antiretroviral_drugs_received add index temp_malawi_arv_drugs_received_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_responsible_person_present;
 create temporary table temp_responsible_person_present as select encounter_id, value_coded from omrs_obs where concept = 'Responsible person present';
@@ -87,7 +87,7 @@ alter table temp_number_of_antiretrovirals_given add index temp_number_of_antire
 
 drop temporary table if exists temp_amount_of_drug_brought_to_clinic;
 create temporary table temp_amount_of_drug_brought_to_clinic as select encounter_id, value_numeric from omrs_obs where concept = 'Amount of drug brought to clinic';
-alter table temp_amount_of_drug_brought_to_clinic add index temp_amount_of_drug_brought_to_clinic_encounter_idx (encounter_id);
+alter table temp_amount_of_drug_brought_to_clinic add index temp_amount_drug_brought_clinic_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_pregnant_lactating;
 create temporary table temp_pregnant_lactating as select encounter_id, value_coded from omrs_obs where concept = 'Pregnant/Lactating';
@@ -109,7 +109,7 @@ drop temporary table if exists temp_weight_kg;
 create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
-insert into mw_art_followup
+insert into mw_art_followup (patient_id, visit_date, location, art_regimen, arvs_given_to, next_appointment_date, ctx_960, ctx_960_pills, condoms_given, depo_given, diastolic_bp, doses_missed, height, inh_300, inh_300_pills, art_drugs_received, arvs_given, pill_count, pregnant_or_lactating, pyridoxine, pyridoxine_pills, rfp_150, rfp_150_pills, rfp_inh, rfp_inh_pills, no_side_effect, peripheral_neuropathy_side_effect, hepatitis_side_effect, skin_rash_side_effect, lipodystrophy_side_effect, other_side_effect, systolic_bp, tb_status, weight)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

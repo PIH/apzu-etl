@@ -30,7 +30,7 @@ drop temporary table if exists temp_lipid_profile;
 create temporary table temp_lipid_profile as select encounter_id, value_coded from omrs_obs where concept = 'Lipid profile';
 alter table temp_lipid_profile add index temp_lipid_profile_encounter_idx (encounter_id);
 
-insert into mw_diabetes_hypertension_annual_lab_tests
+insert into mw_diabetes_hypertension_annual_lab_tests (patient_id, visit_date, location, creatinine, fundoscopy, ecg, lipid_profile)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

@@ -20,7 +20,7 @@ drop temporary table if exists temp_other_lab_test_result;
 create temporary table temp_other_lab_test_result as select encounter_id, value_text from omrs_obs where concept = 'Other lab test result';
 alter table temp_other_lab_test_result add index temp_other_lab_test_result_encounter_idx (encounter_id);
 
-insert into mw_pdc_radiology
+insert into mw_pdc_radiology (patient_id, visit_date, location, echo_results, other_results)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

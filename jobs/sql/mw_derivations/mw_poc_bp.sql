@@ -26,7 +26,7 @@ drop temporary table if exists temp_systolic_blood_pressure;
 create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Systolic blood pressure';
 alter table temp_systolic_blood_pressure add index temp_systolic_blood_pressure_encounter_idx (encounter_id);
 
-insert into mw_poc_bp
+insert into mw_poc_bp (patient_id, visit_date, location, diastolic_blood_pressure, pulse, systolic_blood_pressure)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

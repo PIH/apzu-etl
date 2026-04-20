@@ -46,7 +46,7 @@ drop temporary table if exists temp_transfer_out_to;
 create temporary table temp_transfer_out_to as select encounter_id, value_text from omrs_obs where concept = 'Transfer out to';
 alter table temp_transfer_out_to add index temp_transfer_out_to_encounter_idx (encounter_id);
 
-insert into mw_poc_clinical_plan
+insert into mw_poc_clinical_plan (patient_id, visit_date, location, appointment_date, clinical_impression_comments, outcome, qualitative_time, reason_to_stop_care, refer_to_screening_station, transfer_out_to)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

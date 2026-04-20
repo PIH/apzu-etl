@@ -30,7 +30,7 @@ drop temporary table if exists temp_number_of_rhze_tablets;
 create temporary table temp_number_of_rhze_tablets as select encounter_id, value_numeric from omrs_obs where concept = 'Number of RHZE Tablets';
 alter table temp_number_of_rhze_tablets add index temp_number_of_rhze_tablets_encounter_idx (encounter_id);
 
-insert into mw_tb_followup
+insert into mw_tb_followup (patient_id, visit_date, location, next_appointment_date, meningitis_regimen, rh_regimen, rhze_regimen)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

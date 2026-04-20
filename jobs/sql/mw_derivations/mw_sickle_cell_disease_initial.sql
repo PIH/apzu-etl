@@ -83,7 +83,7 @@ drop temporary table if exists temp_other_non_coded_text;
 create temporary table temp_other_non_coded_text as select encounter_id, value_text from omrs_obs where concept = 'Other non-coded (text)';
 alter table temp_other_non_coded_text add index temp_other_non_coded_text_encounter_idx (encounter_id);
 
-insert into mw_sickle_cell_disease_initial
+insert into mw_sickle_cell_disease_initial (patient_id, visit_date, location, art_start_date, referral_history_inpatient, referral_history_opd, referral_history_ic3, diagnosis_date, hiv_status, hiv_test_date, parent, sibling, microscopy, microscopy_test_date, rapid_test, rapid_test_date, hb_electrophoresis, hb_electrophoresis_test_date, referral_history_other_specify, referral_history_other)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

@@ -21,7 +21,7 @@ alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id)
 
 drop temporary table if exists temp_middle_upper_arm_circumference_cm;
 create temporary table temp_middle_upper_arm_circumference_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Middle upper arm circumference (cm)';
-alter table temp_middle_upper_arm_circumference_cm add index temp_middle_upper_arm_circumference_cm_encounter_idx (encounter_id);
+alter table temp_middle_upper_arm_circumference_cm add index temp_middle_upper_arm_circumference_cm_encounter (encounter_id);
 
 drop temporary table if exists temp_is_patient_pregnant;
 create temporary table temp_is_patient_pregnant as select encounter_id, value_coded from omrs_obs where concept = 'Is patient pregnant?';
@@ -31,7 +31,7 @@ drop temporary table if exists temp_weight_kg;
 create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
-insert into mw_poc_nutrition
+insert into mw_poc_nutrition (patient_id, visit_date, location, height, muac, is_patient_preg, weight)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

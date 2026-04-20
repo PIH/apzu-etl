@@ -97,7 +97,7 @@ alter table temp_date_antiretrovirals_started add index temp_date_antiretroviral
 
 drop temporary table if exists temp_family_history_of_behavioral_problems;
 create temporary table temp_family_history_of_behavioral_problems as select encounter_id, value_coded from omrs_obs where concept = 'Family history of behavioral problems';
-alter table temp_family_history_of_behavioral_problems add index temp_family_history_of_behavioral_problems_encounter_idx (encounter_id);
+alter table temp_family_history_of_behavioral_problems add index temp_family_history_behavioral_problems_encounter (encounter_id);
 
 drop temporary table if exists temp_epilepsy_complications;
 create temporary table temp_epilepsy_complications as select encounter_id, value_coded, obs_group_id from omrs_obs where concept = 'Epilepsy complications';
@@ -117,7 +117,7 @@ alter table temp_delayed_milestones add index temp_delayed_milestones_encounter_
 
 drop temporary table if exists temp_highest_level_of_school_completed;
 create temporary table temp_highest_level_of_school_completed as select encounter_id, value_coded from omrs_obs where concept = 'Highest level of school completed';
-alter table temp_highest_level_of_school_completed add index temp_highest_level_of_school_completed_encounter_idx (encounter_id);
+alter table temp_highest_level_of_school_completed add index temp_highest_level_school_completed_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_emotional_stress_anger_boredom;
 create temporary table temp_emotional_stress_anger_boredom as select encounter_id, value_coded from omrs_obs where concept = 'Emotional stress, anger, boredom';
@@ -161,7 +161,7 @@ alter table temp_menstruation_trigger add index temp_menstruation_trigger_encoun
 
 drop temporary table if exists temp_family_history_of_mental_illness;
 create temporary table temp_family_history_of_mental_illness as select encounter_id, value_coded from omrs_obs where concept = 'Family history of mental illness';
-alter table temp_family_history_of_mental_illness add index temp_family_history_of_mental_illness_encounter_idx (encounter_id);
+alter table temp_family_history_of_mental_illness add index temp_family_history_mental_illness_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_missed_medication_trigger;
 create temporary table temp_missed_medication_trigger as select encounter_id, value_coded from omrs_obs where concept = 'Missed medication trigger';
@@ -171,9 +171,9 @@ drop temporary table if exists temp_month_of_onset;
 create temporary table temp_month_of_onset as select encounter_id, value_numeric from omrs_obs where concept = 'Month of onset';
 alter table temp_month_of_onset add index temp_month_of_onset_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_neonatal_infection_cerebral_malaria_and_or_meningitis;
-create temporary table temp_neonatal_infection_cerebral_malaria_and_or_meningitis as select encounter_id, value_coded from omrs_obs where concept = 'Neonatal infection, Cerebral Malaria, and/or Meningitis';
-alter table temp_neonatal_infection_cerebral_malaria_and_or_meningitis add index temp_neonatal_infection_cerebral_malaria_and_or_meningitis_encounter_idx (encounter_id);
+drop temporary table if exists temp_neonatal_infection_cerebral_malaria_and_or;
+create temporary table temp_neonatal_infection_cerebral_malaria_and_or as select encounter_id, value_coded from omrs_obs where concept = 'Neonatal infection, Cerebral Malaria, and/or Meningitis';
+alter table temp_neonatal_infection_cerebral_malaria_and_or add index temp_neonatal_infection_cerebral_malaria_and_or_2 (encounter_id);
 
 drop temporary table if exists temp_main_activity;
 create temporary table temp_main_activity as select encounter_id, value_coded from omrs_obs where concept = 'Main activity';
@@ -213,7 +213,7 @@ alter table temp_post_ictal_poor_concentration add index temp_post_ictal_poor_co
 
 drop temporary table if exists temp_post_ictal_poor_verbal_or_cognition;
 create temporary table temp_post_ictal_poor_verbal_or_cognition as select encounter_id, value_coded from omrs_obs where concept = 'Post-ictal poor verbal or cognition';
-alter table temp_post_ictal_poor_verbal_or_cognition add index temp_post_ictal_poor_verbal_or_cognition_encounter_idx (encounter_id);
+alter table temp_post_ictal_poor_verbal_or_cognition add index temp_post_ictal_poor_verbal_or_cognition_2 (encounter_id);
 
 drop temporary table if exists temp_pre_ictal_warning;
 create temporary table temp_pre_ictal_warning as select encounter_id, value_coded from omrs_obs where concept = 'Pre-ictal warning';
@@ -271,7 +271,7 @@ drop temporary table if exists temp_year_of_onset;
 create temporary table temp_year_of_onset as select encounter_id, value_numeric from omrs_obs where concept = 'Year of onset';
 alter table temp_year_of_onset add index temp_year_of_onset_encounter_idx (encounter_id);
 
-insert into mw_epilepsy_initial
+insert into mw_epilepsy_initial (patient_id, visit_date, location, age_at_onset, alcohol_date_of_exposure, alcohol_exposure, alcohol_trigger, art_start_date, behavioral_family_history, burn_complication, obs_group_burn_complication, complications_at_birth, date_of_burn_complication, obs_group_burn_complication, date_of_injury_complication, date_of_psychosis_complication, date_of_status_epilepticus_complication, obs_group_epilepticus_complication, delayed_milestones, drug_related_complication, drug_related_complication_date, education_level, emotional_stress_anger_boredom_trigger, epilepsy_family_history, fever_trigger, head_trauma_injury_surgery, history_of_seizure, hiv_status, hiv_test_date, injury_complication, marital_status, medication_history, menstruation_trigger, mental_health_family_history, missed_medication_trigger, month_of_onset, neonatal_infection_cerebral_malaria_meningitis, occupation, other_complication, other_complication_date, pig_date_of_exposure, pig_exposure, post_ictal_disorientation, post_ictal_drowsiness, post_ictal_headache, post_ictal_hyperactivity, post_ictal_memory_loss, post_ictal_nausea, post_ictal_paralysis, post_ictal_poor_concentration, post_ictal_poor_verbal_or_cognition, pre_ictal_warning, psychosis_complication, seizure_type_absence, seizure_type_atonic, seizure_type_clonic, seizure_type_complex, seizure_type_myoclonic, seizure_type_simple, seizure_type_tonic, seizure_type_tonic_clonic, seizure_type_unclassified, sleep_deprivation_and_overtired_trigger, smoking_date_of_exposure, smoking_exposure, sound_light_and_touch_trigger, status_epilepticus_complication, obs_group_epilepticus_complication, traditional_medicine_date_of_exposure, traditional_medicine_exposure, vdrl, year_of_onset)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -370,7 +370,7 @@ left join temp_menstruation_trigger menstruation_trigger on e.encounter_id = men
 left join temp_family_history_of_mental_illness family_history_of_mental_illness on e.encounter_id = family_history_of_mental_illness.encounter_id
 left join temp_missed_medication_trigger missed_medication_trigger on e.encounter_id = missed_medication_trigger.encounter_id
 left join temp_month_of_onset month_of_onset on e.encounter_id = month_of_onset.encounter_id
-left join temp_neonatal_infection_cerebral_malaria_and_or_meningitis neonatal_infection_cerebral_malaria_and_or_meningitis on e.encounter_id = neonatal_infection_cerebral_malaria_and_or_meningitis.encounter_id
+left join temp_neonatal_infection_cerebral_malaria_and_or neonatal_infection_cerebral_malaria_and_or_meningitis on e.encounter_id = neonatal_infection_cerebral_malaria_and_or_meningitis.encounter_id
 left join temp_main_activity main_activity on e.encounter_id = main_activity.encounter_id
 left join temp_post_ictal_disorientation post_ictal_disorientation on e.encounter_id = post_ictal_disorientation.encounter_id
 left join temp_post_ictal_drowsiness post_ictal_drowsiness on e.encounter_id = post_ictal_drowsiness.encounter_id

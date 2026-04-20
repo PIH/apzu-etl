@@ -34,7 +34,7 @@ drop temporary table if exists temp_blood_sugar_test_type;
 create temporary table temp_blood_sugar_test_type as select encounter_id, value_coded from omrs_obs where concept = 'Blood sugar test type';
 alter table temp_blood_sugar_test_type add index temp_blood_sugar_test_type_encounter_idx (encounter_id);
 
-insert into mw_art_followup_testing
+insert into mw_art_followup_testing (patient_id, visit_date, location, cd4_count, cd4_pct, phq_nine_score, serum_glucose, test_type)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

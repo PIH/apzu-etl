@@ -43,7 +43,7 @@ alter table temp_body_mass_index_measured add index temp_body_mass_index_measure
 
 drop temporary table if exists temp_normal_nutrition_screening_for_muac;
 create temporary table temp_normal_nutrition_screening_for_muac as select encounter_id, value_coded from omrs_obs where concept = 'Normal nutrition screening for MUAC';
-alter table temp_normal_nutrition_screening_for_muac add index temp_normal_nutrition_screening_for_muac_encounter_idx (encounter_id);
+alter table temp_normal_nutrition_screening_for_muac add index temp_normal_nutrition_screening_muac_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_nutrition_referral;
 create temporary table temp_nutrition_referral as select encounter_id, value_coded from omrs_obs where concept = 'Nutrition referral';
@@ -81,7 +81,7 @@ drop temporary table if exists temp_mental_health_screened;
 create temporary table temp_mental_health_screened as select encounter_id, value_coded from omrs_obs where concept = 'Mental health screened';
 alter table temp_mental_health_screened add index temp_mental_health_screened_encounter_idx (encounter_id);
 
-insert into mw_teen_club_followup
+insert into mw_teen_club_followup (patient_id, visit_date, location, next_appointment, height, hospitalized, muac_bmi, nutrition_screening_for_normal_muac, nutrition_referred, referred_to_sti_clinic, sti_screening_outcome, sputum_collected, tb_screening_outcome, tb_status, weight, adolescent_referred, adolescent_registered, mental_health_screened)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

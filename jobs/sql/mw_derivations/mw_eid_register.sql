@@ -16,7 +16,7 @@ create table mw_eid_register (
 alter table mw_eid_register add index mw_eid_register_patient_idx (patient_id);
 alter table mw_eid_register add index mw_eid_register_patient_location_idx (patient_id, location);
 
-insert into mw_eid_register
+insert into mw_eid_register (enrollment_id, patient_id, location, eid_number, mother_art_number, start_date, end_date, outcome, last_eid_visit_id)
 select
     p.program_enrollment_id as enrollment_id,
     s.patient_id,

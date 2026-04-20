@@ -106,7 +106,7 @@ alter table temp_cardiovascular_risk_score add index temp_cardiovascular_risk_sc
 
 drop temporary table if exists temp_mental_health_chief_complaint_absent;
 create temporary table temp_mental_health_chief_complaint_absent as select encounter_id, value_coded from omrs_obs where concept = 'Mental health chief complaint absent';
-alter table temp_mental_health_chief_complaint_absent add index temp_mental_health_chief_complaint_absent_encounter_idx (encounter_id);
+alter table temp_mental_health_chief_complaint_absent add index temp_mental_health_chief_complaint_absent_2 (encounter_id);
 
 drop temporary table if exists temp_current_drugs_used;
 create temporary table temp_current_drugs_used as select encounter_id, value_coded from omrs_obs where concept = 'Current drugs used';
@@ -118,7 +118,7 @@ alter table temp_seizure_activity add index temp_seizure_activity_encounter_idx 
 
 drop temporary table if exists temp_neuropathy_and_peripheral_vascular_disease;
 create temporary table temp_neuropathy_and_peripheral_vascular_disease as select encounter_id, value_coded from omrs_obs where concept = 'Neuropathy and Peripheral Vascular Disease';
-alter table temp_neuropathy_and_peripheral_vascular_disease add index temp_neuropathy_and_peripheral_vascular_disease_encounter_idx (encounter_id);
+alter table temp_neuropathy_and_peripheral_vascular_disease add index temp_neuropathy_and_peripheral_vascular_disease_2 (encounter_id);
 
 drop temporary table if exists temp_deformity_of_foot;
 create temporary table temp_deformity_of_foot as select encounter_id, value_coded from omrs_obs where concept = 'Deformity of foot';
@@ -130,15 +130,15 @@ alter table temp_foot_ulcer_or_infection add index temp_foot_ulcer_or_infection_
 
 drop temporary table if exists temp_patient_hospitalized_since_last_visit;
 create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Patient hospitalized since last visit';
-alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_encounter_idx (encounter_id);
+alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_2 (encounter_id);
 
-drop temporary table if exists temp_hospitalized_for_mental_health_since_last_visit;
-create temporary table temp_hospitalized_for_mental_health_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Hospitalized for mental health since last visit';
-alter table temp_hospitalized_for_mental_health_since_last_visit add index temp_hospitalized_for_mental_health_since_last_visit_encounter_idx (encounter_id);
+drop temporary table if exists temp_hospitalized_mental_health_since_last_visit;
+create temporary table temp_hospitalized_mental_health_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Hospitalized for mental health since last visit';
+alter table temp_hospitalized_mental_health_since_last_visit add index temp_hospitalized_mental_health_since_last_visit_2 (encounter_id);
 
 drop temporary table if exists temp_does_patient_have_adverse_effects;
 create temporary table temp_does_patient_have_adverse_effects as select encounter_id, value_coded from omrs_obs where concept = 'Does patient have adverse effects';
-alter table temp_does_patient_have_adverse_effects add index temp_does_patient_have_adverse_effects_encounter_idx (encounter_id);
+alter table temp_does_patient_have_adverse_effects add index temp_does_patient_adverse_effects_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_stable;
 create temporary table temp_stable as select encounter_id, value_coded from omrs_obs where concept = 'Stable';
@@ -148,7 +148,7 @@ drop temporary table if exists temp_fundoscopy;
 create temporary table temp_fundoscopy as select encounter_id, value_text from omrs_obs where concept = 'Fundoscopy';
 alter table temp_fundoscopy add index temp_fundoscopy_encounter_idx (encounter_id);
 
-insert into mw_ncd_visits
+insert into mw_ncd_visits (patient_id, visit_date, location, visit_types, cc_initial, cc_followup, diabetes_htn_initial, diabetes_htn_followup, asthma_initial, asthma_followup, epilepsy_initial, epilepsy_followup, mental_health_initial, mental_health_followup, ckd_initial, ckd_followup, chf_initial, chf_followup, ncd_other_initial, ncd_other_followup, sickle_cell_initial, sickle_cell_followup, next_appointment_date, systolic_bp, diastolic_bp, on_insulin, asthma_classification, seizure_activity, num_seizures, hba1c, serum_glucose, foot_check, suicide_risk, proteinuria, creatinine, hiv_result, visual_acuity, cv_risk, hospitalized_since_last_visit, mental_status_exam, mental_health_drugs, mental_health_drug_side_effect, mental_stable, fundoscopy)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -222,7 +222,7 @@ left join temp_neuropathy_and_peripheral_vascular_disease neuropathy_and_periphe
 left join temp_deformity_of_foot deformity_of_foot on e.encounter_id = deformity_of_foot.encounter_id
 left join temp_foot_ulcer_or_infection foot_ulcer_or_infection on e.encounter_id = foot_ulcer_or_infection.encounter_id
 left join temp_patient_hospitalized_since_last_visit patient_hospitalized_since_last_visit on e.encounter_id = patient_hospitalized_since_last_visit.encounter_id
-left join temp_hospitalized_for_mental_health_since_last_visit hospitalized_for_mental_health_since_last_visit on e.encounter_id = hospitalized_for_mental_health_since_last_visit.encounter_id
+left join temp_hospitalized_mental_health_since_last_visit hospitalized_for_mental_health_since_last_visit on e.encounter_id = hospitalized_for_mental_health_since_last_visit.encounter_id
 where e.encounter_type in (
     'CHRONIC_CARE_INITIAL', 'CHRONIC_CARE_FOLLOWUP',
     'DIABETES HYPERTENSION INITIAL VISIT', 'DIABETES HYPERTENSION FOLLOWUP',

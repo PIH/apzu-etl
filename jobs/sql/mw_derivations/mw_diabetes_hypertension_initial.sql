@@ -47,7 +47,7 @@ alter table temp_diagnosis_date add index temp_diagnosis_date_encounter_idx (enc
 
 drop temporary table if exists temp_family_history_of_diabetes_mellitus;
 create temporary table temp_family_history_of_diabetes_mellitus as select encounter_id, value_coded from omrs_obs where concept = 'Family History of Diabetes Mellitus';
-alter table temp_family_history_of_diabetes_mellitus add index temp_family_history_of_diabetes_mellitus_encounter_idx (encounter_id);
+alter table temp_family_history_of_diabetes_mellitus add index temp_family_history_diabetes_mellitus_encounter (encounter_id);
 
 drop temporary table if exists temp_family_history_of_hypertension;
 create temporary table temp_family_history_of_hypertension as select encounter_id, value_coded from omrs_obs where concept = 'Family history of hypertension';
@@ -69,7 +69,7 @@ drop temporary table if exists temp_year_of_tuberculosis_diagnosis;
 create temporary table temp_year_of_tuberculosis_diagnosis as select encounter_id, value_numeric from omrs_obs where concept = 'Year of Tuberculosis diagnosis';
 alter table temp_year_of_tuberculosis_diagnosis add index temp_year_of_tuberculosis_diagnosis_encounter_idx (encounter_id);
 
-insert into mw_diabetes_hypertension_initial
+insert into mw_diabetes_hypertension_initial (patient_id, visit_date, location, art_start_date, cardiovascular_disease, cardiovascular_disease_obs_group_id, cardiovascular_disease_date, cardiovascular_disease_obs_group_id, family_history_diabetes_mellitus, family_history_hypertension, hiv_status, hiv_test_date, diagnosis_hypertension, hypertension_obs_group_id, diagnosis_hypertension_date, hypertension_obs_group_id, neuropathy, neuropathy_obs_group_id, neuropathy_date, neuropathy_obs_group_id, peripheral_vascular_disease_date, peripheral_vascular_disease_obs_group_id, peripheral_vascular_disease, peripheral_vascular_disease_obs_group_id, renal_disease, renal_disease_obs_group_id, renal_disease_date, renal_disease_obs_group_id, retinopathy, retinopathy_obs_group_id, retinopathy_date, retinopathy_obs_group_id, sexual_disorder, sexual_disorder_obs_group_id, sexual_disorder_date, sexual_disorder_obs_group_id, stroke_and_tia_date, stroke_and_tia, tb_status, tb_status_year, diagnosis_type_1_diabetes, type_1_diabetes_obs_group_id, diagnosis_type_1_diabetes_date, type_1_diabetes_obs_group_id, diagnosis_type_2_diabetes, type_2_diabetes_obs_group_id, diagnosis_type_2_diabetes_date, type_2_diabetes_obs_group_id)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

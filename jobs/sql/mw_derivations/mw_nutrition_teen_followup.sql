@@ -41,7 +41,7 @@ alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id)
 
 drop temporary table if exists temp_middle_upper_arm_circumference_cm;
 create temporary table temp_middle_upper_arm_circumference_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Middle upper arm circumference (cm)';
-alter table temp_middle_upper_arm_circumference_cm add index temp_middle_upper_arm_circumference_cm_encounter_idx (encounter_id);
+alter table temp_middle_upper_arm_circumference_cm add index temp_middle_upper_arm_circumference_cm_encounter (encounter_id);
 
 drop temporary table if exists temp_received_maize_kg;
 create temporary table temp_received_maize_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Received maize (kg)';
@@ -55,7 +55,7 @@ drop temporary table if exists temp_weight_kg;
 create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
-insert into mw_nutrition_teen_followup
+insert into mw_nutrition_teen_followup (patient_id, visit_date, location, warehouse_signature, next_appointment, beans, comments, height, muac, maize, oil, weight)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

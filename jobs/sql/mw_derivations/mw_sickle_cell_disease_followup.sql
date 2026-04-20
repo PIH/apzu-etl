@@ -40,9 +40,9 @@ drop temporary table if exists temp_attended_school_ever;
 create temporary table temp_attended_school_ever as select encounter_id, value_coded from omrs_obs where concept = 'Attended school ever';
 alter table temp_attended_school_ever add index temp_attended_school_ever_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_currently_or_in_the_last_week_taking_antibiotics;
-create temporary table temp_currently_or_in_the_last_week_taking_antibiotics as select encounter_id, value_coded from omrs_obs where concept = 'Currently (or in the last week) taking antibiotics';
-alter table temp_currently_or_in_the_last_week_taking_antibiotics add index temp_currently_or_in_the_last_week_taking_antibiotics_encounter_idx (encounter_id);
+drop temporary table if exists temp_or_last_week_taking_antibiotics;
+create temporary table temp_or_last_week_taking_antibiotics as select encounter_id, value_coded from omrs_obs where concept = 'Currently (or in the last week) taking antibiotics';
+alter table temp_or_last_week_taking_antibiotics add index temp_or_last_week_taking_antibiotics_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_ascites;
 create temporary table temp_ascites as select encounter_id, value_coded from omrs_obs where concept = 'Ascites';
@@ -68,9 +68,9 @@ drop temporary table if exists temp_complications_since_last_visit;
 create temporary table temp_complications_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Complications since last visit';
 alter table temp_complications_since_last_visit add index temp_complications_since_last_visit_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_patient_experiences_fevers_chills_night_sweats_or_productive_cough;
-create temporary table temp_patient_experiences_fevers_chills_night_sweats_or_productive_cough as select encounter_id, value_coded from omrs_obs where concept = 'Patient experiences fevers, chills, night sweats, or productive cough';
-alter table temp_patient_experiences_fevers_chills_night_sweats_or_productive_cough add index temp_patient_experiences_fevers_chills_night_sweats_or_productive_cough_encounter_idx (encounter_id);
+drop temporary table if exists temp_patient_experiences_fevers_chills_night;
+create temporary table temp_patient_experiences_fevers_chills_night as select encounter_id, value_coded from omrs_obs where concept = 'Patient experiences fevers, chills, night sweats, or productive cough';
+alter table temp_patient_experiences_fevers_chills_night add index temp_patient_experiences_fevers_chills_night_2 (encounter_id);
 
 drop temporary table if exists temp_pulse;
 create temporary table temp_pulse as select encounter_id, value_numeric from omrs_obs where concept = 'Pulse';
@@ -82,7 +82,7 @@ alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id)
 
 drop temporary table if exists temp_patient_hospitalized_since_last_visit;
 create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Patient hospitalized since last visit';
-alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_encounter_idx (encounter_id);
+alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_2 (encounter_id);
 
 drop temporary table if exists temp_diagnosis_resolved;
 create temporary table temp_diagnosis_resolved as select encounter_id, value_coded from omrs_obs where concept = 'Diagnosis resolved';
@@ -124,7 +124,7 @@ drop temporary table if exists temp_haemoglobin;
 create temporary table temp_haemoglobin as select encounter_id, value_numeric from omrs_obs where concept = 'Haemoglobin';
 alter table temp_haemoglobin add index temp_haemoglobin_encounter_idx (encounter_id);
 
-insert into mw_sickle_cell_disease_followup
+insert into mw_sickle_cell_disease_followup (patient_id, visit_date, location, abnormal_lungs_exam, absence_from_school, antibiotics_rx, ascites, bmi_muac, bp_diastolic, bp_systolic, enlarged_liver, enlarged_spleen, fever, hr, height, hospitalized_since_last_visit, irregular_conjunctiva, jaundice, medication_rx, medication_side_effects, pain, spo2, temperature, weight, next_appointment_date, hb)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -155,14 +155,14 @@ select
 from omrs_encounter e
 left join temp_lung_exam_findings lung_exam_findings on e.encounter_id = lung_exam_findings.encounter_id
 left join temp_attended_school_ever attended_school_ever on e.encounter_id = attended_school_ever.encounter_id
-left join temp_currently_or_in_the_last_week_taking_antibiotics currently_or_in_the_last_week_taking_antibiotics on e.encounter_id = currently_or_in_the_last_week_taking_antibiotics.encounter_id
+left join temp_or_last_week_taking_antibiotics currently_or_in_the_last_week_taking_antibiotics on e.encounter_id = currently_or_in_the_last_week_taking_antibiotics.encounter_id
 left join temp_ascites ascites on e.encounter_id = ascites.encounter_id
 left join temp_body_mass_index_measured body_mass_index_measured on e.encounter_id = body_mass_index_measured.encounter_id
 left join temp_diastolic_blood_pressure diastolic_blood_pressure on e.encounter_id = diastolic_blood_pressure.encounter_id
 left join temp_systolic_blood_pressure systolic_blood_pressure on e.encounter_id = systolic_blood_pressure.encounter_id
 left join temp_enlarged_liver enlarged_liver on e.encounter_id = enlarged_liver.encounter_id
 left join temp_complications_since_last_visit complications_since_last_visit on e.encounter_id = complications_since_last_visit.encounter_id
-left join temp_patient_experiences_fevers_chills_night_sweats_or_productive_cough patient_experiences_fevers_chills_night_sweats_or_productive_cough on e.encounter_id = patient_experiences_fevers_chills_night_sweats_or_productive_cough.encounter_id
+left join temp_patient_experiences_fevers_chills_night patient_experiences_fevers_chills_night_sweats_or_productive_cough on e.encounter_id = patient_experiences_fevers_chills_night_sweats_or_productive_cough.encounter_id
 left join temp_pulse pulse on e.encounter_id = pulse.encounter_id
 left join temp_height_cm height_cm on e.encounter_id = height_cm.encounter_id
 left join temp_patient_hospitalized_since_last_visit patient_hospitalized_since_last_visit on e.encounter_id = patient_hospitalized_since_last_visit.encounter_id

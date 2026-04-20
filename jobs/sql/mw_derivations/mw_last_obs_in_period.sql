@@ -13,7 +13,7 @@ create table mw_last_obs_in_period (
 );
 
 -- Most recent obs per patient per concept up to each selected period end date
-insert into mw_last_obs_in_period
+insert into mw_last_obs_in_period (patient_id, concept, last_obs_date, encounter_type, location, value_coded, value_date, value_numeric, value_text, obs_group_id)
 select
     o.patient_id,
     o.concept,

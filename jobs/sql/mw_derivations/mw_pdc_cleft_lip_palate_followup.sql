@@ -79,7 +79,7 @@ alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id)
 
 drop temporary table if exists temp_height_for_age_percent_of_median;
 create temporary table temp_height_for_age_percent_of_median as select encounter_id, value_numeric from omrs_obs where concept = 'Height for age percent of median';
-alter table temp_height_for_age_percent_of_median add index temp_height_for_age_percent_of_median_encounter_idx (encounter_id);
+alter table temp_height_for_age_percent_of_median add index temp_height_age_percent_median_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_referred_out;
 create temporary table temp_referred_out as select encounter_id, value_coded from omrs_obs where concept = 'Referred out';
@@ -95,11 +95,11 @@ alter table temp_group_counselling add index temp_group_counselling_encounter_id
 
 drop temporary table if exists temp_middle_upper_arm_circumference_cm;
 create temporary table temp_middle_upper_arm_circumference_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Middle upper arm circumference (cm)';
-alter table temp_middle_upper_arm_circumference_cm add index temp_middle_upper_arm_circumference_cm_encounter_idx (encounter_id);
+alter table temp_middle_upper_arm_circumference_cm add index temp_middle_upper_arm_circumference_cm_encounter (encounter_id);
 
-drop temporary table if exists temp_malawi_developmental_assessment_tool_summary_normal_coded;
-create temporary table temp_malawi_developmental_assessment_tool_summary_normal_coded as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Developmental Assessment Tool Summary (Normal)-(Coded)';
-alter table temp_malawi_developmental_assessment_tool_summary_normal_coded add index temp_malawi_developmental_assessment_tool_summary_normal_coded_encounter_idx (encounter_id);
+drop temporary table if exists temp_malawi_developmental_assessment_tool_summary;
+create temporary table temp_malawi_developmental_assessment_tool_summary as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Developmental Assessment Tool Summary (Normal)-(Coded)';
+alter table temp_malawi_developmental_assessment_tool_summary add index temp_malawi_dev_assessment_tool_summary (encounter_id);
 
 drop temporary table if exists temp_wasting_malnutrition;
 create temporary table temp_wasting_malnutrition as select encounter_id, value_coded from omrs_obs where concept = 'Wasting/malnutrition';
@@ -135,9 +135,9 @@ alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id)
 
 drop temporary table if exists temp_weight_for_age_percent_of_median;
 create temporary table temp_weight_for_age_percent_of_median as select encounter_id, value_numeric from omrs_obs where concept = 'Weight for age percent of median';
-alter table temp_weight_for_age_percent_of_median add index temp_weight_for_age_percent_of_median_encounter_idx (encounter_id);
+alter table temp_weight_for_age_percent_of_median add index temp_weight_age_percent_median_encounter_idx (encounter_id);
 
-insert into mw_pdc_cleft_lip_palate_followup
+insert into mw_pdc_cleft_lip_palate_followup (patient_id, visit_date, location, continue_followup, difficult_breathing, ear_discharge, ear_pain, feeding_counseling, feeding_problems, food_supplement, group_therapy, heart_murmur, height, height_for_age, if_referred_out, if_referred_out_specify, individual_counselling, muac, mdat, malnutrition, next_appointment_date, other, poser, clinical_plan, referred_out, referred_out_specify, surgery_date, surgery_scheduled, weight, weight_for_age)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -185,7 +185,7 @@ left join temp_referred_out referred_out on e.encounter_id = referred_out.encoun
 left join temp_other_non_coded_text other_non_coded_text on e.encounter_id = other_non_coded_text.encounter_id
 left join temp_group_counselling group_counselling on e.encounter_id = group_counselling.encounter_id
 left join temp_middle_upper_arm_circumference_cm middle_upper_arm_circumference_cm on e.encounter_id = middle_upper_arm_circumference_cm.encounter_id
-left join temp_malawi_developmental_assessment_tool_summary_normal_coded malawi_developmental_assessment_tool_summary_normal_coded on e.encounter_id = malawi_developmental_assessment_tool_summary_normal_coded.encounter_id
+left join temp_malawi_developmental_assessment_tool_summary malawi_developmental_assessment_tool_summary_normal_coded on e.encounter_id = malawi_developmental_assessment_tool_summary_normal_coded.encounter_id
 left join temp_wasting_malnutrition wasting_malnutrition on e.encounter_id = wasting_malnutrition.encounter_id
 left join temp_appointment_date appointment_date on e.encounter_id = appointment_date.encounter_id
 left join temp_other_assessments other_assessments on e.encounter_id = other_assessments.encounter_id

@@ -96,23 +96,23 @@ alter table temp_answer_for_teen_club_topics add index temp_answer_for_teen_club
 
 drop temporary table if exists temp_are_people_afraid_to_be_around_you;
 create temporary table temp_are_people_afraid_to_be_around_you as select encounter_id, value_coded from omrs_obs where concept = 'Are people afraid to be around you?';
-alter table temp_are_people_afraid_to_be_around_you add index temp_are_people_afraid_to_be_around_you_encounter_idx (encounter_id);
+alter table temp_are_people_afraid_to_be_around_you add index temp_people_afraid_around_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_what_subjects_or_areas_of_study_interest_you_the_most;
-create temporary table temp_what_subjects_or_areas_of_study_interest_you_the_most as select encounter_id, value_coded from omrs_obs where concept = 'What subjects or areas of study interest you the most?';
-alter table temp_what_subjects_or_areas_of_study_interest_you_the_most add index temp_what_subjects_or_areas_of_study_interest_you_the_most_encounter_idx (encounter_id);
+drop temporary table if exists temp_subjects_or_areas_study_interest_most;
+create temporary table temp_subjects_or_areas_study_interest_most as select encounter_id, value_coded from omrs_obs where concept = 'What subjects or areas of study interest you the most?';
+alter table temp_subjects_or_areas_study_interest_most add index temp_subjects_or_areas_study_interest_most_2 (encounter_id);
 
 drop temporary table if exists temp_own_a_bicycle;
 create temporary table temp_own_a_bicycle as select encounter_id, value_coded from omrs_obs where concept = 'Own a bicycle';
 alter table temp_own_a_bicycle add index temp_own_a_bicycle_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_can_a_healthy_looking_person_have_hiv_infection;
-create temporary table temp_can_a_healthy_looking_person_have_hiv_infection as select encounter_id, value_coded from omrs_obs where concept = 'Can a healthy-looking person have HIV infection?';
-alter table temp_can_a_healthy_looking_person_have_hiv_infection add index temp_can_a_healthy_looking_person_have_hiv_infection_encounter_idx (encounter_id);
+drop temporary table if exists temp_healthy_looking_person_hiv_infection;
+create temporary table temp_healthy_looking_person_hiv_infection as select encounter_id, value_coded from omrs_obs where concept = 'Can a healthy-looking person have HIV infection?';
+alter table temp_healthy_looking_person_hiv_infection add index temp_healthy_looking_person_hiv_infection_2 (encounter_id);
 
 drop temporary table if exists temp_can_an_hiv_infected_person_live_longer;
 create temporary table temp_can_an_hiv_infected_person_live_longer as select encounter_id, value_coded from omrs_obs where concept = 'Can an HIV infected person live longer?';
-alter table temp_can_an_hiv_infected_person_live_longer add index temp_can_an_hiv_infected_person_live_longer_encounter_idx (encounter_id);
+alter table temp_can_an_hiv_infected_person_live_longer add index temp_hiv_infected_person_live_longer_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_can_hiv_aids_be_cured;
 create temporary table temp_can_hiv_aids_be_cured as select encounter_id, value_coded from omrs_obs where concept = 'Can HIV/AIDS be cured?';
@@ -122,17 +122,17 @@ drop temporary table if exists temp_own_an_car_truck;
 create temporary table temp_own_an_car_truck as select encounter_id, value_coded from omrs_obs where concept = 'Own an car/truck';
 alter table temp_own_an_car_truck add index temp_own_an_car_truck_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_what_career_job_would_you_like_to_do_when_you_finish_school;
-create temporary table temp_what_career_job_would_you_like_to_do_when_you_finish_school as select encounter_id, value_text from omrs_obs where concept = 'What career/job would you like to do when you finish school?';
-alter table temp_what_career_job_would_you_like_to_do_when_you_finish_school add index temp_what_career_job_would_you_like_to_do_when_you_finish_school_encounter_idx (encounter_id);
+drop temporary table if exists temp_career_job_finish_school;
+create temporary table temp_career_job_finish_school as select encounter_id, value_text from omrs_obs where concept = 'What career/job would you like to do when you finish school?';
+alter table temp_career_job_finish_school add index temp_career_job_finish_school_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_are_there_any_specific_careers_or_industries_that_you_are_curious_about_or_would_like_to_learn_more_about;
-create temporary table temp_are_there_any_specific_careers_or_industries_that_you_are_curious_about_or_would_like_to_learn_more_about as select encounter_id, value_coded from omrs_obs where concept = 'Are there any specific careers or industries that you are curious about or would like to learn more about?';
-alter table temp_are_there_any_specific_careers_or_industries_that_you_are_curious_about_or_would_like_to_learn_more_about add index temp_are_there_any_specific_careers_or_industries_that_you_are_curious_about_or_would_like_to_learn_more_about_encounter_idx (encounter_id);
+drop temporary table if exists temp_careers_or_indust_curious_or_learn_more;
+create temporary table temp_careers_or_indust_curious_or_learn_more as select encounter_id, value_coded from omrs_obs where concept = 'Are there any specific careers or industries that you are curious about or would like to learn more about?';
+alter table temp_careers_or_indust_curious_or_learn_more add index temp_careers_or_indust_curious_or_learn_more_2 (encounter_id);
 
 drop temporary table if exists temp_challenges_you_face_in_daily_life;
 create temporary table temp_challenges_you_face_in_daily_life as select encounter_id, value_text from omrs_obs where concept = 'Challenges you face in daily life';
-alter table temp_challenges_you_face_in_daily_life add index temp_challenges_you_face_in_daily_life_encounter_idx (encounter_id);
+alter table temp_challenges_you_face_in_daily_life add index temp_challenges_face_daily_life_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_fuel_for_household_cooking;
 create temporary table temp_fuel_for_household_cooking as select encounter_id, value_coded from omrs_obs where concept = 'Fuel for household cooking';
@@ -170,33 +170,33 @@ drop temporary table if exists temp_gender_of_contact;
 create temporary table temp_gender_of_contact as select encounter_id, value_coded from omrs_obs where concept = 'Gender of contact';
 alter table temp_gender_of_contact add index temp_gender_of_contact_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_have_you_obtained_any_vocational_training_or_certifications_in_your_desired_field;
-create temporary table temp_have_you_obtained_any_vocational_training_or_certifications_in_your_desired_field as select encounter_id, value_coded from omrs_obs where concept = 'Have you obtained any vocational training or certifications in your desired field?';
-alter table temp_have_you_obtained_any_vocational_training_or_certifications_in_your_desired_field add index temp_have_you_obtained_any_vocational_training_or_certifications_in_your_desired_field_encounter_idx (encounter_id);
+drop temporary table if exists temp_vocat_training_or_certs_field;
+create temporary table temp_vocat_training_or_certs_field as select encounter_id, value_coded from omrs_obs where concept = 'Have you obtained any vocational training or certifications in your desired field?';
+alter table temp_vocat_training_or_certs_field add index temp_vocat_training_or_certs_field_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_are_you_happy_with_teen_club;
 create temporary table temp_are_you_happy_with_teen_club as select encounter_id, value_coded from omrs_obs where concept = 'Are you happy with teen club?';
 alter table temp_are_you_happy_with_teen_club add index temp_are_you_happy_with_teen_club_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_are_there_any_role_models_or_professionals_in_your_desired_field_that_you_look_up_to;
-create temporary table temp_are_there_any_role_models_or_professionals_in_your_desired_field_that_you_look_up_to as select encounter_id, value_coded from omrs_obs where concept = 'Are there any role models or professionals in your desired field that you look up to?';
-alter table temp_are_there_any_role_models_or_professionals_in_your_desired_field_that_you_look_up_to add index temp_are_there_any_role_models_or_professionals_in_your_desired_field_that_you_look_up_to_encounter_idx (encounter_id);
+drop temporary table if exists temp_role_models_or_profs_field_look;
+create temporary table temp_role_models_or_profs_field_look as select encounter_id, value_coded from omrs_obs where concept = 'Are there any role models or professionals in your desired field that you look up to?';
+alter table temp_role_models_or_profs_field_look add index temp_role_models_or_profs_field_look_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_did_you_have_sex_in_exchange_for_money_goods_or_favor;
-create temporary table temp_did_you_have_sex_in_exchange_for_money_goods_or_favor as select encounter_id, value_coded from omrs_obs where concept = 'Did you have sex in exchange for money, goods or favor?';
-alter table temp_did_you_have_sex_in_exchange_for_money_goods_or_favor add index temp_did_you_have_sex_in_exchange_for_money_goods_or_favor_encounter_idx (encounter_id);
+drop temporary table if exists temp_did_sex_exchange_money_goods_or_favor;
+create temporary table temp_did_sex_exchange_money_goods_or_favor as select encounter_id, value_coded from omrs_obs where concept = 'Did you have sex in exchange for money, goods or favor?';
+alter table temp_did_sex_exchange_money_goods_or_favor add index temp_did_sex_exchange_money_goods_or_favor_2 (encounter_id);
 
 drop temporary table if exists temp_do_you_have_sex_when_you;
 create temporary table temp_do_you_have_sex_when_you as select encounter_id, value_coded from omrs_obs where concept = 'Do you have sex when you';
 alter table temp_do_you_have_sex_when_you add index temp_do_you_have_sex_when_you_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_did_you_ever_have_sex_with_someone_who_is_younger_or_you;
-create temporary table temp_did_you_ever_have_sex_with_someone_who_is_younger_or_you as select encounter_id, value_coded from omrs_obs where concept = 'Did you ever have sex with someone who is younger or you';
-alter table temp_did_you_ever_have_sex_with_someone_who_is_younger_or_you add index temp_did_you_ever_have_sex_with_someone_who_is_younger_or_you_encounter_idx (encounter_id);
+drop temporary table if exists temp_did_ever_sex_someone_younger_or;
+create temporary table temp_did_ever_sex_someone_younger_or as select encounter_id, value_coded from omrs_obs where concept = 'Did you ever have sex with someone who is younger or you';
+alter table temp_did_ever_sex_someone_younger_or add index temp_did_ever_sex_someone_younger_or_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_have_you_started_thinking_about_your_future_career_and_job_aspirations;
-create temporary table temp_have_you_started_thinking_about_your_future_career_and_job_aspirations as select encounter_id, value_coded from omrs_obs where concept = 'Have you started thinking about your future career and job aspirations?';
-alter table temp_have_you_started_thinking_about_your_future_career_and_job_aspirations add index temp_have_you_started_thinking_about_your_future_career_and_job_aspirations_encounter_idx (encounter_id);
+drop temporary table if exists temp_started_thinking_future_career_and_job_aspir;
+create temporary table temp_started_thinking_future_career_and_job_aspir as select encounter_id, value_coded from omrs_obs where concept = 'Have you started thinking about your future career and job aspirations?';
+alter table temp_started_thinking_future_career_and_job_aspir add index temp_started_thinking_future_career_aspir (encounter_id);
 
 drop temporary table if exists temp_health_facility_name;
 create temporary table temp_health_facility_name as select encounter_id, value_text from omrs_obs where concept = 'Health facility name';
@@ -208,7 +208,7 @@ alter table temp_how_is_hiv_aids_prevented add index temp_how_is_hiv_aids_preven
 
 drop temporary table if exists temp_answer_for_how_hiv_is_transmitted;
 create temporary table temp_answer_for_how_hiv_is_transmitted as select encounter_id, value_text from omrs_obs where concept = 'Answer for How HIV is transmitted';
-alter table temp_answer_for_how_hiv_is_transmitted add index temp_answer_for_how_hiv_is_transmitted_encounter_idx (encounter_id);
+alter table temp_answer_for_how_hiv_is_transmitted add index temp_answer_hiv_transmitted_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_are_you_in_school;
 create temporary table temp_are_you_in_school as select encounter_id, value_coded from omrs_obs where concept = 'Are you in school?';
@@ -216,7 +216,7 @@ alter table temp_are_you_in_school add index temp_are_you_in_school_encounter_id
 
 drop temporary table if exists temp_have_you_ever_used_injectable_drugs;
 create temporary table temp_have_you_ever_used_injectable_drugs as select encounter_id, value_coded from omrs_obs where concept = 'Have you ever used injectable drugs?';
-alter table temp_have_you_ever_used_injectable_drugs add index temp_have_you_ever_used_injectable_drugs_encounter_idx (encounter_id);
+alter table temp_have_you_ever_used_injectable_drugs add index temp_ever_used_injectable_drugs_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_data_collection_date;
 create temporary table temp_data_collection_date as select encounter_id, value_date from omrs_obs where concept = 'Data collection date';
@@ -226,29 +226,29 @@ drop temporary table if exists temp_interviewer_name;
 create temporary table temp_interviewer_name as select encounter_id, value_text from omrs_obs where concept = 'Interviewer Name';
 alter table temp_interviewer_name add index temp_interviewer_name_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_are_you_currently_involved_in_any_extracurricular_activities_or_clubs_related_to_your_career_interests;
-create temporary table temp_are_you_currently_involved_in_any_extracurricular_activities_or_clubs_related_to_your_career_interests as select encounter_id, value_coded from omrs_obs where concept = 'Are you currently involved in any extracurricular activities or clubs related to your career interests?';
-alter table temp_are_you_currently_involved_in_any_extracurricular_activities_or_clubs_related_to_your_career_interests add index temp_are_you_currently_involved_in_any_extracurricular_activities_or_clubs_related_to_your_career_interests_encounter_idx (encounter_id);
+drop temporary table if exists temp_extracurr_acts_or_clubs_career_intrsts;
+create temporary table temp_extracurr_acts_or_clubs_career_intrsts as select encounter_id, value_coded from omrs_obs where concept = 'Are you currently involved in any extracurricular activities or clubs related to your career interests?';
+alter table temp_extracurr_acts_or_clubs_career_intrsts add index temp_extracurr_acts_or_clubs_career_intrsts_2 (encounter_id);
 
 drop temporary table if exists temp_is_hiv_a_punishment_for_bad_behaviour;
 create temporary table temp_is_hiv_a_punishment_for_bad_behaviour as select encounter_id, value_coded from omrs_obs where concept = 'Is HIV a punishment for bad behaviour?';
-alter table temp_is_hiv_a_punishment_for_bad_behaviour add index temp_is_hiv_a_punishment_for_bad_behaviour_encounter_idx (encounter_id);
+alter table temp_is_hiv_a_punishment_for_bad_behaviour add index temp_hiv_punishment_bad_behaviour_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_is_hiv_just_a_matter_of_bad_luck;
 create temporary table temp_is_hiv_just_a_matter_of_bad_luck as select encounter_id, value_coded from omrs_obs where concept = 'Is HIV just a matter of bad luck?';
-alter table temp_is_hiv_just_a_matter_of_bad_luck add index temp_is_hiv_just_a_matter_of_bad_luck_encounter_idx (encounter_id);
+alter table temp_is_hiv_just_a_matter_of_bad_luck add index temp_hiv_just_matter_bad_luck_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_answer_for_kind_of_teen_club_support;
 create temporary table temp_answer_for_kind_of_teen_club_support as select encounter_id, value_text from omrs_obs where concept = 'Answer for Kind of teen club support';
-alter table temp_answer_for_kind_of_teen_club_support add index temp_answer_for_kind_of_teen_club_support_encounter_idx (encounter_id);
+alter table temp_answer_for_kind_of_teen_club_support add index temp_answer_kind_teen_club_supp_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_answer_for_kind_of_teen_club_support_would_you_like_to_get;
-create temporary table temp_answer_for_kind_of_teen_club_support_would_you_like_to_get as select encounter_id, value_text from omrs_obs where concept = 'Answer for Kind of teen club support would you like to get';
-alter table temp_answer_for_kind_of_teen_club_support_would_you_like_to_get add index temp_answer_for_kind_of_teen_club_support_would_you_like_to_get_encounter_idx (encounter_id);
+drop temporary table if exists temp_answer_kind_teen_club_supp_get;
+create temporary table temp_answer_kind_teen_club_supp_get as select encounter_id, value_text from omrs_obs where concept = 'Answer for Kind of teen club support would you like to get';
+alter table temp_answer_kind_teen_club_supp_get add index temp_answer_kind_teen_club_supp_get_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_kind_of_toilet_facility_used_by_household_members;
-create temporary table temp_kind_of_toilet_facility_used_by_household_members as select encounter_id, value_coded from omrs_obs where concept = 'Kind of toilet facility used by household members';
-alter table temp_kind_of_toilet_facility_used_by_household_members add index temp_kind_of_toilet_facility_used_by_household_members_encounter_idx (encounter_id);
+drop temporary table if exists temp_kind_toilet_facility_used_household_members;
+create temporary table temp_kind_toilet_facility_used_household_members as select encounter_id, value_coded from omrs_obs where concept = 'Kind of toilet facility used by household members';
+alter table temp_kind_toilet_facility_used_household_members add index temp_kind_toilet_facility_used_household_members_2 (encounter_id);
 
 drop temporary table if exists temp_what_you_like_most_at_teen_club;
 create temporary table temp_what_you_like_most_at_teen_club as select encounter_id, value_text from omrs_obs where concept = 'What you like most at teen club?';
@@ -268,7 +268,7 @@ alter table temp_own_a_motorcycle add index temp_own_a_motorcycle_encounter_idx 
 
 drop temporary table if exists temp_total_number_of_household_members;
 create temporary table temp_total_number_of_household_members as select encounter_id, value_numeric from omrs_obs where concept = 'Total number of household members';
-alter table temp_total_number_of_household_members add index temp_total_number_of_household_members_encounter_idx (encounter_id);
+alter table temp_total_number_of_household_members add index temp_total_number_household_members_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_parents_location;
 create temporary table temp_parents_location as select encounter_id, value_text from omrs_obs where concept = 'Parents location';
@@ -286,13 +286,13 @@ drop temporary table if exists temp_own_a_radio;
 create temporary table temp_own_a_radio as select encounter_id, value_coded from omrs_obs where concept = 'Own a radio';
 alter table temp_own_a_radio add index temp_own_a_radio_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_can_you_rate_the_changes_that_happened_to_your_life_from_the_social_support_a_scale_of_1_to_3;
-create temporary table temp_can_you_rate_the_changes_that_happened_to_your_life_from_the_social_support_a_scale_of_1_to_3 as select encounter_id, value_coded from omrs_obs where concept = 'Can you rate the changes that happened to your life from the social support a scale of 1 to 3?';
-alter table temp_can_you_rate_the_changes_that_happened_to_your_life_from_the_social_support_a_scale_of_1_to_3 add index temp_can_you_rate_the_changes_that_happened_to_your_life_from_the_social_support_a_scale_of_1_to_3_encounter_idx (encounter_id);
+drop temporary table if exists temp_rate_chgs_hppnd_life_social_supp_scale_1_3;
+create temporary table temp_rate_chgs_hppnd_life_social_supp_scale_1_3 as select encounter_id, value_coded from omrs_obs where concept = 'Can you rate the changes that happened to your life from the social support a scale of 1 to 3?';
+alter table temp_rate_chgs_hppnd_life_social_supp_scale_1_3 add index temp_rate_chgs_hppnd_life_social_supp_scale_1_3_2 (encounter_id);
 
-drop temporary table if exists temp_how_do_you_rate_the_support_on_a_scale_of_1_to_3;
-create temporary table temp_how_do_you_rate_the_support_on_a_scale_of_1_to_3 as select encounter_id, value_coded from omrs_obs where concept = 'How do you rate the support on a scale of 1 to 3?';
-alter table temp_how_do_you_rate_the_support_on_a_scale_of_1_to_3 add index temp_how_do_you_rate_the_support_on_a_scale_of_1_to_3_encounter_idx (encounter_id);
+drop temporary table if exists temp_rate_supp_scale_1_3;
+create temporary table temp_rate_supp_scale_1_3 as select encounter_id, value_coded from omrs_obs where concept = 'How do you rate the support on a scale of 1 to 3?';
+alter table temp_rate_supp_scale_1_3 add index temp_rate_supp_scale_1_3_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_rate_your_hiv_knowledge;
 create temporary table temp_rate_your_hiv_knowledge as select encounter_id, value_coded from omrs_obs where concept = 'Rate your HIV knowledge';
@@ -300,7 +300,7 @@ alter table temp_rate_your_hiv_knowledge add index temp_rate_your_hiv_knowledge_
 
 drop temporary table if exists temp_reason_for_staying_with_single_parent;
 create temporary table temp_reason_for_staying_with_single_parent as select encounter_id, value_coded from omrs_obs where concept = 'Reason for staying with single parent';
-alter table temp_reason_for_staying_with_single_parent add index temp_reason_for_staying_with_single_parent_encounter_idx (encounter_id);
+alter table temp_reason_for_staying_with_single_parent add index temp_reason_staying_single_parent_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_name_of_role_model_s;
 create temporary table temp_name_of_role_model_s as select encounter_id, value_text from omrs_obs where concept = 'Name of role model(s)';
@@ -312,11 +312,11 @@ alter table temp_social_support_from_teen_club add index temp_social_support_fro
 
 drop temporary table if exists temp_main_source_of_drinking_water_for_household;
 create temporary table temp_main_source_of_drinking_water_for_household as select encounter_id, value_coded from omrs_obs where concept = 'Main source of drinking water for household';
-alter table temp_main_source_of_drinking_water_for_household add index temp_main_source_of_drinking_water_for_household_encounter_idx (encounter_id);
+alter table temp_main_source_of_drinking_water_for_household add index temp_main_source_drinking_water_household (encounter_id);
 
 drop temporary table if exists temp_main_energy_source_for_household_lighting;
 create temporary table temp_main_energy_source_for_household_lighting as select encounter_id, value_coded from omrs_obs where concept = 'Main energy source for household lighting';
-alter table temp_main_energy_source_for_household_lighting add index temp_main_energy_source_for_household_lighting_encounter_idx (encounter_id);
+alter table temp_main_energy_source_for_household_lighting add index temp_main_energy_source_household_lighting (encounter_id);
 
 drop temporary table if exists temp_own_a_tv;
 create temporary table temp_own_a_tv as select encounter_id, value_coded from omrs_obs where concept = 'Own a Tv';
@@ -340,13 +340,13 @@ alter table temp_village add index temp_village_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_what_courses_or_what_do_you_want_to_do_life;
 create temporary table temp_what_courses_or_what_do_you_want_to_do_life as select encounter_id, value_text from omrs_obs where concept = 'What courses or what do you want to do life?';
-alter table temp_what_courses_or_what_do_you_want_to_do_life add index temp_what_courses_or_what_do_you_want_to_do_life_encounter_idx (encounter_id);
+alter table temp_what_courses_or_what_do_you_want_to_do_life add index temp_courses_or_want_life_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_what_exactly_do_you_want_to_do_in_this_life;
 create temporary table temp_what_exactly_do_you_want_to_do_in_this_life as select encounter_id, value_text from omrs_obs where concept = 'What exactly do you want to do in this life?';
-alter table temp_what_exactly_do_you_want_to_do_in_this_life add index temp_what_exactly_do_you_want_to_do_in_this_life_encounter_idx (encounter_id);
+alter table temp_what_exactly_do_you_want_to_do_in_this_life add index temp_exactly_want_this_life_encounter_idx (encounter_id);
 
-insert into mw_teen_club_intake_survey
+insert into mw_teen_club_intake_survey (patient_id, visit_date, location, animal_drawn_cart, teen_club_activities, teen_club_purpose, teen_club_topics, are_people_afraid_to_be_around_you, area_of_study_interest, bicycle, can_a_healthy_person_have_hiv, can_an_hiv_person_live_longer, can_hiv_be_cured, car, career_after_school, careers_or_industries_interested, challenges_in_daily_life, cooking_fuel, current_class, like_most, dropout_class, enrolled_in_teen_club, ever_used_elicit_drugs, extracurricular_activities, fridge, gender, got_vocational_training, happy_with_teen_club, have_role_models, have_sex_in_exchange_for_money, have_sex_under_alcohol_influence, have_sex_with_someone_older_or_younger, have_you_started_thinking_about_your_future, health_facility, how_is_hiv_prevented, how_is_hiv_transmitted, in_school, injectable_drugs, interview_date, interviewer_name, involed_in_extra_curricular_activities, is_hiv_a_punishment, is_hiv_bad_luck, kind_of_teen_club_social_support, what_kind_of_teen_club_support, kind_of_toilet, like_most, literate, mobile_phone, motorcycle, num_of_household_members, parents_location, plans_after_school, primary_guardian, radio, rate_changes_from_social_support, rate_social_support, rate_your_hiv_knowledge, staying_with_single_paren_reason, role_models, should_a_positive_student_be_allowed_at_your_school, social_support_from_teen_club, source_of_drinking_water, source_of_lighting, television, toilet_at_home, type_of_house_floor, type_of_house_roof, village_name, what_do_you_want_to_do, what_exactly_do_you_want_to_do, what_kind_of_teen_club_support)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -426,14 +426,14 @@ left join temp_answer_for_teen_club_activities answer_for_teen_club_activities o
 left join temp_answer_for_teens_club_purpose answer_for_teens_club_purpose on e.encounter_id = answer_for_teens_club_purpose.encounter_id
 left join temp_answer_for_teen_club_topics answer_for_teen_club_topics on e.encounter_id = answer_for_teen_club_topics.encounter_id
 left join temp_are_people_afraid_to_be_around_you are_people_afraid_to_be_around_you on e.encounter_id = are_people_afraid_to_be_around_you.encounter_id
-left join temp_what_subjects_or_areas_of_study_interest_you_the_most what_subjects_or_areas_of_study_interest_you_the_most on e.encounter_id = what_subjects_or_areas_of_study_interest_you_the_most.encounter_id
+left join temp_subjects_or_areas_study_interest_most what_subjects_or_areas_of_study_interest_you_the_most on e.encounter_id = what_subjects_or_areas_of_study_interest_you_the_most.encounter_id
 left join temp_own_a_bicycle own_a_bicycle on e.encounter_id = own_a_bicycle.encounter_id
-left join temp_can_a_healthy_looking_person_have_hiv_infection can_a_healthy_looking_person_have_hiv_infection on e.encounter_id = can_a_healthy_looking_person_have_hiv_infection.encounter_id
+left join temp_healthy_looking_person_hiv_infection can_a_healthy_looking_person_have_hiv_infection on e.encounter_id = can_a_healthy_looking_person_have_hiv_infection.encounter_id
 left join temp_can_an_hiv_infected_person_live_longer can_an_hiv_infected_person_live_longer on e.encounter_id = can_an_hiv_infected_person_live_longer.encounter_id
 left join temp_can_hiv_aids_be_cured can_hiv_aids_be_cured on e.encounter_id = can_hiv_aids_be_cured.encounter_id
 left join temp_own_an_car_truck own_an_car_truck on e.encounter_id = own_an_car_truck.encounter_id
-left join temp_what_career_job_would_you_like_to_do_when_you_finish_school what_career_job_would_you_like_to_do_when_you_finish_school on e.encounter_id = what_career_job_would_you_like_to_do_when_you_finish_school.encounter_id
-left join temp_are_there_any_specific_careers_or_industries_that_you_are_curious_about_or_would_like_to_learn_more_about are_there_any_specific_careers_or_industries_that_you_are_curious_about_or_would_like_to_learn_more_about on e.encounter_id = are_there_any_specific_careers_or_industries_that_you_are_curious_about_or_would_like_to_learn_more_about.encounter_id
+left join temp_career_job_finish_school what_career_job_would_you_like_to_do_when_you_finish_school on e.encounter_id = what_career_job_would_you_like_to_do_when_you_finish_school.encounter_id
+left join temp_careers_or_indust_curious_or_learn_more are_there_any_specific_careers_or_industries_that_you_are_curious_about_or_would_like_to_learn_more_about on e.encounter_id = are_there_any_specific_careers_or_industries_that_you_are_curious_about_or_would_like_to_learn_more_about.encounter_id
 left join temp_challenges_you_face_in_daily_life challenges_you_face_in_daily_life on e.encounter_id = challenges_you_face_in_daily_life.encounter_id
 left join temp_fuel_for_household_cooking fuel_for_household_cooking on e.encounter_id = fuel_for_household_cooking.encounter_id
 left join temp_current_school_class current_school_class on e.encounter_id = current_school_class.encounter_id
@@ -444,13 +444,13 @@ left join temp_have_you_ever_used_elicit_drugs have_you_ever_used_elicit_drugs o
 left join temp_extracurricular_activities extracurricular_activities on e.encounter_id = extracurricular_activities.encounter_id
 left join temp_own_a_refrigerator own_a_refrigerator on e.encounter_id = own_a_refrigerator.encounter_id
 left join temp_gender_of_contact gender_of_contact on e.encounter_id = gender_of_contact.encounter_id
-left join temp_have_you_obtained_any_vocational_training_or_certifications_in_your_desired_field have_you_obtained_any_vocational_training_or_certifications_in_your_desired_field on e.encounter_id = have_you_obtained_any_vocational_training_or_certifications_in_your_desired_field.encounter_id
+left join temp_vocat_training_or_certs_field have_you_obtained_any_vocational_training_or_certifications_in_your_desired_field on e.encounter_id = have_you_obtained_any_vocational_training_or_certifications_in_your_desired_field.encounter_id
 left join temp_are_you_happy_with_teen_club are_you_happy_with_teen_club on e.encounter_id = are_you_happy_with_teen_club.encounter_id
-left join temp_are_there_any_role_models_or_professionals_in_your_desired_field_that_you_look_up_to are_there_any_role_models_or_professionals_in_your_desired_field_that_you_look_up_to on e.encounter_id = are_there_any_role_models_or_professionals_in_your_desired_field_that_you_look_up_to.encounter_id
-left join temp_did_you_have_sex_in_exchange_for_money_goods_or_favor did_you_have_sex_in_exchange_for_money_goods_or_favor on e.encounter_id = did_you_have_sex_in_exchange_for_money_goods_or_favor.encounter_id
+left join temp_role_models_or_profs_field_look are_there_any_role_models_or_professionals_in_your_desired_field_that_you_look_up_to on e.encounter_id = are_there_any_role_models_or_professionals_in_your_desired_field_that_you_look_up_to.encounter_id
+left join temp_did_sex_exchange_money_goods_or_favor did_you_have_sex_in_exchange_for_money_goods_or_favor on e.encounter_id = did_you_have_sex_in_exchange_for_money_goods_or_favor.encounter_id
 left join temp_do_you_have_sex_when_you do_you_have_sex_when_you on e.encounter_id = do_you_have_sex_when_you.encounter_id
-left join temp_did_you_ever_have_sex_with_someone_who_is_younger_or_you did_you_ever_have_sex_with_someone_who_is_younger_or_you on e.encounter_id = did_you_ever_have_sex_with_someone_who_is_younger_or_you.encounter_id
-left join temp_have_you_started_thinking_about_your_future_career_and_job_aspirations have_you_started_thinking_about_your_future_career_and_job_aspirations on e.encounter_id = have_you_started_thinking_about_your_future_career_and_job_aspirations.encounter_id
+left join temp_did_ever_sex_someone_younger_or did_you_ever_have_sex_with_someone_who_is_younger_or_you on e.encounter_id = did_you_ever_have_sex_with_someone_who_is_younger_or_you.encounter_id
+left join temp_started_thinking_future_career_and_job_aspir have_you_started_thinking_about_your_future_career_and_job_aspirations on e.encounter_id = have_you_started_thinking_about_your_future_career_and_job_aspirations.encounter_id
 left join temp_health_facility_name health_facility_name on e.encounter_id = health_facility_name.encounter_id
 left join temp_how_is_hiv_aids_prevented how_is_hiv_aids_prevented on e.encounter_id = how_is_hiv_aids_prevented.encounter_id
 left join temp_answer_for_how_hiv_is_transmitted answer_for_how_hiv_is_transmitted on e.encounter_id = answer_for_how_hiv_is_transmitted.encounter_id
@@ -458,12 +458,12 @@ left join temp_are_you_in_school are_you_in_school on e.encounter_id = are_you_i
 left join temp_have_you_ever_used_injectable_drugs have_you_ever_used_injectable_drugs on e.encounter_id = have_you_ever_used_injectable_drugs.encounter_id
 left join temp_data_collection_date data_collection_date on e.encounter_id = data_collection_date.encounter_id
 left join temp_interviewer_name interviewer_name on e.encounter_id = interviewer_name.encounter_id
-left join temp_are_you_currently_involved_in_any_extracurricular_activities_or_clubs_related_to_your_career_interests are_you_currently_involved_in_any_extracurricular_activities_or_clubs_related_to_your_career_interests on e.encounter_id = are_you_currently_involved_in_any_extracurricular_activities_or_clubs_related_to_your_career_interests.encounter_id
+left join temp_extracurr_acts_or_clubs_career_intrsts are_you_currently_involved_in_any_extracurricular_activities_or_clubs_related_to_your_career_interests on e.encounter_id = are_you_currently_involved_in_any_extracurricular_activities_or_clubs_related_to_your_career_interests.encounter_id
 left join temp_is_hiv_a_punishment_for_bad_behaviour is_hiv_a_punishment_for_bad_behaviour on e.encounter_id = is_hiv_a_punishment_for_bad_behaviour.encounter_id
 left join temp_is_hiv_just_a_matter_of_bad_luck is_hiv_just_a_matter_of_bad_luck on e.encounter_id = is_hiv_just_a_matter_of_bad_luck.encounter_id
 left join temp_answer_for_kind_of_teen_club_support answer_for_kind_of_teen_club_support on e.encounter_id = answer_for_kind_of_teen_club_support.encounter_id
-left join temp_answer_for_kind_of_teen_club_support_would_you_like_to_get answer_for_kind_of_teen_club_support_would_you_like_to_get on e.encounter_id = answer_for_kind_of_teen_club_support_would_you_like_to_get.encounter_id
-left join temp_kind_of_toilet_facility_used_by_household_members kind_of_toilet_facility_used_by_household_members on e.encounter_id = kind_of_toilet_facility_used_by_household_members.encounter_id
+left join temp_answer_kind_teen_club_supp_get answer_for_kind_of_teen_club_support_would_you_like_to_get on e.encounter_id = answer_for_kind_of_teen_club_support_would_you_like_to_get.encounter_id
+left join temp_kind_toilet_facility_used_household_members kind_of_toilet_facility_used_by_household_members on e.encounter_id = kind_of_toilet_facility_used_by_household_members.encounter_id
 left join temp_what_you_like_most_at_teen_club what_you_like_most_at_teen_club on e.encounter_id = what_you_like_most_at_teen_club.encounter_id
 left join temp_literate literate on e.encounter_id = literate.encounter_id
 left join temp_own_a_mobile_telephone own_a_mobile_telephone on e.encounter_id = own_a_mobile_telephone.encounter_id
@@ -473,8 +473,8 @@ left join temp_parents_location parents_location on e.encounter_id = parents_loc
 left join temp_plans_after_school plans_after_school on e.encounter_id = plans_after_school.encounter_id
 left join temp_primary_guardian primary_guardian on e.encounter_id = primary_guardian.encounter_id
 left join temp_own_a_radio own_a_radio on e.encounter_id = own_a_radio.encounter_id
-left join temp_can_you_rate_the_changes_that_happened_to_your_life_from_the_social_support_a_scale_of_1_to_3 can_you_rate_the_changes_that_happened_to_your_life_from_the_social_support_a_scale_of_1_to_3 on e.encounter_id = can_you_rate_the_changes_that_happened_to_your_life_from_the_social_support_a_scale_of_1_to_3.encounter_id
-left join temp_how_do_you_rate_the_support_on_a_scale_of_1_to_3 how_do_you_rate_the_support_on_a_scale_of_1_to_3 on e.encounter_id = how_do_you_rate_the_support_on_a_scale_of_1_to_3.encounter_id
+left join temp_rate_chgs_hppnd_life_social_supp_scale_1_3 can_you_rate_the_changes_that_happened_to_your_life_from_the_social_support_a_scale_of_1_to_3 on e.encounter_id = can_you_rate_the_changes_that_happened_to_your_life_from_the_social_support_a_scale_of_1_to_3.encounter_id
+left join temp_rate_supp_scale_1_3 how_do_you_rate_the_support_on_a_scale_of_1_to_3 on e.encounter_id = how_do_you_rate_the_support_on_a_scale_of_1_to_3.encounter_id
 left join temp_rate_your_hiv_knowledge rate_your_hiv_knowledge on e.encounter_id = rate_your_hiv_knowledge.encounter_id
 left join temp_reason_for_staying_with_single_parent reason_for_staying_with_single_parent on e.encounter_id = reason_for_staying_with_single_parent.encounter_id
 left join temp_name_of_role_model_s name_of_role_model_s on e.encounter_id = name_of_role_model_s.encounter_id

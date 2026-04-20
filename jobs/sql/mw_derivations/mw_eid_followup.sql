@@ -26,7 +26,7 @@ alter table temp_breast_feeding add index temp_breast_feeding_encounter_idx (enc
 
 drop temporary table if exists temp_clinical_monitoring_exposed_child;
 create temporary table temp_clinical_monitoring_exposed_child as select encounter_id, value_coded from omrs_obs where concept = 'Clinical Monitoring Exposed Child';
-alter table temp_clinical_monitoring_exposed_child add index temp_clinical_monitoring_exposed_child_encounter_idx (encounter_id);
+alter table temp_clinical_monitoring_exposed_child add index temp_clinical_monitoring_exposed_child_encounter (encounter_id);
 
 drop temporary table if exists temp_height_cm;
 create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
@@ -58,9 +58,9 @@ alter table temp_childs_current_hiv_status add index temp_childs_current_hiv_sta
 
 drop temporary table if exists temp_middle_upper_arm_circumference_cm;
 create temporary table temp_middle_upper_arm_circumference_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Middle upper arm circumference (cm)';
-alter table temp_middle_upper_arm_circumference_cm add index temp_middle_upper_arm_circumference_cm_encounter_idx (encounter_id);
+alter table temp_middle_upper_arm_circumference_cm add index temp_middle_upper_arm_circumference_cm_encounter (encounter_id);
 
-insert into mw_eid_followup
+insert into mw_eid_followup (patient_id, visit_date, location, breast_feeding, clinical_monitoring, height, mother_status, next_appointment_date, wasting_or_malnutrition, weight, cpt, hiv_infection, muac)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

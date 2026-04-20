@@ -17,7 +17,7 @@ create table mw_art_register (
 alter table mw_art_register add index mw_art_register_patient_idx (patient_id);
 alter table mw_art_register add index mw_art_register_patient_location_idx (patient_id, location);
 
-insert into mw_art_register
+insert into mw_art_register (enrollment_id, patient_id, location, art_number, start_date, end_date, outcome, last_art_visit_id, last_viral_load_test_id, last_viral_load_result_id)
 select
     p.program_enrollment_id as enrollment_id,
     s.patient_id,

@@ -45,11 +45,11 @@ alter table temp_general_comment add index temp_general_comment_encounter_idx (e
 
 drop temporary table if exists temp_days_per_week_of_moderate_exercise;
 create temporary table temp_days_per_week_of_moderate_exercise as select encounter_id, value_numeric from omrs_obs where concept = 'Days per week of moderate exercise';
-alter table temp_days_per_week_of_moderate_exercise add index temp_days_per_week_of_moderate_exercise_encounter_idx (encounter_id);
+alter table temp_days_per_week_of_moderate_exercise add index temp_days_per_week_moderate_exercise_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day;
-create temporary table temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day as select encounter_id, value_numeric from omrs_obs where concept = 'Number of servings of fruits and vegetables consumed per day';
-alter table temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day add index temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day_encounter_idx (encounter_id);
+drop temporary table if exists temp_number_servings_fruits_and_vegetables;
+create temporary table temp_number_servings_fruits_and_vegetables as select encounter_id, value_numeric from omrs_obs where concept = 'Number of servings of fruits and vegetables consumed per day';
+alter table temp_number_servings_fruits_and_vegetables add index temp_number_servings_fruits_and_vegetables_2 (encounter_id);
 
 drop temporary table if exists temp_pulse;
 create temporary table temp_pulse as select encounter_id, value_numeric from omrs_obs where concept = 'Pulse';
@@ -61,7 +61,7 @@ alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id)
 
 drop temporary table if exists temp_patient_hospitalized_since_last_visit;
 create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Patient hospitalized since last visit';
-alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_encounter_idx (encounter_id);
+alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_2 (encounter_id);
 
 drop temporary table if exists temp_medications_dispensed;
 create temporary table temp_medications_dispensed as select encounter_id, value_text from omrs_obs where concept = 'Medications dispensed';
@@ -69,7 +69,7 @@ alter table temp_medications_dispensed add index temp_medications_dispensed_enco
 
 drop temporary table if exists temp_has_the_treatment_changed_at_this_visit;
 create temporary table temp_has_the_treatment_changed_at_this_visit as select encounter_id, value_coded from omrs_obs where concept = 'Has the treatment changed at this visit?';
-alter table temp_has_the_treatment_changed_at_this_visit add index temp_has_the_treatment_changed_at_this_visit_encounter_idx (encounter_id);
+alter table temp_has_the_treatment_changed_at_this_visit add index temp_has_treatment_changed_this_visit_encounter (encounter_id);
 
 drop temporary table if exists temp_appointment_date;
 create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
@@ -95,7 +95,7 @@ drop temporary table if exists temp_weight_change;
 create temporary table temp_weight_change as select encounter_id, value_text from omrs_obs where concept = 'Weight change';
 alter table temp_weight_change add index temp_weight_change_encounter_idx (encounter_id);
 
-insert into mw_ncd_other_followup
+insert into mw_ncd_other_followup (patient_id, visit_date, location, alcohol, bp_diastolic, bp_systolic, comments, days_per_week_exercise, fruit_and_vegetable_portions, heart_rate, height, hospitalized_since_last_visit_for_ncd, medications, medications_changed, next_appointment_date, next_appointment_location, spo2, tobacco, weight, weight_change)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -123,7 +123,7 @@ left join temp_diastolic_blood_pressure diastolic_blood_pressure on e.encounter_
 left join temp_systolic_blood_pressure systolic_blood_pressure on e.encounter_id = systolic_blood_pressure.encounter_id
 left join temp_general_comment general_comment on e.encounter_id = general_comment.encounter_id
 left join temp_days_per_week_of_moderate_exercise days_per_week_of_moderate_exercise on e.encounter_id = days_per_week_of_moderate_exercise.encounter_id
-left join temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day number_of_servings_of_fruits_and_vegetables_consumed_per_day on e.encounter_id = number_of_servings_of_fruits_and_vegetables_consumed_per_day.encounter_id
+left join temp_number_servings_fruits_and_vegetables number_of_servings_of_fruits_and_vegetables_consumed_per_day on e.encounter_id = number_of_servings_of_fruits_and_vegetables_consumed_per_day.encounter_id
 left join temp_pulse pulse on e.encounter_id = pulse.encounter_id
 left join temp_height_cm height_cm on e.encounter_id = height_cm.encounter_id
 left join temp_patient_hospitalized_since_last_visit patient_hospitalized_since_last_visit on e.encounter_id = patient_hospitalized_since_last_visit.encounter_id

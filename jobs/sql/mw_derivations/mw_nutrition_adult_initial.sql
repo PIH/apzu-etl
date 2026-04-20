@@ -17,7 +17,7 @@ drop temporary table if exists temp_reason_enrolled_in_food_program;
 create temporary table temp_reason_enrolled_in_food_program as select encounter_id, value_coded from omrs_obs where concept = 'Reason enrolled in food program';
 alter table temp_reason_enrolled_in_food_program add index temp_reason_enrolled_in_food_program_encounter_idx (encounter_id);
 
-insert into mw_nutrition_adult_initial
+insert into mw_nutrition_adult_initial (patient_id, visit_date, location, enrollment_reason_tb, enrollment_reason_hiv, enrollment_reason_ncd)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

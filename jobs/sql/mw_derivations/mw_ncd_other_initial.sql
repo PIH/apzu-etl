@@ -36,9 +36,9 @@ drop temporary table if exists temp_date_antiretrovirals_started;
 create temporary table temp_date_antiretrovirals_started as select encounter_id, value_date from omrs_obs where concept = 'Date antiretrovirals started';
 alter table temp_date_antiretrovirals_started add index temp_date_antiretrovirals_started_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_current_opportunistic_infection_or_comorbidity_confirmed_or_presumed;
-create temporary table temp_current_opportunistic_infection_or_comorbidity_confirmed_or_presumed as select encounter_id, value_coded from omrs_obs where concept = 'Current opportunistic infection or comorbidity, confirmed or presumed';
-alter table temp_current_opportunistic_infection_or_comorbidity_confirmed_or_presumed add index temp_current_opportunistic_infection_or_comorbidity_confirmed_or_presumed_encounter_idx (encounter_id);
+drop temporary table if exists temp_current_opportunistic_infection_or;
+create temporary table temp_current_opportunistic_infection_or as select encounter_id, value_coded from omrs_obs where concept = 'Current opportunistic infection or comorbidity, confirmed or presumed';
+alter table temp_current_opportunistic_infection_or add index temp_current_opportunistic_infection_or_2 (encounter_id);
 
 drop temporary table if exists temp_other_diagnosis;
 create temporary table temp_other_diagnosis as select encounter_id, value_text from omrs_obs where concept = 'Other diagnosis';
@@ -80,7 +80,7 @@ drop temporary table if exists temp_tb_status;
 create temporary table temp_tb_status as select encounter_id, value_coded from omrs_obs where concept = 'TB status';
 alter table temp_tb_status add index temp_tb_status_encounter_idx (encounter_id);
 
-insert into mw_ncd_other_initial
+insert into mw_ncd_other_initial (patient_id, visit_date, location, art_start_date, comorbidities_chronic_kidney_disease, comorbidities_diabetes, comorbidities_hypertension, comorbidities_other, diagnosis_cirrhosis, diagnosis_date_other, diagnosis_date_cirrhosis, diagnosis_date_dvt_or_pe, diagnosis_date_rheumatoid_arthritis, diagnosis_date_sickle_cell_disease, diagnosis_dvt_or_pe, diagnosis_other, diagnosis_rheumatoid_arthritis, diagnosis_sickle_cell_disease, ecg_test_date, ecg_test_result, echo_test_date, echo_test_result, hiv_status, hiv_test_date, tb_start_date, tb_status)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -110,7 +110,7 @@ select
     max(tb_status.value_coded) as tb_status
 from omrs_encounter e
 left join temp_date_antiretrovirals_started date_antiretrovirals_started on e.encounter_id = date_antiretrovirals_started.encounter_id
-left join temp_current_opportunistic_infection_or_comorbidity_confirmed_or_presumed current_opportunistic_infection_or_comorbidity_confirmed_or_presumed on e.encounter_id = current_opportunistic_infection_or_comorbidity_confirmed_or_presumed.encounter_id
+left join temp_current_opportunistic_infection_or current_opportunistic_infection_or_comorbidity_confirmed_or_presumed on e.encounter_id = current_opportunistic_infection_or_comorbidity_confirmed_or_presumed.encounter_id
 left join temp_other_diagnosis other_diagnosis on e.encounter_id = other_diagnosis.encounter_id
 left join temp_chronic_care_diagnosis chronic_care_diagnosis on e.encounter_id = chronic_care_diagnosis.encounter_id
 left join temp_diagnosis_date diagnosis_date on e.encounter_id = diagnosis_date.encounter_id

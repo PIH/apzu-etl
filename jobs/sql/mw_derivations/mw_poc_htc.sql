@@ -21,7 +21,7 @@ drop temporary table if exists temp_result_of_hiv_test;
 create temporary table temp_result_of_hiv_test as select encounter_id, value_coded from omrs_obs where concept = 'Result of HIV test';
 alter table temp_result_of_hiv_test add index temp_result_of_hiv_test_encounter_idx (encounter_id);
 
-insert into mw_poc_htc
+insert into mw_poc_htc (patient_id, visit_date, location, hiv_test_type_htc, result_of_hiv_test_htc)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

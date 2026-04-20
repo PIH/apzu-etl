@@ -73,7 +73,7 @@ alter table temp_cardiovascular_risk_score add index temp_cardiovascular_risk_sc
 
 drop temporary table if exists temp_days_per_week_of_moderate_exercise;
 create temporary table temp_days_per_week_of_moderate_exercise as select encounter_id, value_numeric from omrs_obs where concept = 'Days per week of moderate exercise';
-alter table temp_days_per_week_of_moderate_exercise add index temp_days_per_week_of_moderate_exercise_encounter_idx (encounter_id);
+alter table temp_days_per_week_of_moderate_exercise add index temp_days_per_week_moderate_exercise_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_deformity_of_foot;
 create temporary table temp_deformity_of_foot as select encounter_id, value_coded from omrs_obs where concept = 'Deformity of foot';
@@ -97,19 +97,19 @@ alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id)
 
 drop temporary table if exists temp_neuropathy_and_peripheral_vascular_disease;
 create temporary table temp_neuropathy_and_peripheral_vascular_disease as select encounter_id, value_coded from omrs_obs where concept = 'Neuropathy and Peripheral Vascular Disease';
-alter table temp_neuropathy_and_peripheral_vascular_disease add index temp_neuropathy_and_peripheral_vascular_disease_encounter_idx (encounter_id);
+alter table temp_neuropathy_and_peripheral_vascular_disease add index temp_neuropathy_and_peripheral_vascular_disease_2 (encounter_id);
 
 drop temporary table if exists temp_appointment_date;
 create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day;
-create temporary table temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day as select encounter_id, value_numeric from omrs_obs where concept = 'Number of servings of fruits and vegetables consumed per day';
-alter table temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day add index temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day_encounter_idx (encounter_id);
+drop temporary table if exists temp_number_servings_fruits_and_vegetables;
+create temporary table temp_number_servings_fruits_and_vegetables as select encounter_id, value_numeric from omrs_obs where concept = 'Number of servings of fruits and vegetables consumed per day';
+alter table temp_number_servings_fruits_and_vegetables add index temp_number_servings_fruits_and_vegetables_2 (encounter_id);
 
 drop temporary table if exists temp_patient_hospitalized_since_last_visit;
 create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Patient hospitalized since last visit';
-alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_encounter_idx (encounter_id);
+alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_2 (encounter_id);
 
 drop temporary table if exists temp_pulse;
 create temporary table temp_pulse as select encounter_id, value_numeric from omrs_obs where concept = 'Pulse';
@@ -131,7 +131,7 @@ drop temporary table if exists temp_weight_kg;
 create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
-insert into mw_diabetes_hypertension_followup
+insert into mw_diabetes_hypertension_followup (patient_id, visit_date, location, alcohol, ccb_aml, asprin_asa, bb_aten, statin_atorva, bp_stystolic, bb_bis, blood_sugar_test_type, body_mass_index, ace_i_capt, cardiovascular_risk, days_per_week_with_30_min_of_exercise, deformities, bp_diastolic, ace_i_enal, fasting_blood_sugar, diuretic_furp, diabetes_med_gilbenclamide, hba1c, height, other_hyd, diuretic_hctz, other_issmn, ace_i_lisin, diabetes_med_long_acting, diabetes_med_metformin, neuropathy_or_pvd, next_appointment_date, ccb_nif, number_of_fruit_and_vegetable_portions, hospitalized_since_last_visit, statin_prava, bb_prop, pulse_rate, diabetes_med_short_acting, statin_simva, diuretic_spiro, tobbacco, ulcers, visual_acuity, weight)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -191,7 +191,7 @@ left join temp_glycated_hemoglobin glycated_hemoglobin on e.encounter_id = glyca
 left join temp_height_cm height_cm on e.encounter_id = height_cm.encounter_id
 left join temp_neuropathy_and_peripheral_vascular_disease neuropathy_and_peripheral_vascular_disease on e.encounter_id = neuropathy_and_peripheral_vascular_disease.encounter_id
 left join temp_appointment_date appointment_date on e.encounter_id = appointment_date.encounter_id
-left join temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day number_of_servings_of_fruits_and_vegetables_consumed_per_day on e.encounter_id = number_of_servings_of_fruits_and_vegetables_consumed_per_day.encounter_id
+left join temp_number_servings_fruits_and_vegetables number_of_servings_of_fruits_and_vegetables_consumed_per_day on e.encounter_id = number_of_servings_of_fruits_and_vegetables_consumed_per_day.encounter_id
 left join temp_patient_hospitalized_since_last_visit patient_hospitalized_since_last_visit on e.encounter_id = patient_hospitalized_since_last_visit.encounter_id
 left join temp_pulse pulse on e.encounter_id = pulse.encounter_id
 left join temp_smoking_history smoking_history on e.encounter_id = smoking_history.encounter_id

@@ -95,7 +95,7 @@ alter table temp_inhaler_use_per_week add index temp_inhaler_use_per_week_encoun
 
 drop temporary table if exists temp_number_of_times_inhaler_is_used_in_a_year;
 create temporary table temp_number_of_times_inhaler_is_used_in_a_year as select encounter_id, value_numeric from omrs_obs where concept = 'Number of times inhaler is used in a year';
-alter table temp_number_of_times_inhaler_is_used_in_a_year add index temp_number_of_times_inhaler_is_used_in_a_year_encounter_idx (encounter_id);
+alter table temp_number_of_times_inhaler_is_used_in_a_year add index temp_number_times_inhaler_used_year_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_nighttime_symptom_frequency;
 create temporary table temp_nighttime_symptom_frequency as select encounter_id, value_numeric from omrs_obs where concept = 'Nighttime symptom frequency';
@@ -103,7 +103,7 @@ alter table temp_nighttime_symptom_frequency add index temp_nighttime_symptom_fr
 
 drop temporary table if exists temp_number_of_cigarettes_smoked_per_day;
 create temporary table temp_number_of_cigarettes_smoked_per_day as select encounter_id, value_numeric from omrs_obs where concept = 'Number of cigarettes smoked per day';
-alter table temp_number_of_cigarettes_smoked_per_day add index temp_number_of_cigarettes_smoked_per_day_encounter_idx (encounter_id);
+alter table temp_number_of_cigarettes_smoked_per_day add index temp_number_cigarettes_smoked_per_day_encounter (encounter_id);
 
 drop temporary table if exists temp_other_diagnosis;
 create temporary table temp_other_diagnosis as select encounter_id, value_text from omrs_obs where concept = 'Other diagnosis';
@@ -143,7 +143,7 @@ alter table temp_drug_frequency_coded add index temp_drug_frequency_coded_encoun
 
 drop temporary table if exists temp_quantity_of_medication_prescribed_per_dose;
 create temporary table temp_quantity_of_medication_prescribed_per_dose as select encounter_id, value_numeric from omrs_obs where concept = 'Quantity of medication prescribed per dose';
-alter table temp_quantity_of_medication_prescribed_per_dose add index temp_quantity_of_medication_prescribed_per_dose_encounter_idx (encounter_id);
+alter table temp_quantity_of_medication_prescribed_per_dose add index temp_quantity_medication_prescribed_per_dose (encounter_id);
 
 drop temporary table if exists temp_dosing_unit;
 create temporary table temp_dosing_unit as select encounter_id, value_coded from omrs_obs where concept = 'Dosing unit';
@@ -161,7 +161,7 @@ drop temporary table if exists temp_routes_of_administration_coded;
 create temporary table temp_routes_of_administration_coded as select encounter_id, value_coded from omrs_obs where concept = 'Routes of administration (coded)';
 alter table temp_routes_of_administration_coded add index temp_routes_of_administration_coded_encounter_idx (encounter_id);
 
-insert into mw_asthma_followup
+insert into mw_asthma_followup (patient_id, visit_date, location, asthma_severity, cooking_indoor, copd, day_symptoms, exacerbation_today, height, inhaler_use_frequency_daily, inhaler_use_frequency_monthly, inhaler_use_frequency_weekly, inhaler_use_frequency_yearly, night_symptoms, number_of_cigarettes_per_day, other_diagnosis, passive_smoking, planned_visit, steroid_inhaler_daily, treatment_inhaled_b_agonist, weight, comments, next_appointment_date, other_treatment, treatment_inhaled_b_agonist_frequency, treatment_inhaled_b_agonist_dose, treatment_inhaled_b_agonist_dosing_unit, treatment_inhaled_b_agonist_duration, treatment_inhaled_b_agonist_duration_units, treatment_inhaled_b_agonist_route, treatment_inhaled_steriod, treatment_inhaled_steriod_frequency, treatment_inhaled_steriod_dose, treatment_inhaled_steriod_dosing_unit, treatment_inhaled_steriod_duration, treatment_inhaled_steriod_duration_units, treatment_inhaled_steriod_route, treatment_oral_steroid, treatment_oral_steroid_frequency, treatment_oral_steroid_dose, treatment_oral_steroid_dosing_unit, treatment_oral_steroid_duration, treatment_oral_steroid_duration_units, treatment_oral_steroid_route, other_treatment_frequency, other_treatment_dose, other_treatment_dosing_unit, other_treatment_duration, other_treatment_duration_units, other_treatment_route)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

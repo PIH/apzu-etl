@@ -12,7 +12,7 @@ create table mw_art_trace (
 );
 
 -- Active ART patients with last visit and viral load info
-insert into mw_art_trace
+insert into mw_art_trace (patient_id, location, art_number, last_visit_date, next_appointment_date, last_viral_load_result_date, last_viral_load_result_numeric, last_viral_load_result_exception, last_viral_load_test_date)
 select
     r.patient_id,
     r.location,

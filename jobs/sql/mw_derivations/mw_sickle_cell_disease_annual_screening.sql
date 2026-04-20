@@ -21,7 +21,7 @@ alter table temp_creatinine add index temp_creatinine_encounter_idx (encounter_i
 
 drop temporary table if exists temp_serum_glutamic_pyruvic_transaminase;
 create temporary table temp_serum_glutamic_pyruvic_transaminase as select encounter_id, value_numeric from omrs_obs where concept = 'Serum glutamic-pyruvic transaminase';
-alter table temp_serum_glutamic_pyruvic_transaminase add index temp_serum_glutamic_pyruvic_transaminase_encounter_idx (encounter_id);
+alter table temp_serum_glutamic_pyruvic_transaminase add index temp_serum_glutamic_pyruvic_transaminase_2 (encounter_id);
 
 drop temporary table if exists temp_total_bilirubin;
 create temporary table temp_total_bilirubin as select encounter_id, value_numeric from omrs_obs where concept = 'Total bilirubin';
@@ -29,7 +29,7 @@ alter table temp_total_bilirubin add index temp_total_bilirubin_encounter_idx (e
 
 drop temporary table if exists temp_serum_glutamic_oxaloacetic_transaminase;
 create temporary table temp_serum_glutamic_oxaloacetic_transaminase as select encounter_id, value_numeric from omrs_obs where concept = 'Serum glutamic-oxaloacetic transaminase';
-alter table temp_serum_glutamic_oxaloacetic_transaminase add index temp_serum_glutamic_oxaloacetic_transaminase_encounter_idx (encounter_id);
+alter table temp_serum_glutamic_oxaloacetic_transaminase add index temp_serum_glutamic_oxaloacetic_transaminase_2 (encounter_id);
 
 drop temporary table if exists temp_direct_bilirubin;
 create temporary table temp_direct_bilirubin as select encounter_id, value_numeric from omrs_obs where concept = 'Direct bilirubin';
@@ -39,7 +39,7 @@ drop temporary table if exists temp_indirect_bilirubin;
 create temporary table temp_indirect_bilirubin as select encounter_id, value_numeric from omrs_obs where concept = 'Indirect bilirubin';
 alter table temp_indirect_bilirubin add index temp_indirect_bilirubin_encounter_idx (encounter_id);
 
-insert into mw_sickle_cell_disease_annual_screening
+insert into mw_sickle_cell_disease_annual_screening (patient_id, visit_date, location, cr, alt, bil, ast, dir_bil, in_bili)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

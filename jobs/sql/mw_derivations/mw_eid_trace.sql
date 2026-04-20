@@ -14,7 +14,7 @@ create table mw_eid_trace (
 );
 
 -- Active EID patients with last visit, PCR results, and breastfeeding info
-insert into mw_eid_trace
+insert into mw_eid_trace (patient_id, location, eid_number, last_visit_date, next_appointment_date, birthdate, breastfeeding_stopped_over_6_weeks_date, last_pcr_result, last_pcr_result_date, second_to_last_pcr_result, second_to_last_pcr_result_date)
 select
     r.patient_id,
     r.location,

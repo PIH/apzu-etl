@@ -72,7 +72,7 @@ alter table temp_any_seizure_triggers_present add index temp_any_seizure_trigger
 
 drop temporary table if exists temp_quantity_of_medication_prescribed_per_dose;
 create temporary table temp_quantity_of_medication_prescribed_per_dose as select encounter_id, value_numeric from omrs_obs where concept = 'Quantity of medication prescribed per dose';
-alter table temp_quantity_of_medication_prescribed_per_dose add index temp_quantity_of_medication_prescribed_per_dose_encounter_idx (encounter_id);
+alter table temp_quantity_of_medication_prescribed_per_dose add index temp_quantity_medication_prescribed_per_dose (encounter_id);
 
 drop temporary table if exists temp_dosing_unit;
 create temporary table temp_dosing_unit as select encounter_id, value_coded from omrs_obs where concept = 'Dosing unit';
@@ -96,7 +96,7 @@ alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id)
 
 drop temporary table if exists temp_patient_hospitalized_since_last_visit;
 create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Patient hospitalized since last visit';
-alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_encounter_idx (encounter_id);
+alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_2 (encounter_id);
 
 drop temporary table if exists temp_current_drugs_used;
 create temporary table temp_current_drugs_used as select encounter_id, value_coded from omrs_obs where concept = 'Current drugs used';
@@ -124,7 +124,7 @@ alter table temp_body_mass_index_coded add index temp_body_mass_index_coded_enco
 
 drop temporary table if exists temp_any_seizure_occurred_since_last_visit;
 create temporary table temp_any_seizure_occurred_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Any seizure occurred since last visit';
-alter table temp_any_seizure_occurred_since_last_visit add index temp_any_seizure_occurred_since_last_visit_encounter_idx (encounter_id);
+alter table temp_any_seizure_occurred_since_last_visit add index temp_seizure_occurred_since_last_visit_encounter (encounter_id);
 
 drop temporary table if exists temp_weight_kg;
 create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
@@ -138,7 +138,7 @@ drop temporary table if exists temp_appointment_date;
 create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
-insert into mw_epilepsy_followup
+insert into mw_epilepsy_followup (patient_id, visit_date, location, med_carbamazepine_frequency, med_phenobarbital_frequency, med_sodium_valproate_frequency, med_sodium_valproate_route, any_triggers, med_carbamazepine_dose, med_carbamazepine_dosing_unit, med_carbamazepine_duration, med_carbamazepine_duration_units, med_carbamazepine_route, family_planning, height, hospitalized_since_last_visit, med_carbamazepine, number_of_seizures, med_phenobarbital_dose, med_phenobarbital_dosing_unit, med_phenobarbital_duration, med_phenobarbital_duration_units, med_phenobarbital_route, med_phenytoin_dose, med_phenytoin_dosing_unit, med_phenytoin_duration, med_phenytoin_duration_units, med_phenytoin_frequency, med_phenytoin_route, pregnant, silent_makers, med_sodium_valproate_dose, med_sodium_valproate_dosing_unit, med_sodium_valproate_duration, med_sodium_valproate_duration_units, alcohol_trigger, bmi, emotional_stress_anger_boredom_trigger, fever_trigger, menstruation_trigger, missed_medication_trigger, seizure_since_last_visit, sleep_deprivation_and_overtired_trigger, sound_light_and_touch_trigger, weight, comments, med_phenobarbital, med_phenytoin, med_sodium_valproate, med_other, next_appointment_date)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

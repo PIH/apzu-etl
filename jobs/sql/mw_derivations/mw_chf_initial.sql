@@ -53,9 +53,9 @@ drop temporary table if exists temp_date_antiretrovirals_started;
 create temporary table temp_date_antiretrovirals_started as select encounter_id, value_date from omrs_obs where concept = 'Date antiretrovirals started';
 alter table temp_date_antiretrovirals_started add index temp_date_antiretrovirals_started_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_current_oi_or_comorbidity_confirmed_or_presumed;
-create temporary table temp_current_oi_or_comorbidity_confirmed_or_presumed as select encounter_id, value_coded from omrs_obs where concept = 'Current opportunistic infection or comorbidity, confirmed or presumed';
-alter table temp_current_oi_or_comorbidity_confirmed_or_presumed add index temp_current_oi_or_comorbidity_confirmed_or_presumed_encounter_idx (encounter_id);
+drop temporary table if exists temp_current_oi_or_comorbidity_confirmed_or;
+create temporary table temp_current_oi_or_comorbidity_confirmed_or as select encounter_id, value_coded from omrs_obs where concept = 'Current opportunistic infection or comorbidity, confirmed or presumed';
+alter table temp_current_oi_or_comorbidity_confirmed_or add index temp_current_oi_or_comorbidity_confirmed_or_2 (encounter_id);
 
 drop temporary table if exists temp_other_diagnosis;
 create temporary table temp_other_diagnosis as select encounter_id, value_text from omrs_obs where concept = 'Other diagnosis';
@@ -97,7 +97,7 @@ drop temporary table if exists temp_year_of_tuberculosis_diagnosis;
 create temporary table temp_year_of_tuberculosis_diagnosis as select encounter_id, value_numeric from omrs_obs where concept = 'Year of Tuberculosis diagnosis';
 alter table temp_year_of_tuberculosis_diagnosis add index temp_year_of_tuberculosis_diagnosis_encounter_idx (encounter_id);
 
-insert into mw_chf_initial
+insert into mw_chf_initial (patient_id, visit_date, location, art_start_date, comorbidities_chronic_kidney_disease, comorbidities_diabetes, comorbidities_hypertension, comorbidities_other, diagnosis_afib, diagnosis_cad, diagnosis_congenital, diagnosis_date_rheumatic, diagnosis_date_afib, diagnosis_date_cad, diagnosis_date_congenital, diagnosis_date_dilated, diagnosis_date_dvt, diagnosis_date_other, diagnosis_date_pe, diagnosis_date_restricitive, diagnosis_date_stroke, diagnosis_date_unknown, diagnosis_date_valvular, diagnosis_dilated, diagnosis_dvt, diagnosis_other, diagnosis_pe, diagnosis_restricitive, diagnosis_rheumatic, diagnosis_stroke, diagnosis_unknown, diagnosis_valvular, ecg_test_date, ecg_test_result, echo_test_date, echo_test_result, hiv_status, hiv_test_date, tb_status, tb_year, diagnosis_date_right_ventricular_failure, diagnosis_right_ventricular_failure)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -143,7 +143,7 @@ select
     max(case when chronic_care_diagnosis.value_coded = 'Right ventricular failure' then chronic_care_diagnosis.value_coded end) as diagnosis_right_ventricular_failure
 from omrs_encounter e
 left join temp_date_antiretrovirals_started date_antiretrovirals_started on e.encounter_id = date_antiretrovirals_started.encounter_id
-left join temp_current_oi_or_comorbidity_confirmed_or_presumed current_oi_or_comorbidity_confirmed_or_presumed on e.encounter_id = current_oi_or_comorbidity_confirmed_or_presumed.encounter_id
+left join temp_current_oi_or_comorbidity_confirmed_or current_oi_or_comorbidity_confirmed_or_presumed on e.encounter_id = current_oi_or_comorbidity_confirmed_or_presumed.encounter_id
 left join temp_other_diagnosis other_diagnosis on e.encounter_id = other_diagnosis.encounter_id
 left join temp_chronic_care_diagnosis chronic_care_diagnosis on e.encounter_id = chronic_care_diagnosis.encounter_id
 left join temp_diagnosis_date diagnosis_date on e.encounter_id = diagnosis_date.encounter_id

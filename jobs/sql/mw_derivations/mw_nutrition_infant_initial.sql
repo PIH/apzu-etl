@@ -22,7 +22,7 @@ drop temporary table if exists temp_other_non_coded_text;
 create temporary table temp_other_non_coded_text as select encounter_id, value_text from omrs_obs where concept = 'Other non-coded (text)';
 alter table temp_other_non_coded_text add index temp_other_non_coded_text_encounter_idx (encounter_id);
 
-insert into mw_nutrition_infant_initial
+insert into mw_nutrition_infant_initial (patient_id, visit_date, location, enrollment_reason_multiple_births, enrollment_reason_other, enrollment_reason_severe_maternal_illness, enrollment_reason_severe_maternal_death)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

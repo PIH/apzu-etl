@@ -83,11 +83,11 @@ alter table temp_other_non_coded_text add index temp_other_non_coded_text_encoun
 
 drop temporary table if exists temp_middle_upper_arm_circumference_cm;
 create temporary table temp_middle_upper_arm_circumference_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Middle upper arm circumference (cm)';
-alter table temp_middle_upper_arm_circumference_cm add index temp_middle_upper_arm_circumference_cm_encounter_idx (encounter_id);
+alter table temp_middle_upper_arm_circumference_cm add index temp_middle_upper_arm_circumference_cm_encounter (encounter_id);
 
-drop temporary table if exists temp_malawi_developmental_assessment_tool_summary_normal_coded;
-create temporary table temp_malawi_developmental_assessment_tool_summary_normal_coded as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Developmental Assessment Tool Summary (Normal)-(Coded)';
-alter table temp_malawi_developmental_assessment_tool_summary_normal_coded add index temp_malawi_developmental_assessment_tool_summary_normal_coded_encounter_idx (encounter_id);
+drop temporary table if exists temp_malawi_developmental_assessment_tool_summary;
+create temporary table temp_malawi_developmental_assessment_tool_summary as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Developmental Assessment Tool Summary (Normal)-(Coded)';
+alter table temp_malawi_developmental_assessment_tool_summary add index temp_malawi_dev_assessment_tool_summary (encounter_id);
 
 drop temporary table if exists temp_wasting_malnutrition;
 create temporary table temp_wasting_malnutrition as select encounter_id, value_coded from omrs_obs where concept = 'Wasting/malnutrition';
@@ -133,7 +133,7 @@ drop temporary table if exists temp_numeric_value_or_result;
 create temporary table temp_numeric_value_or_result as select encounter_id, value_numeric from omrs_obs where concept = 'Numeric value or result';
 alter table temp_numeric_value_or_result add index temp_numeric_value_or_result_encounter_idx (encounter_id);
 
-insert into mw_pdc_developmental_delay_followup
+insert into mw_pdc_developmental_delay_followup (patient_id, visit_date, location, anticonvulsant, continue_followup, dose_adjusted, dose_and_drug, feeding_cup, feeding_sucking, feeding_tube, feeding_counselling, height, if_referred_out, if_referred_out_specify, muac, mdat, malnutrition, next_appointment_date, group_counselling_and_play_therapy, referred_out, referred_out_specify, referred_to_poser, signs_of_cerebral_palsy, tone_hyper, tone_hypo, tone_normal, under_mental_health_care_program, weight, weight_against_age, weight_against_height)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -178,7 +178,7 @@ left join temp_height_cm height_cm on e.encounter_id = height_cm.encounter_id
 left join temp_referred_out referred_out on e.encounter_id = referred_out.encounter_id
 left join temp_other_non_coded_text other_non_coded_text on e.encounter_id = other_non_coded_text.encounter_id
 left join temp_middle_upper_arm_circumference_cm middle_upper_arm_circumference_cm on e.encounter_id = middle_upper_arm_circumference_cm.encounter_id
-left join temp_malawi_developmental_assessment_tool_summary_normal_coded malawi_developmental_assessment_tool_summary_normal_coded on e.encounter_id = malawi_developmental_assessment_tool_summary_normal_coded.encounter_id
+left join temp_malawi_developmental_assessment_tool_summary malawi_developmental_assessment_tool_summary_normal_coded on e.encounter_id = malawi_developmental_assessment_tool_summary_normal_coded.encounter_id
 left join temp_wasting_malnutrition wasting_malnutrition on e.encounter_id = wasting_malnutrition.encounter_id
 left join temp_appointment_date appointment_date on e.encounter_id = appointment_date.encounter_id
 left join temp_play_therapy play_therapy on e.encounter_id = play_therapy.encounter_id

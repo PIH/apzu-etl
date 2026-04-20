@@ -35,7 +35,7 @@ alter table temp_clinical_impression_comments add index temp_clinical_impression
 
 drop temporary table if exists temp_likuni_phala_given_to_patient_kg;
 create temporary table temp_likuni_phala_given_to_patient_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Likuni Phala given to patient(Kg)';
-alter table temp_likuni_phala_given_to_patient_kg add index temp_likuni_phala_given_to_patient_kg_encounter_idx (encounter_id);
+alter table temp_likuni_phala_given_to_patient_kg add index temp_likuni_phala_given_patient_kg_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_height_cm;
 create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
@@ -45,7 +45,7 @@ drop temporary table if exists temp_weight_kg;
 create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
-insert into mw_nutrition_adult_followup
+insert into mw_nutrition_adult_followup (patient_id, visit_date, location, warehouse_signature, next_appointment, bmi, comments, food_likuni_phala, height, weight)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

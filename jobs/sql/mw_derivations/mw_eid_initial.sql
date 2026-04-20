@@ -25,7 +25,7 @@ alter table temp_age add index temp_age_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_patient_age_when_result_to_guardian;
 create temporary table temp_patient_age_when_result_to_guardian as select encounter_id, value_numeric from omrs_obs where concept = 'Patient age when result to guardian';
-alter table temp_patient_age_when_result_to_guardian add index temp_patient_age_when_result_to_guardian_encounter_idx (encounter_id);
+alter table temp_patient_age_when_result_to_guardian add index temp_patient_age_result_guardian_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_birth_weight;
 create temporary table temp_birth_weight as select encounter_id, value_numeric from omrs_obs where concept = 'Birth weight';
@@ -55,7 +55,7 @@ drop temporary table if exists temp_time_units;
 create temporary table temp_time_units as select encounter_id, value_coded from omrs_obs where concept = 'Time units';
 alter table temp_time_units add index temp_time_units_encounter_idx (encounter_id);
 
-insert into mw_eid_initial
+insert into mw_eid_initial (patient_id, visit_date, location, age, age_when_starting_nvp, birth_weight, duration_type_when_starting_nvp, mother_art_reg_no, mother_art_start_date, mother_hiv_status, nvp_duration, nvp_duration_type)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

@@ -91,9 +91,9 @@ drop temporary table if exists temp_follow_up_agreement;
 create temporary table temp_follow_up_agreement as select encounter_id, value_coded from omrs_obs where concept = 'Follow up agreement';
 alter table temp_follow_up_agreement add index temp_follow_up_agreement_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_currently_or_in_the_last_week_taking_antibiotics;
-create temporary table temp_currently_or_in_the_last_week_taking_antibiotics as select encounter_id, value_coded from omrs_obs where concept = 'Currently (or in the last week) taking antibiotics';
-alter table temp_currently_or_in_the_last_week_taking_antibiotics add index temp_currently_or_in_the_last_week_taking_antibiotics_encounter_idx (encounter_id);
+drop temporary table if exists temp_or_last_week_taking_antibiotics;
+create temporary table temp_or_last_week_taking_antibiotics as select encounter_id, value_coded from omrs_obs where concept = 'Currently (or in the last week) taking antibiotics';
+alter table temp_or_last_week_taking_antibiotics add index temp_or_last_week_taking_antibiotics_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_duration_coded;
 create temporary table temp_duration_coded as select encounter_id, value_coded from omrs_obs where concept = 'Duration (coded)';
@@ -165,7 +165,7 @@ alter table temp_income_source add index temp_income_source_encounter_idx (encou
 
 drop temporary table if exists temp_highest_level_of_school_completed;
 create temporary table temp_highest_level_of_school_completed as select encounter_id, value_coded from omrs_obs where concept = 'Highest level of school completed';
-alter table temp_highest_level_of_school_completed add index temp_highest_level_of_school_completed_encounter_idx (encounter_id);
+alter table temp_highest_level_of_school_completed add index temp_highest_level_school_completed_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_civil_status;
 create temporary table temp_civil_status as select encounter_id, value_coded from omrs_obs where concept = 'Civil status';
@@ -219,7 +219,7 @@ drop temporary table if exists temp_type_of_feed;
 create temporary table temp_type_of_feed as select encounter_id, value_coded from omrs_obs where concept = 'Type of Feed';
 alter table temp_type_of_feed add index temp_type_of_feed_encounter_idx (encounter_id);
 
-insert into mw_pdc_initial
+insert into mw_pdc_initial (patient_id, visit_date, location, advanced_ncd, agrees_to_fup, antibiotics, antibiotics_duration, birth_history_agpar, birth_history_cs, birth_history_svd, birth_site, birth_history_bwt, cns_infection, care_linked, child_hiv_reactive, child_on_art, cleft_lip, cleft_palate, clinical_care, currently_on_medication_specify, currently_on_medication, diagnosis_other, premature_birth, eligible_for_poser, enrolled_in_pdc, epilepsy, feeding_method_bf, feeding_method_cup, feeding_method_ogt, feeding_method_other, guardian_age, guardian_name, guardian_phone, hie, hydrocephalus, ic3, income_source, level_of_education, low_birth_weight, marital_status, mental_health_clinic, mother_hiv_reactive, mother_on_art, nru, notes, number_of_children, other_support, palliative, perinatal_infection, perinatal_infection_specify, phone_number, physiotherapy, reason_for_referral_hie, reason_for_referral_cns_infection, reason_for_referral_cleft_lip, reason_for_referral_cleft_palate, reason_for_referral_epilepsy, reason_for_referral_hydrocephalus, reason_for_referral_low_birth_weight, reason_for_referral_other, reason_for_referral_premature_birth, reason_for_referral_severe_malnutrition, reason_for_referral_trisomy_21, referral_form_filled, relation_to_patient, severe_malnutrition, source_of_referral, transfer_in_date, trisomy_21, type_of_feed_breast_milk, type_of_feed_infant_formula, type_of_feed_solids, type_of_feed_mixed_feeding)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -297,7 +297,7 @@ select
 from omrs_encounter e
 left join temp_care_linked_type care_linked_type on e.encounter_id = care_linked_type.encounter_id
 left join temp_follow_up_agreement follow_up_agreement on e.encounter_id = follow_up_agreement.encounter_id
-left join temp_currently_or_in_the_last_week_taking_antibiotics currently_or_in_the_last_week_taking_antibiotics on e.encounter_id = currently_or_in_the_last_week_taking_antibiotics.encounter_id
+left join temp_or_last_week_taking_antibiotics currently_or_in_the_last_week_taking_antibiotics on e.encounter_id = currently_or_in_the_last_week_taking_antibiotics.encounter_id
 left join temp_duration_coded duration_coded on e.encounter_id = duration_coded.encounter_id
 left join temp_method_of_delivery method_of_delivery on e.encounter_id = method_of_delivery.encounter_id
 left join temp_birth_location_type birth_location_type on e.encounter_id = birth_location_type.encounter_id

@@ -19,9 +19,9 @@ alter table temp_appointment_date add index temp_appointment_date_encounter_idx 
 
 drop temporary table if exists temp_malawi_antiretroviral_drugs_received;
 create temporary table temp_malawi_antiretroviral_drugs_received as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Antiretroviral drugs received';
-alter table temp_malawi_antiretroviral_drugs_received add index temp_malawi_antiretroviral_drugs_received_encounter_idx (encounter_id);
+alter table temp_malawi_antiretroviral_drugs_received add index temp_malawi_arv_drugs_received_encounter_idx (encounter_id);
 
-insert into mw_art_visits
+insert into mw_art_visits (patient_id, visit_date, location, next_appointment_date, art_drug_regimen)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

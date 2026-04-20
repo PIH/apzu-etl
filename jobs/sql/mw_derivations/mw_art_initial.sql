@@ -49,19 +49,19 @@ create table mw_art_initial (
 
 drop temporary table if exists temp_date_of_starting_2nd_line_arv_regimen;
 create temporary table temp_date_of_starting_2nd_line_arv_regimen as select encounter_id, value_date from omrs_obs where concept = 'Date of starting 2nd line ARV regimen';
-alter table temp_date_of_starting_2nd_line_arv_regimen add index temp_date_of_starting_2nd_line_arv_regimen_encounter_idx (encounter_id);
+alter table temp_date_of_starting_2nd_line_arv_regimen add index temp_date_starting_2nd_line_arv_regimen_encounter (encounter_id);
 
-drop temporary table if exists temp_date_of_starting_alternative_1st_line_arv_regimen;
-create temporary table temp_date_of_starting_alternative_1st_line_arv_regimen as select encounter_id, value_date from omrs_obs where concept = 'Date of starting alternative 1st line ARV regimen';
-alter table temp_date_of_starting_alternative_1st_line_arv_regimen add index temp_date_of_starting_alternative_1st_line_arv_regimen_encounter_idx (encounter_id);
+drop temporary table if exists temp_date_starting_alternative_1st_line_arv;
+create temporary table temp_date_starting_alternative_1st_line_arv as select encounter_id, value_date from omrs_obs where concept = 'Date of starting alternative 1st line ARV regimen';
+alter table temp_date_starting_alternative_1st_line_arv add index temp_date_starting_alternative_1st_line_arv_2 (encounter_id);
 
 drop temporary table if exists temp_malawi_antiretroviral_drugs_change_2;
 create temporary table temp_malawi_antiretroviral_drugs_change_2 as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Antiretroviral drugs change 2';
-alter table temp_malawi_antiretroviral_drugs_change_2 add index temp_malawi_antiretroviral_drugs_change_2_encounter_idx (encounter_id);
+alter table temp_malawi_antiretroviral_drugs_change_2 add index temp_malawi_arv_drugs_change_2_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_malawi_antiretroviral_drugs_change_1;
 create temporary table temp_malawi_antiretroviral_drugs_change_1 as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Antiretroviral drugs change 1';
-alter table temp_malawi_antiretroviral_drugs_change_1 add index temp_malawi_antiretroviral_drugs_change_1_encounter_idx (encounter_id);
+alter table temp_malawi_antiretroviral_drugs_change_1 add index temp_malawi_arv_drugs_change_1_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_start_date_1st_line_arv;
 create temporary table temp_start_date_1st_line_arv as select encounter_id, value_date from omrs_obs where concept = 'Start date 1st line ARV';
@@ -69,7 +69,7 @@ alter table temp_start_date_1st_line_arv add index temp_start_date_1st_line_arv_
 
 drop temporary table if exists temp_malawi_antiretroviral_drugs_change_3;
 create temporary table temp_malawi_antiretroviral_drugs_change_3 as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Antiretroviral drugs change 3';
-alter table temp_malawi_antiretroviral_drugs_change_3 add index temp_malawi_antiretroviral_drugs_change_3_encounter_idx (encounter_id);
+alter table temp_malawi_antiretroviral_drugs_change_3 add index temp_malawi_arv_drugs_change_3_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_art_education_date;
 create temporary table temp_art_education_date as select encounter_id, value_date from omrs_obs where concept = 'ART education date';
@@ -131,9 +131,9 @@ drop temporary table if exists temp_height_cm;
 create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
 alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_kaposis_sarcoma_side_effects_worsening_while_on_arvs;
-create temporary table temp_kaposis_sarcoma_side_effects_worsening_while_on_arvs as select encounter_id, value_coded from omrs_obs where concept = 'Kaposis sarcoma side effects worsening while on ARVs?';
-alter table temp_kaposis_sarcoma_side_effects_worsening_while_on_arvs add index temp_kaposis_sarcoma_side_effects_worsening_while_on_arvs_encounter_idx (encounter_id);
+drop temporary table if exists temp_kaposis_sarcoma_side_effects_worsening_while;
+create temporary table temp_kaposis_sarcoma_side_effects_worsening_while as select encounter_id, value_coded from omrs_obs where concept = 'Kaposis sarcoma side effects worsening while on ARVs?';
+alter table temp_kaposis_sarcoma_side_effects_worsening_while add index temp_ks_side_effects_worsening_while_arvs (encounter_id);
 
 drop temporary table if exists temp_last_antiretroviral_drugs_taken;
 create temporary table temp_last_antiretroviral_drugs_taken as select encounter_id, value_text from omrs_obs where concept = 'Last antiretroviral drugs taken';
@@ -153,7 +153,7 @@ alter table temp_pregnant_lactating add index temp_pregnant_lactating_encounter_
 
 drop temporary table if exists temp_presumed_severe_hiv_criteria_present;
 create temporary table temp_presumed_severe_hiv_criteria_present as select encounter_id, value_coded from omrs_obs where concept = 'Presumed severe HIV criteria present';
-alter table temp_presumed_severe_hiv_criteria_present add index temp_presumed_severe_hiv_criteria_present_encounter_idx (encounter_id);
+alter table temp_presumed_severe_hiv_criteria_present add index temp_presumed_severe_hiv_criteria_present_2 (encounter_id);
 
 drop temporary table if exists temp_tb_registration_number;
 create temporary table temp_tb_registration_number as select encounter_id, value_text from omrs_obs where concept = 'TB registration number';
@@ -165,7 +165,7 @@ alter table temp_tuberculosis_treatment_status add index temp_tuberculosis_treat
 
 drop temporary table if exists temp_tuberculosis_drug_treatment_start_date;
 create temporary table temp_tuberculosis_drug_treatment_start_date as select encounter_id, value_date from omrs_obs where concept = 'Tuberculosis drug treatment start date';
-alter table temp_tuberculosis_drug_treatment_start_date add index temp_tuberculosis_drug_treatment_start_date_encounter_idx (encounter_id);
+alter table temp_tuberculosis_drug_treatment_start_date add index temp_tb_drug_treatment_start_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_tb_xpert;
 create temporary table temp_tb_xpert as select encounter_id, value_coded from omrs_obs where concept = 'TB Xpert';
@@ -195,7 +195,7 @@ drop temporary table if exists temp_weight_kg;
 create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
-insert into mw_art_initial
+insert into mw_art_initial (patient_id, visit_date, location, art_second_line_regimen_start_date, art_alternative_first_line_regimen_date, art_alternative_first_line_regimen, art_first_line_regimen, art_first_line_regimen_start_date, art_second_line_regimen, art_education_date, art_education_done, age_at_initiation, cd4_count, cd4_date, cd4_percentage, child_hcc_no, clinical_stage, confirmatory_test_date, confirmatory_test_location, confirmatory_test_type, crag_results, crag_test_date, ever_taken_arvs, height, ks_side_effects_worsening_on_arvs, last_arvs_taken, last_arvs_taken_date, link_id, pregnant_or_lactating, presumed_hiv_severe_present, tb_registration_number, tb_status, tb_treatment_start_date, tb_xpert, tb_xpert_date, transfer_in_date, urine_lam, urine_lam_date, who_clinical_conditions, weight)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -239,7 +239,7 @@ select
     max(weight_kg.value_numeric) as weight
 from omrs_encounter e
 left join temp_date_of_starting_2nd_line_arv_regimen date_of_starting_2nd_line_arv_regimen on e.encounter_id = date_of_starting_2nd_line_arv_regimen.encounter_id
-left join temp_date_of_starting_alternative_1st_line_arv_regimen date_of_starting_alternative_1st_line_arv_regimen on e.encounter_id = date_of_starting_alternative_1st_line_arv_regimen.encounter_id
+left join temp_date_starting_alternative_1st_line_arv date_of_starting_alternative_1st_line_arv_regimen on e.encounter_id = date_of_starting_alternative_1st_line_arv_regimen.encounter_id
 left join temp_malawi_antiretroviral_drugs_change_2 malawi_antiretroviral_drugs_change_2 on e.encounter_id = malawi_antiretroviral_drugs_change_2.encounter_id
 left join temp_malawi_antiretroviral_drugs_change_1 malawi_antiretroviral_drugs_change_1 on e.encounter_id = malawi_antiretroviral_drugs_change_1.encounter_id
 left join temp_start_date_1st_line_arv start_date_1st_line_arv on e.encounter_id = start_date_1st_line_arv.encounter_id
@@ -259,7 +259,7 @@ left join temp_crag_results crag_results on e.encounter_id = crag_results.encoun
 left join temp_date_of_crag_test date_of_crag_test on e.encounter_id = date_of_crag_test.encounter_id
 left join temp_ever_received_art ever_received_art on e.encounter_id = ever_received_art.encounter_id
 left join temp_height_cm height_cm on e.encounter_id = height_cm.encounter_id
-left join temp_kaposis_sarcoma_side_effects_worsening_while_on_arvs kaposis_sarcoma_side_effects_worsening_while_on_arvs on e.encounter_id = kaposis_sarcoma_side_effects_worsening_while_on_arvs.encounter_id
+left join temp_kaposis_sarcoma_side_effects_worsening_while kaposis_sarcoma_side_effects_worsening_while_on_arvs on e.encounter_id = kaposis_sarcoma_side_effects_worsening_while_on_arvs.encounter_id
 left join temp_last_antiretroviral_drugs_taken last_antiretroviral_drugs_taken on e.encounter_id = last_antiretroviral_drugs_taken.encounter_id
 left join temp_date_art_last_taken date_art_last_taken on e.encounter_id = date_art_last_taken.encounter_id
 left join temp_linkage_to_care_id linkage_to_care_id on e.encounter_id = linkage_to_care_id.encounter_id

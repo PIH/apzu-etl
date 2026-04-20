@@ -129,11 +129,11 @@ alter table temp_routes_of_administration_coded add index temp_routes_of_adminis
 
 drop temporary table if exists temp_able_to_perform_daily_activities;
 create temporary table temp_able_to_perform_daily_activities as select encounter_id, value_coded from omrs_obs where concept = 'Able to perform daily activities';
-alter table temp_able_to_perform_daily_activities add index temp_able_to_perform_daily_activities_encounter_idx (encounter_id);
+alter table temp_able_to_perform_daily_activities add index temp_able_perform_daily_acts_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_quantity_of_medication_prescribed_per_dose;
 create temporary table temp_quantity_of_medication_prescribed_per_dose as select encounter_id, value_numeric from omrs_obs where concept = 'Quantity of medication prescribed per dose';
-alter table temp_quantity_of_medication_prescribed_per_dose add index temp_quantity_of_medication_prescribed_per_dose_encounter_idx (encounter_id);
+alter table temp_quantity_of_medication_prescribed_per_dose add index temp_quantity_medication_prescribed_per_dose (encounter_id);
 
 drop temporary table if exists temp_dosing_unit;
 create temporary table temp_dosing_unit as select encounter_id, value_coded from omrs_obs where concept = 'Dosing unit';
@@ -153,7 +153,7 @@ alter table temp_history_of_alcohol_use add index temp_history_of_alcohol_use_en
 
 drop temporary table if exists temp_mental_health_chief_complaint_absent;
 create temporary table temp_mental_health_chief_complaint_absent as select encounter_id, value_coded from omrs_obs where concept = 'Mental health chief complaint absent';
-alter table temp_mental_health_chief_complaint_absent add index temp_mental_health_chief_complaint_absent_encounter_idx (encounter_id);
+alter table temp_mental_health_chief_complaint_absent add index temp_mental_health_chief_complaint_absent_2 (encounter_id);
 
 drop temporary table if exists temp_family_planning;
 create temporary table temp_family_planning as select encounter_id, value_coded from omrs_obs where concept = 'Family planning';
@@ -191,9 +191,9 @@ drop temporary table if exists temp_group_counselling;
 create temporary table temp_group_counselling as select encounter_id, value_coded from omrs_obs where concept = 'Group Counselling';
 alter table temp_group_counselling add index temp_group_counselling_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_hospitalized_for_mental_health_since_last_visit;
-create temporary table temp_hospitalized_for_mental_health_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Hospitalized for mental health since last visit';
-alter table temp_hospitalized_for_mental_health_since_last_visit add index temp_hospitalized_for_mental_health_since_last_visit_encounter_idx (encounter_id);
+drop temporary table if exists temp_hospitalized_mental_health_since_last_visit;
+create temporary table temp_hospitalized_mental_health_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Hospitalized for mental health since last visit';
+alter table temp_hospitalized_mental_health_since_last_visit add index temp_hospitalized_mental_health_since_last_visit_2 (encounter_id);
 
 drop temporary table if exists temp_current_drugs_used;
 create temporary table temp_current_drugs_used as select encounter_id, value_coded from omrs_obs where concept = 'Current drugs used';
@@ -201,13 +201,13 @@ alter table temp_current_drugs_used add index temp_current_drugs_used_encounter_
 
 drop temporary table if exists temp_does_patient_have_adverse_effects;
 create temporary table temp_does_patient_have_adverse_effects as select encounter_id, value_coded from omrs_obs where concept = 'Does patient have adverse effects';
-alter table temp_does_patient_have_adverse_effects add index temp_does_patient_have_adverse_effects_encounter_idx (encounter_id);
+alter table temp_does_patient_have_adverse_effects add index temp_does_patient_adverse_effects_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_appointment_date;
 create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
-insert into mw_mental_health_followup
+insert into mw_mental_health_followup (patient_id, visit_date, location, med_carbamazepine_frequency, med_clopixol_frequency, med_clozapine_frequency, med_fluphenazine_frequency, med_haloperidol_frequency, med_sodium_valproate_frequency, med_sodium_valproate_route, med_trifluoperazine_frequency, able_to_do_daily_activities, med_amitriptyline_dose, med_amitriptyline_dosing_unit, med_amitriptyline_duration, med_amitriptyline_duration_units, med_amitriptyline_frequency, med_amitriptyline_route, med_carbamazepine_dose, med_carbamazepine_dosing_unit, med_carbamazepine_duration, med_carbamazepine_duration_units, med_carbamazepine_route, med_chloropromazine_dose, med_chloropromazine_dosing_unit, med_chloropromazine_duration, med_chloropromazine_duration_units, med_chloropromazine_frequency, med_chloropromazine_route, med_clopixol_dose, med_clopixol_dosing_unit, med_clopixol_duration, med_clopixol_duration_units, med_clopixol_route, med_clozapine_dose, med_clozapine_dosing_unit, med_clozapine_duration, med_clozapine_duration_units, med_clozapine_route, current_use_alcohol, med_fluoxetine_dose, med_fluoxetine_dosing_unit, med_fluoxetine_duration, med_fluoxetine_duration_units, med_fluoxetine_frequency, med_fluoxetine_route, med_fluphenazine_dose, med_fluphenazine_dosing_unit, med_fluphenazine_duration, med_fluphenazine_duration_units, med_fluphenazine_route, med_haloperidolp_dose, med_haloperidol_dosing_unit, med_haloperidol_duration, med_haloperidol_duration_units, med_haloperidol_route, mse_depressed_mood, mse_disorganized_speech, mse_disruptive_behaviour, mse_elevated_mood, mse_lack_of_insight, mse_delusions, mse_hallucinations, mse_other, med_olanzapine_dose, med_olanzapine_dosing_unit, med_olanzapine_duration, med_olanzapine_duration_units, med_olanzapine_frequency, med_olanzapine_route, on_family_planning, phq_nine_score, patient_stable, med_risperidone_dose, med_risperidone_dosing_unit, med_risperidone_duration, med_risperidone_duration_units, med_risperidone_frequency, med_risperidone_route, med_sodium_valproate_dose, med_sodium_valproate_dosing_unit, med_sodium_valproate_duration, med_sodium_valproate_duration_units, suicide_risk, med_trifluoperazine_dose, med_trifluoperazine_dosing_unit, med_trifluoperazine_duration, med_trifluoperazine_duration_units, med_trifluoperazine_route, comments, height, pregnant, weight, counselling_provided, hospitalized_since_last_visit, med_carbamazepine, med_chloropromazine, med_clopixol, med_clozapine, med_fluoxetine, med_fluphenazine, med_haloperidol, med_olanzapine, med_risperidone, med_sodium_valproate, med_trifluoperazine, med_amitriptyline, med_other, medications_side_effects, next_appointment_date, current_use_marijuana, current_use_other)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -340,7 +340,7 @@ left join temp_height_cm height_cm on e.encounter_id = height_cm.encounter_id
 left join temp_is_patient_pregnant is_patient_pregnant on e.encounter_id = is_patient_pregnant.encounter_id
 left join temp_weight_kg weight_kg on e.encounter_id = weight_kg.encounter_id
 left join temp_group_counselling group_counselling on e.encounter_id = group_counselling.encounter_id
-left join temp_hospitalized_for_mental_health_since_last_visit hospitalized_for_mental_health_since_last_visit on e.encounter_id = hospitalized_for_mental_health_since_last_visit.encounter_id
+left join temp_hospitalized_mental_health_since_last_visit hospitalized_for_mental_health_since_last_visit on e.encounter_id = hospitalized_for_mental_health_since_last_visit.encounter_id
 left join temp_current_drugs_used current_drugs_used on e.encounter_id = current_drugs_used.encounter_id
 left join temp_does_patient_have_adverse_effects does_patient_have_adverse_effects on e.encounter_id = does_patient_have_adverse_effects.encounter_id
 left join temp_appointment_date appointment_date on e.encounter_id = appointment_date.encounter_id

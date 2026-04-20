@@ -21,7 +21,7 @@ create table mw_patient (
 );
 alter table mw_patient add index mw_patient_id_idx (patient_id);
 
-insert into mw_patient
+insert into mw_patient (patient_id, identifier, first_name, last_name, gender, birthdate, birthdate_estimated, phone_number, district, traditional_authority, village, chw, dead, death_date, patient_uuid)
 select
     p.patient_id,
     p.identifier,

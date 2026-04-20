@@ -64,7 +64,7 @@ alter table temp_hiv_test_date add index temp_hiv_test_date_encounter_idx (encou
 
 drop temporary table if exists temp_presumed_chronic_kidney_disease_etiology;
 create temporary table temp_presumed_chronic_kidney_disease_etiology as select encounter_id, value_coded from omrs_obs where concept = 'Presumed chronic kidney disease etiology';
-alter table temp_presumed_chronic_kidney_disease_etiology add index temp_presumed_chronic_kidney_disease_etiology_encounter_idx (encounter_id);
+alter table temp_presumed_chronic_kidney_disease_etiology add index temp_presumed_chronic_kidney_disease_etiology_2 (encounter_id);
 
 drop temporary table if exists temp_drugs;
 create temporary table temp_drugs as select encounter_id, value_text from omrs_obs where concept = 'drugs';
@@ -78,7 +78,7 @@ drop temporary table if exists temp_tb_status;
 create temporary table temp_tb_status as select encounter_id, value_coded from omrs_obs where concept = 'TB status';
 alter table temp_tb_status add index temp_tb_status_encounter_idx (encounter_id);
 
-insert into mw_ckd_initial
+insert into mw_ckd_initial (patient_id, visit_date, location, art_start_date, date_of_dialysis, diagnosis_diabetes, diagnosis_hypertension, diagnosis_other, diagnosis_chf, diagnosis_date_chf, diagnosis_date_diabetes, diagnosis_date_hypertension, diagnosis_date_other, history_of_dialysis, hiv_status, hiv_test_date, presumed_etiology_diabetes, presumed_etiology_diagnosis_date, presumed_etiology_drugs, presumed_etiology_hiv, presumed_etiology_hypertension, presumed_etiology_nephrotic, presumed_etiology_other, presumed_etiology_other_2, presumed_etiology_unknown, tb_date, tb_status)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

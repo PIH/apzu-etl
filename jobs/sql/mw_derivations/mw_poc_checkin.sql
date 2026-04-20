@@ -11,7 +11,7 @@ create table mw_poc_checkin (
   primary key (poc_checkin_visit_id)
 );
 
-insert into mw_poc_checkin
+insert into mw_poc_checkin (patient_id, visit_date, location)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,

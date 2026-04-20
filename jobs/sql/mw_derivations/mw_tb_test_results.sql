@@ -51,7 +51,7 @@ create table mw_tb_test_results (
 --   'Tuberculosis test type' obs identifying the test type (smear, culture, xpert, lam)
 -- The subquery pivots each obs_group into a single row, then the outer query
 -- pivots across time + test type dimensions into columns.
-insert into mw_tb_test_results
+insert into mw_tb_test_results (patient_id, visit_date, location, initiation_month_smear_test, initiation_month_smear_test_date, initiation_month_smaer_lab_serial_number, initiation_month_smear_result, initiation_month_culture_test, initiation_month_culture_test_date, initiation_month_culture_lab_serial_number, initiation_month_culture_result, initiation_month_xpert_test, initiation_month_xpert_test_date, initiation_month_xpert_lab_serial_number, initiation_month_xpert_result, initiation_month_lam_test, initiation_month_lam_test_date, initiation_month_lam_lab_serial_number, initiation_month_lam_result, month_two_test, month_two_test_date, month_two_lab_serial_number, month_two_result, month_two_weight, month_three_test, month_three_test_date, month_three_lab_serial_number, month_three_result, month_three_weight, month_five_test, month_five_test_date, month_five_lab_serial_number, month_five_result, month_five_weight, month_six_test, month_six_test_date, month_six_lab_serial_number, month_six_result, month_six_weight)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
