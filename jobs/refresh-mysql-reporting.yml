@@ -65,6 +65,7 @@ configuration:
           - tableName: "mw_art_regimen"
           - tableName: "mw_art_initial"
           - tableName: "mw_art_followup"
+          - tableName: "mw_art_regimen_changes"
           - tableName: "mw_diabetes_hypertension_initial"
           - tableName: "mw_diabetes_hypertension_followup"
           - tableName: "mw_asthma_followup"
@@ -127,12 +128,3 @@ configuration:
           - tableName: "mw_tb_followup"
           - tableName: "mw_tb_post_lung_disease"
           - tableName: "mw_tb_test_results"
-
-    # Step 4: Refresh derived MySQL tables (computed from mw_* tables)
-    - type: "iterating-job"
-      description: "Refresh derived MySQL tables"
-      configuration:
-        iterations:
-          - datasourceName: "mysqlReporting"
-        jobTemplate:
-          path: "refresh-derived-mysql-data.yml"

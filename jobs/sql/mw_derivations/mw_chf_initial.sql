@@ -1,52 +1,79 @@
 -- Derivation script for mw_chf_initial
 -- Generated from Pentaho transform: import-into-mw-chf-initial.ktr
 
+/*
+ 590,Chronic care diagnosis
+108,"Current opportunistic infection or comorbidity, confirmed or presumed"
+21,Date antiretrovirals started
+133,Date of general test
+520,Diagnosis date
+63,ECHO imaging result
+6,Electrocardiogram diagnosis
+386,Follow up agreement
+475,Guardian; name and first names
+32,Heart failure diagnosis
+320,HIV status
+238,HIV test date
+10,Method of family planning
+44,Name of community health worker
+112,Next of kin telephone
+45,Other diagnosis
+407,Relationships of contact
+106,TB status
+131,Telephone number
+9,Transfer in date
+12,Year of Tuberculosis diagnosis
+ */
+
+
+
 drop table if exists mw_chf_initial;
-create table mw_chf_initial (
-  chf_initial_visit_id 		int not null auto_increment,
-  patient_id 				int not null,
-  visit_date 				date default null,
-  location 				varchar(255) default null,
-  diagnosis_dilated 			varchar(255) default null,
-  diagnosis_date_dilated 		date default null,
-  diagnosis_restricitive 		varchar(255) default null,
-  diagnosis_date_restricitive 	date default null,
-  diagnosis_valvular 			varchar(255) default null,
-  diagnosis_date_valvular 		date default null,
-  diagnosis_right_ventricular_failure 	varchar(255) default null,
-  diagnosis_date_right_ventricular_failure date default null,
-  diagnosis_unknown 			varchar(255) default null,
-  diagnosis_date_unknown 		date default null,
-  diagnosis_rheumatic 			varchar(255) default null,
-  diagnosis_date_rheumatic 		date default null,
-  diagnosis_congenital 		varchar(255) default null,
-  diagnosis_date_congenital 		date default null,
-  diagnosis_cad 			varchar(255) default null,
-  diagnosis_date_cad 			date default null,
-  diagnosis_stroke 			varchar(255) default null,
-  diagnosis_date_stroke 		date default null,
-  diagnosis_afib 			varchar(255) default null,
-  diagnosis_date_afib 			date default null,
-  diagnosis_pe 			varchar(255) default null,
-  diagnosis_date_pe 			date default null,
-  diagnosis_dvt 			varchar(255) default null,
-  diagnosis_date_dvt			date default null,
-  diagnosis_other 			varchar(255) default null,
-  diagnosis_date_other 		date default null,
-  hiv_status 				varchar(255) default null,
-  hiv_test_date 			date default null,
-  art_start_date 			date default null,
-  tb_status 				varchar(255) default null,
-  tb_year 				int default null,
-  comorbidities_hypertension 		varchar(255) default null,
-  comorbidities_diabetes 		varchar(255) default null,
-  comorbidities_chronic_kidney_disease varchar(255) default null,
-  comorbidities_other 			varchar(255) default null,
-  echo_test_result 			varchar(255) default null,
-  echo_test_date 			date default null,
-  ecg_test_result 			varchar(255) default null,
-  ecg_test_date 			date default null,
-  primary key (chf_initial_visit_id)
+create table mw_chf_initial
+(
+    chf_initial_visit_id                     int not null auto_increment,
+    patient_id                               int not null,
+    visit_date                               date         default null,
+    location                                 varchar(255) default null,
+    diagnosis_dilated                        varchar(255) default null,
+    diagnosis_date_dilated                   date         default null,
+    diagnosis_restricitive                   varchar(255) default null,
+    diagnosis_date_restricitive              date         default null,
+    diagnosis_valvular                       varchar(255) default null,
+    diagnosis_date_valvular                  date         default null,
+    diagnosis_right_ventricular_failure      varchar(255) default null,
+    diagnosis_date_right_ventricular_failure date         default null,
+    diagnosis_unknown                        varchar(255) default null,
+    diagnosis_date_unknown                   date         default null,
+    diagnosis_rheumatic                      varchar(255) default null,
+    diagnosis_date_rheumatic                 date         default null,
+    diagnosis_congenital                     varchar(255) default null,
+    diagnosis_date_congenital                date         default null,
+    diagnosis_cad                            varchar(255) default null,
+    diagnosis_date_cad                       date         default null,
+    diagnosis_stroke                         varchar(255) default null,
+    diagnosis_date_stroke                    date         default null,
+    diagnosis_afib                           varchar(255) default null,
+    diagnosis_date_afib                      date         default null,
+    diagnosis_pe                             varchar(255) default null,
+    diagnosis_date_pe                        date         default null,
+    diagnosis_dvt                            varchar(255) default null,
+    diagnosis_date_dvt                       date         default null,
+    diagnosis_other                          varchar(255) default null,
+    diagnosis_date_other                     date         default null,
+    hiv_status                               varchar(255) default null,
+    hiv_test_date                            date         default null,
+    art_start_date                           date         default null,
+    tb_status                                varchar(255) default null,
+    tb_year                                  int          default null,
+    comorbidities_hypertension               varchar(255) default null,
+    comorbidities_diabetes                   varchar(255) default null,
+    comorbidities_chronic_kidney_disease     varchar(255) default null,
+    comorbidities_other                      varchar(255) default null,
+    echo_test_result                         varchar(255) default null,
+    echo_test_date                           date         default null,
+    ecg_test_result                          varchar(255) default null,
+    ecg_test_date                            date         default null,
+    primary key (chf_initial_visit_id)
 );
 
 drop temporary table if exists temp_date_antiretrovirals_started;
