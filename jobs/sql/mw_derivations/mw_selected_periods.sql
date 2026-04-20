@@ -9,15 +9,8 @@ create table mw_selected_periods (
 );
 
 -- Generate quarterly periods from 2016Q1 through the current quarter
+-- Uses a cross-join sequence generator instead of WITH RECURSIVE (not supported in MySQL 5.6)
 insert into mw_selected_periods (year, quarter, yearquarter, start_date, end_date, zero)
-WITH RECURSIVE quarters as (
-    select 2016 as yr, 1 as q
-    union all
-    select case when q = 4 then yr + 1 else yr end,
-           case when q = 4 then 1 else q + 1 end
-    from quarters
-    where yr < YEAR(NOW()) or (yr = YEAR(NOW()) and q <= QUARTER(NOW()))
-)
 select
     yr,
     q,
@@ -31,4 +24,21 @@ select
             when 3 then date(concat(yr, '-09-30'))
             when 4 then date(concat(yr, '-12-31')) end,
     0
-from quarters;
+from (
+    select
+        2016 + floor(n / 4) as yr,
+        mod(n, 4) + 1 as q
+    from (
+        select a.n + b.n * 10 as n
+        from (
+            select 0 as n union select 1 union select 2 union select 3 union select 4
+            union select 5 union select 6 union select 7 union select 8 union select 9
+        ) a
+        cross join (
+            select 0 as n union select 1 union select 2 union select 3 union select 4
+            union select 5 union select 6 union select 7 union select 8 union select 9
+        ) b
+    ) seq
+    where 2016 + floor(n / 4) < year(now())
+       or (2016 + floor(n / 4) = year(now()) and mod(n, 4) + 1 <= quarter(now()))
+) quarters;
