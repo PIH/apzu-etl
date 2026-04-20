@@ -51,53 +51,152 @@ create table mw_diabetes_hypertension_followup (
      primary key (followup_visit_id)
 );
 
+drop temporary table if exists temp_history_of_alcohol_use;
+create temporary table temp_history_of_alcohol_use as select encounter_id, value_coded from omrs_obs where concept = 'History of alcohol use';
+alter table temp_history_of_alcohol_use add index temp_history_of_alcohol_use_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_systolic_blood_pressure;
+create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Systolic blood pressure';
+alter table temp_systolic_blood_pressure add index temp_systolic_blood_pressure_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_blood_sugar_test_type;
+create temporary table temp_blood_sugar_test_type as select encounter_id, value_coded from omrs_obs where concept = 'Blood sugar test type';
+alter table temp_blood_sugar_test_type add index temp_blood_sugar_test_type_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_body_mass_index_coded;
+create temporary table temp_body_mass_index_coded as select encounter_id, value_coded from omrs_obs where concept = 'Body Mass Index, coded';
+alter table temp_body_mass_index_coded add index temp_body_mass_index_coded_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_cardiovascular_risk_score;
+create temporary table temp_cardiovascular_risk_score as select encounter_id, value_numeric from omrs_obs where concept = 'Cardiovascular risk score';
+alter table temp_cardiovascular_risk_score add index temp_cardiovascular_risk_score_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_days_per_week_of_moderate_exercise;
+create temporary table temp_days_per_week_of_moderate_exercise as select encounter_id, value_numeric from omrs_obs where concept = 'Days per week of moderate exercise';
+alter table temp_days_per_week_of_moderate_exercise add index temp_days_per_week_of_moderate_exercise_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_deformity_of_foot;
+create temporary table temp_deformity_of_foot as select encounter_id, value_coded from omrs_obs where concept = 'Deformity of foot';
+alter table temp_deformity_of_foot add index temp_deformity_of_foot_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_diastolic_blood_pressure;
+create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Diastolic blood pressure';
+alter table temp_diastolic_blood_pressure add index temp_diastolic_blood_pressure_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_serum_glucose;
+create temporary table temp_serum_glucose as select encounter_id, value_numeric from omrs_obs where concept = 'Serum glucose';
+alter table temp_serum_glucose add index temp_serum_glucose_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_glycated_hemoglobin;
+create temporary table temp_glycated_hemoglobin as select encounter_id, value_numeric from omrs_obs where concept = 'Glycated hemoglobin';
+alter table temp_glycated_hemoglobin add index temp_glycated_hemoglobin_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_height_cm;
+create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
+alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_neuropathy_and_peripheral_vascular_disease;
+create temporary table temp_neuropathy_and_peripheral_vascular_disease as select encounter_id, value_coded from omrs_obs where concept = 'Neuropathy and Peripheral Vascular Disease';
+alter table temp_neuropathy_and_peripheral_vascular_disease add index temp_neuropathy_and_peripheral_vascular_disease_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_appointment_date;
+create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
+alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day;
+create temporary table temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day as select encounter_id, value_numeric from omrs_obs where concept = 'Number of servings of fruits and vegetables consumed per day';
+alter table temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day add index temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_patient_hospitalized_since_last_visit;
+create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Patient hospitalized since last visit';
+alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_pulse;
+create temporary table temp_pulse as select encounter_id, value_numeric from omrs_obs where concept = 'Pulse';
+alter table temp_pulse add index temp_pulse_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_smoking_history;
+create temporary table temp_smoking_history as select encounter_id, value_coded from omrs_obs where concept = 'Smoking history';
+alter table temp_smoking_history add index temp_smoking_history_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_foot_ulcer_or_infection;
+create temporary table temp_foot_ulcer_or_infection as select encounter_id, value_coded from omrs_obs where concept = 'Foot ulcer or infection';
+alter table temp_foot_ulcer_or_infection add index temp_foot_ulcer_or_infection_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_visual_acuity_text;
+create temporary table temp_visual_acuity_text as select encounter_id, value_text from omrs_obs where concept = 'Visual acuity (text)';
+alter table temp_visual_acuity_text add index temp_visual_acuity_text_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_weight_kg;
+create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
+alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
+
 insert into mw_diabetes_hypertension_followup
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
     e.location,
-    max(case when o.concept = 'History of alcohol use' then o.value_coded end) as alcohol,
-    max(case when o.concept = '' and o.value_coded = 'Amlodipine' then o.value_coded end) as ccb_aml,
-    max(case when o.concept = '' and o.value_coded = 'Aspirin' then o.value_coded end) as asprin_asa,
-    max(case when o.concept = '' and o.value_coded = 'Atenolol' then o.value_coded end) as bb_aten,
-    max(case when o.concept = '' and o.value_coded = 'Atorvastatin' then o.value_coded end) as statin_atorva,
-    max(case when o.concept = 'Systolic blood pressure' then o.value_numeric end) as bp_stystolic,
-    max(case when o.concept = '' and o.value_coded = 'Bisoprolol' then o.value_coded end) as bb_bis,
-    max(case when o.concept = 'Blood sugar test type' then o.value_coded end) as blood_sugar_test_type,
-    max(case when o.concept = 'Body Mass Index, coded' then o.value_coded end) as body_mass_index,
-    max(case when o.concept = '' and o.value_coded = 'Captopril' then o.value_coded end) as ace_i_capt,
-    max(case when o.concept = 'Cardiovascular risk score' then o.value_numeric end) as cardiovascular_risk,
-    max(case when o.concept = 'Days per week of moderate exercise' then o.value_numeric end) as days_per_week_with_30_min_of_exercise,
-    max(case when o.concept = 'Deformity of foot' then o.value_coded end) as deformities,
-    max(case when o.concept = 'Diastolic blood pressure' then o.value_numeric end) as bp_diastolic,
-    max(case when o.concept = '' and o.value_coded = 'Enalapril' then o.value_coded end) as ace_i_enal,
-    max(case when o.concept = 'Serum glucose' then o.value_numeric end) as fasting_blood_sugar,
-    max(case when o.concept = '' and o.value_coded = 'Furosemide' then o.value_coded end) as diuretic_furp,
-    max(case when o.concept = '' and o.value_coded = 'Glibenclamide' then o.value_coded end) as diabetes_med_gilbenclamide,
-    max(case when o.concept = 'Glycated hemoglobin' then o.value_numeric end) as hba1c,
-    max(case when o.concept = 'Height (cm)' then o.value_numeric end) as height,
-    max(case when o.concept = '' and o.value_coded = 'Hydralazine' then o.value_coded end) as other_hyd,
-    max(case when o.concept = '' and o.value_coded = 'Hydrochlorothiazide' then o.value_coded end) as diuretic_hctz,
-    max(case when o.concept = '' and o.value_coded = 'Isosorbide mononitrate' then o.value_coded end) as other_issmn,
-    max(case when o.concept = '' and o.value_coded = 'Lisinopril' then o.value_coded end) as ace_i_lisin,
-    max(case when o.concept = '' and o.value_coded = 'Long acting insulin' then o.value_coded end) as diabetes_med_long_acting,
-    max(case when o.concept = '' and o.value_coded = 'Metformin' then o.value_coded end) as diabetes_med_metformin,
-    max(case when o.concept = 'Neuropathy and Peripheral Vascular Disease' then o.value_coded end) as neuropathy_or_pvd,
-    max(case when o.concept = 'Appointment date' then o.value_date end) as next_appointment_date,
-    max(case when o.concept = '' and o.value_coded = 'Nifedipine' then o.value_coded end) as ccb_nif,
-    max(case when o.concept = 'Number of servings of fruits and vegetables consumed per day' then o.value_numeric end) as number_of_fruit_and_vegetable_portions,
-    max(case when o.concept = 'Patient hospitalized since last visit' then o.value_coded end) as hospitalized_since_last_visit,
-    max(case when o.concept = '' and o.value_coded = 'Pravastatin' then o.value_coded end) as statin_prava,
-    max(case when o.concept = '' and o.value_coded = 'Propranolol' then o.value_coded end) as bb_prop,
-    max(case when o.concept = 'Pulse' then o.value_numeric end) as pulse_rate,
-    max(case when o.concept = '' and o.value_coded = 'Insulin, soluble' then o.value_coded end) as diabetes_med_short_acting,
-    max(case when o.concept = '' and o.value_coded = 'Simvastatin' then o.value_coded end) as statin_simva,
-    max(case when o.concept = '' and o.value_coded = 'Spironolactone' then o.value_coded end) as diuretic_spiro,
-    max(case when o.concept = 'Smoking history' then o.value_coded end) as tobbacco,
-    max(case when o.concept = 'Foot ulcer or infection' then o.value_coded end) as ulcers,
-    max(case when o.concept = 'Visual acuity (text)' then o.value_text end) as visual_acuity,
-    max(case when o.concept = 'Weight (kg)' then o.value_numeric end) as weight
+    max(history_of_alcohol_use.value_coded) as alcohol,
+    max(null) as ccb_aml,
+    max(null) as asprin_asa,
+    max(null) as bb_aten,
+    max(null) as statin_atorva,
+    max(systolic_blood_pressure.value_numeric) as bp_stystolic,
+    max(null) as bb_bis,
+    max(blood_sugar_test_type.value_coded) as blood_sugar_test_type,
+    max(body_mass_index_coded.value_coded) as body_mass_index,
+    max(null) as ace_i_capt,
+    max(cardiovascular_risk_score.value_numeric) as cardiovascular_risk,
+    max(days_per_week_of_moderate_exercise.value_numeric) as days_per_week_with_30_min_of_exercise,
+    max(deformity_of_foot.value_coded) as deformities,
+    max(diastolic_blood_pressure.value_numeric) as bp_diastolic,
+    max(null) as ace_i_enal,
+    max(serum_glucose.value_numeric) as fasting_blood_sugar,
+    max(null) as diuretic_furp,
+    max(null) as diabetes_med_gilbenclamide,
+    max(glycated_hemoglobin.value_numeric) as hba1c,
+    max(height_cm.value_numeric) as height,
+    max(null) as other_hyd,
+    max(null) as diuretic_hctz,
+    max(null) as other_issmn,
+    max(null) as ace_i_lisin,
+    max(null) as diabetes_med_long_acting,
+    max(null) as diabetes_med_metformin,
+    max(neuropathy_and_peripheral_vascular_disease.value_coded) as neuropathy_or_pvd,
+    max(appointment_date.value_date) as next_appointment_date,
+    max(null) as ccb_nif,
+    max(number_of_servings_of_fruits_and_vegetables_consumed_per_day.value_numeric) as number_of_fruit_and_vegetable_portions,
+    max(patient_hospitalized_since_last_visit.value_coded) as hospitalized_since_last_visit,
+    max(null) as statin_prava,
+    max(null) as bb_prop,
+    max(pulse.value_numeric) as pulse_rate,
+    max(null) as diabetes_med_short_acting,
+    max(null) as statin_simva,
+    max(null) as diuretic_spiro,
+    max(smoking_history.value_coded) as tobbacco,
+    max(foot_ulcer_or_infection.value_coded) as ulcers,
+    max(visual_acuity_text.value_text) as visual_acuity,
+    max(weight_kg.value_numeric) as weight
 from omrs_encounter e
-left join omrs_obs o on o.encounter_id = e.encounter_id
+left join temp_history_of_alcohol_use history_of_alcohol_use on e.encounter_id = history_of_alcohol_use.encounter_id
+left join temp_systolic_blood_pressure systolic_blood_pressure on e.encounter_id = systolic_blood_pressure.encounter_id
+left join temp_blood_sugar_test_type blood_sugar_test_type on e.encounter_id = blood_sugar_test_type.encounter_id
+left join temp_body_mass_index_coded body_mass_index_coded on e.encounter_id = body_mass_index_coded.encounter_id
+left join temp_cardiovascular_risk_score cardiovascular_risk_score on e.encounter_id = cardiovascular_risk_score.encounter_id
+left join temp_days_per_week_of_moderate_exercise days_per_week_of_moderate_exercise on e.encounter_id = days_per_week_of_moderate_exercise.encounter_id
+left join temp_deformity_of_foot deformity_of_foot on e.encounter_id = deformity_of_foot.encounter_id
+left join temp_diastolic_blood_pressure diastolic_blood_pressure on e.encounter_id = diastolic_blood_pressure.encounter_id
+left join temp_serum_glucose serum_glucose on e.encounter_id = serum_glucose.encounter_id
+left join temp_glycated_hemoglobin glycated_hemoglobin on e.encounter_id = glycated_hemoglobin.encounter_id
+left join temp_height_cm height_cm on e.encounter_id = height_cm.encounter_id
+left join temp_neuropathy_and_peripheral_vascular_disease neuropathy_and_peripheral_vascular_disease on e.encounter_id = neuropathy_and_peripheral_vascular_disease.encounter_id
+left join temp_appointment_date appointment_date on e.encounter_id = appointment_date.encounter_id
+left join temp_number_of_servings_of_fruits_and_vegetables_consumed_per_day number_of_servings_of_fruits_and_vegetables_consumed_per_day on e.encounter_id = number_of_servings_of_fruits_and_vegetables_consumed_per_day.encounter_id
+left join temp_patient_hospitalized_since_last_visit patient_hospitalized_since_last_visit on e.encounter_id = patient_hospitalized_since_last_visit.encounter_id
+left join temp_pulse pulse on e.encounter_id = pulse.encounter_id
+left join temp_smoking_history smoking_history on e.encounter_id = smoking_history.encounter_id
+left join temp_foot_ulcer_or_infection foot_ulcer_or_infection on e.encounter_id = foot_ulcer_or_infection.encounter_id
+left join temp_visual_acuity_text visual_acuity_text on e.encounter_id = visual_acuity_text.encounter_id
+left join temp_weight_kg weight_kg on e.encounter_id = weight_kg.encounter_id
 where e.encounter_type in ('DIABETES HYPERTENSION FOLLOWUP')
 group by e.patient_id, e.encounter_date, e.location;

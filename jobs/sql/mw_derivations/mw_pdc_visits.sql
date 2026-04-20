@@ -22,6 +22,10 @@ create table mw_pdc_visits (
 alter table mw_pdc_visits add index mw_pdc_visit_patient_idx (patient_id);
 alter table mw_pdc_visits add index mw_pdc_visit_patient_location_idx (patient_id, location);
 
+drop temporary table if exists temp_appointment_date;
+create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
+alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
+
 insert into mw_pdc_visits
 select
     e.patient_id,
@@ -37,9 +41,9 @@ select
     max(case when e.encounter_type = 'PDC_OTHER_DIAGNOSIS_FOLLOWUP' then TRUE else FALSE end) as pdc_other_diagnosis_followup,
     max(case when e.encounter_type = 'PDC_TRISOMY21_INITIAL' then TRUE else FALSE end) as pdc_trisomy21_initial,
     max(case when e.encounter_type = 'PDC_TRISOMY21_FOLLOWUP' then TRUE else FALSE end) as pdc_trisomy21_followup,
-    min(case when o.concept = 'Appointment date' then o.value_date end) as next_appointment_date
+    min(appointment_date.value_date) as next_appointment_date
 from omrs_encounter e
-left join omrs_obs o on o.encounter_id = e.encounter_id
+left join temp_appointment_date appointment_date on e.encounter_id = appointment_date.encounter_id
 where e.encounter_type in (
     'PDC_INITIAL',
     'PDC_CLEFT_CLIP_PALLET_INITIAL',

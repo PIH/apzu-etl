@@ -17,5 +17,4 @@ select
     date(e.encounter_date) as visit_date,
     e.location
 from omrs_encounter e
-left join omrs_obs o on o.encounter_id = e.encounter_id
 group by e.patient_id, e.encounter_date, e.location;

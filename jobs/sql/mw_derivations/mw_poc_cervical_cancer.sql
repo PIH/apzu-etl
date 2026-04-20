@@ -12,13 +12,17 @@ create table mw_poc_cervical_cancer (
     primary key (poc_cervical_cancer_visit_id)
 );
 
+drop temporary table if exists temp_colposcopy_of_cervix_with_acetic_acid;
+create temporary table temp_colposcopy_of_cervix_with_acetic_acid as select encounter_id, value_coded from omrs_obs where concept = 'Colposcopy of cervix with acetic acid';
+alter table temp_colposcopy_of_cervix_with_acetic_acid add index temp_colposcopy_of_cervix_with_acetic_acid_encounter_idx (encounter_id);
+
 insert into mw_poc_cervical_cancer
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
     e.location,
-    max(case when o.concept = 'Colposcopy of cervix with acetic acid' then o.value_coded end) as colposcopy_of_cervix_with_acetic_acid
+    max(colposcopy_of_cervix_with_acetic_acid.value_coded) as colposcopy_of_cervix_with_acetic_acid
 from omrs_encounter e
-left join omrs_obs o on o.encounter_id = e.encounter_id
+left join temp_colposcopy_of_cervix_with_acetic_acid colposcopy_of_cervix_with_acetic_acid on e.encounter_id = colposcopy_of_cervix_with_acetic_acid.encounter_id
 where e.encounter_type in ('Cervical Cancer Screening')
 group by e.patient_id, e.encounter_date, e.location;

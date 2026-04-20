@@ -52,6 +52,102 @@ create table mw_ncd_visits (
 alter table mw_ncd_visits add index mw_ncd_visit_patient_idx (patient_id);
 alter table mw_ncd_visits add index mw_ncd_visit_patient_location_idx (patient_id, location);
 
+drop temporary table if exists temp_appointment_date;
+create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
+alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_systolic_blood_pressure;
+create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Systolic blood pressure';
+alter table temp_systolic_blood_pressure add index temp_systolic_blood_pressure_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_diastolic_blood_pressure;
+create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Diastolic blood pressure';
+alter table temp_diastolic_blood_pressure add index temp_diastolic_blood_pressure_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_asthma_classification;
+create temporary table temp_asthma_classification as select encounter_id, value_coded from omrs_obs where concept = 'Asthma classification';
+alter table temp_asthma_classification add index temp_asthma_classification_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_number_of_seizures;
+create temporary table temp_number_of_seizures as select encounter_id, value_numeric from omrs_obs where concept = 'NUMBER OF SEIZURES';
+alter table temp_number_of_seizures add index temp_number_of_seizures_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_glycated_hemoglobin;
+create temporary table temp_glycated_hemoglobin as select encounter_id, value_numeric from omrs_obs where concept = 'Glycated hemoglobin';
+alter table temp_glycated_hemoglobin add index temp_glycated_hemoglobin_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_serum_glucose;
+create temporary table temp_serum_glucose as select encounter_id, value_numeric from omrs_obs where concept = 'Serum glucose';
+alter table temp_serum_glucose add index temp_serum_glucose_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_suicide_risk;
+create temporary table temp_suicide_risk as select encounter_id, value_coded from omrs_obs where concept = 'Suicide risk';
+alter table temp_suicide_risk add index temp_suicide_risk_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_urine_protein;
+create temporary table temp_urine_protein as select encounter_id, value_coded from omrs_obs where concept = 'Urine protein';
+alter table temp_urine_protein add index temp_urine_protein_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_creatinine;
+create temporary table temp_creatinine as select encounter_id, value_numeric from omrs_obs where concept = 'Creatinine';
+alter table temp_creatinine add index temp_creatinine_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_result_of_hiv_test;
+create temporary table temp_result_of_hiv_test as select encounter_id, value_coded from omrs_obs where concept = 'Result of HIV test';
+alter table temp_result_of_hiv_test add index temp_result_of_hiv_test_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_visual_acuity_text;
+create temporary table temp_visual_acuity_text as select encounter_id, value_text from omrs_obs where concept = 'Visual acuity (text)';
+alter table temp_visual_acuity_text add index temp_visual_acuity_text_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_cardiovascular_risk_score;
+create temporary table temp_cardiovascular_risk_score as select encounter_id, value_numeric from omrs_obs where concept = 'Cardiovascular risk score';
+alter table temp_cardiovascular_risk_score add index temp_cardiovascular_risk_score_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_mental_health_chief_complaint_absent;
+create temporary table temp_mental_health_chief_complaint_absent as select encounter_id, value_coded from omrs_obs where concept = 'Mental health chief complaint absent';
+alter table temp_mental_health_chief_complaint_absent add index temp_mental_health_chief_complaint_absent_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_current_drugs_used;
+create temporary table temp_current_drugs_used as select encounter_id, value_coded from omrs_obs where concept = 'Current drugs used';
+alter table temp_current_drugs_used add index temp_current_drugs_used_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_seizure_activity;
+create temporary table temp_seizure_activity as select encounter_id, value_coded from omrs_obs where concept = 'Seizure activity';
+alter table temp_seizure_activity add index temp_seizure_activity_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_neuropathy_and_peripheral_vascular_disease;
+create temporary table temp_neuropathy_and_peripheral_vascular_disease as select encounter_id, value_coded from omrs_obs where concept = 'Neuropathy and Peripheral Vascular Disease';
+alter table temp_neuropathy_and_peripheral_vascular_disease add index temp_neuropathy_and_peripheral_vascular_disease_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_deformity_of_foot;
+create temporary table temp_deformity_of_foot as select encounter_id, value_coded from omrs_obs where concept = 'Deformity of foot';
+alter table temp_deformity_of_foot add index temp_deformity_of_foot_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_foot_ulcer_or_infection;
+create temporary table temp_foot_ulcer_or_infection as select encounter_id, value_coded from omrs_obs where concept = 'Foot ulcer or infection';
+alter table temp_foot_ulcer_or_infection add index temp_foot_ulcer_or_infection_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_patient_hospitalized_since_last_visit;
+create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Patient hospitalized since last visit';
+alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_hospitalized_for_mental_health_since_last_visit;
+create temporary table temp_hospitalized_for_mental_health_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Hospitalized for mental health since last visit';
+alter table temp_hospitalized_for_mental_health_since_last_visit add index temp_hospitalized_for_mental_health_since_last_visit_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_does_patient_have_adverse_effects;
+create temporary table temp_does_patient_have_adverse_effects as select encounter_id, value_coded from omrs_obs where concept = 'Does patient have adverse effects';
+alter table temp_does_patient_have_adverse_effects add index temp_does_patient_have_adverse_effects_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_stable;
+create temporary table temp_stable as select encounter_id, value_coded from omrs_obs where concept = 'Stable';
+alter table temp_stable add index temp_stable_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_fundoscopy;
+create temporary table temp_fundoscopy as select encounter_id, value_text from omrs_obs where concept = 'Fundoscopy';
+alter table temp_fundoscopy add index temp_fundoscopy_encounter_idx (encounter_id);
+
 insert into mw_ncd_visits
 select
     e.patient_id,
@@ -76,34 +172,57 @@ select
     max(case when e.encounter_type = 'NCD_OTHER_FOLLOWUP' then TRUE else FALSE end) as ncd_other_followup,
     max(case when e.encounter_type = 'SICKLE_CELL_DISEASE_INITIAL' then TRUE else FALSE end) as sickle_cell_initial,
     max(case when e.encounter_type = 'SICKLE_CELL_DISEASE_FOLLOWUP' then TRUE else FALSE end) as sickle_cell_followup,
-    min(case when o.concept = 'Appointment date' then o.value_date end) as next_appointment_date,
-    max(case when o.concept = 'Systolic blood pressure' then o.value_numeric end) as systolic_bp,
-    max(case when o.concept = 'Diastolic blood pressure' then o.value_numeric end) as diastolic_bp,
-    max(case when o.concept = 'Current drugs used' and o.value_coded = 'Insulin' then TRUE else FALSE end) as on_insulin,
-    max(case when o.concept = 'Asthma classification' then o.value_coded end) as asthma_classification,
-    max(case when o.concept = 'Seizure activity' and o.value_coded = 'Seizure since last visit' then TRUE else FALSE end) as seizure_activity,
-    max(case when o.concept = 'NUMBER OF SEIZURES' then o.value_numeric end) as num_seizures,
-    max(case when o.concept = 'Glycated hemoglobin' then o.value_numeric end) as hba1c,
-    max(case when o.concept = 'Serum glucose' then o.value_numeric end) as serum_glucose,
+    min(appointment_date.value_date) as next_appointment_date,
+    max(systolic_blood_pressure.value_numeric) as systolic_bp,
+    max(diastolic_blood_pressure.value_numeric) as diastolic_bp,
+    max(case when current_drugs_used.value_coded = 'Insulin' then TRUE else FALSE end) as on_insulin,
+    max(asthma_classification.value_coded) as asthma_classification,
+    max(case when seizure_activity.value_coded = 'Seizure since last visit' then TRUE else FALSE end) as seizure_activity,
+    max(number_of_seizures.value_numeric) as num_seizures,
+    max(glycated_hemoglobin.value_numeric) as hba1c,
+    max(serum_glucose.value_numeric) as serum_glucose,
     case when (
-        max(case when o.concept = 'Neuropathy and Peripheral Vascular Disease' then 1 else 0 end) +
-        max(case when o.concept = 'Deformity of foot' then 1 else 0 end) +
-        max(case when o.concept = 'Foot ulcer or infection' then 1 else 0 end)
+        max(case when neuropathy_and_peripheral_vascular_disease.encounter_id is not null then 1 else 0 end) +
+        max(case when deformity_of_foot.encounter_id is not null then 1 else 0 end) +
+        max(case when foot_ulcer_or_infection.encounter_id is not null then 1 else 0 end)
     ) = 3 then 1 end as foot_check,
-    max(case when o.concept = 'Suicide risk' then o.value_coded end) as suicide_risk,
-    max(case when o.concept = 'Urine protein' then o.value_coded end) as proteinuria,
-    max(case when o.concept = 'Creatinine' then o.value_numeric end) as creatinine,
-    max(case when o.concept = 'Result of HIV test' then o.value_coded end) as hiv_result,
-    max(case when o.concept = 'Visual acuity (text)' then o.value_text end) as visual_acuity,
-    max(case when o.concept = 'Cardiovascular risk score' then o.value_numeric end) as cv_risk,
-    max(case when o.concept in ('Patient hospitalized since last visit', 'Hospitalized for mental health since last visit') then o.value_coded end) as hospitalized_since_last_visit,
-    max(case when o.concept = 'Mental health chief complaint absent' then o.value_coded end) as mental_status_exam,
-    group_concat(case when o.concept = 'Current drugs used' and e.encounter_type = 'MENTAL_HEALTH_FOLLOWUP' then o.value_coded end) as mental_health_drugs,
-    max(case when o.concept = 'Does patient have adverse effects' then o.value_coded end) as mental_health_drug_side_effect,
-    max(case when o.concept = 'Stable' then o.value_coded end) as mental_stable,
-    max(case when o.concept = 'Fundoscopy' then o.value_text end) as fundoscopy
+    max(suicide_risk.value_coded) as suicide_risk,
+    max(urine_protein.value_coded) as proteinuria,
+    max(creatinine.value_numeric) as creatinine,
+    max(result_of_hiv_test.value_coded) as hiv_result,
+    max(visual_acuity_text.value_text) as visual_acuity,
+    max(cardiovascular_risk_score.value_numeric) as cv_risk,
+    max(coalesce(patient_hospitalized_since_last_visit.value_coded, hospitalized_for_mental_health_since_last_visit.value_coded)) as hospitalized_since_last_visit,
+    max(mental_health_chief_complaint_absent.value_coded) as mental_status_exam,
+    group_concat(case when e.encounter_type = 'MENTAL_HEALTH_FOLLOWUP' then current_drugs_used.value_coded end) as mental_health_drugs,
+    max(does_patient_have_adverse_effects.value_coded) as mental_health_drug_side_effect,
+    max(stable.value_coded) as mental_stable,
+    max(fundoscopy.value_text) as fundoscopy
 from omrs_encounter e
-left join omrs_obs o on o.encounter_id = e.encounter_id
+left join temp_appointment_date appointment_date on e.encounter_id = appointment_date.encounter_id
+left join temp_systolic_blood_pressure systolic_blood_pressure on e.encounter_id = systolic_blood_pressure.encounter_id
+left join temp_diastolic_blood_pressure diastolic_blood_pressure on e.encounter_id = diastolic_blood_pressure.encounter_id
+left join temp_asthma_classification asthma_classification on e.encounter_id = asthma_classification.encounter_id
+left join temp_number_of_seizures number_of_seizures on e.encounter_id = number_of_seizures.encounter_id
+left join temp_glycated_hemoglobin glycated_hemoglobin on e.encounter_id = glycated_hemoglobin.encounter_id
+left join temp_serum_glucose serum_glucose on e.encounter_id = serum_glucose.encounter_id
+left join temp_suicide_risk suicide_risk on e.encounter_id = suicide_risk.encounter_id
+left join temp_urine_protein urine_protein on e.encounter_id = urine_protein.encounter_id
+left join temp_creatinine creatinine on e.encounter_id = creatinine.encounter_id
+left join temp_result_of_hiv_test result_of_hiv_test on e.encounter_id = result_of_hiv_test.encounter_id
+left join temp_visual_acuity_text visual_acuity_text on e.encounter_id = visual_acuity_text.encounter_id
+left join temp_cardiovascular_risk_score cardiovascular_risk_score on e.encounter_id = cardiovascular_risk_score.encounter_id
+left join temp_mental_health_chief_complaint_absent mental_health_chief_complaint_absent on e.encounter_id = mental_health_chief_complaint_absent.encounter_id
+left join temp_current_drugs_used current_drugs_used on e.encounter_id = current_drugs_used.encounter_id
+left join temp_does_patient_have_adverse_effects does_patient_have_adverse_effects on e.encounter_id = does_patient_have_adverse_effects.encounter_id
+left join temp_stable stable on e.encounter_id = stable.encounter_id
+left join temp_fundoscopy fundoscopy on e.encounter_id = fundoscopy.encounter_id
+left join temp_seizure_activity seizure_activity on e.encounter_id = seizure_activity.encounter_id
+left join temp_neuropathy_and_peripheral_vascular_disease neuropathy_and_peripheral_vascular_disease on e.encounter_id = neuropathy_and_peripheral_vascular_disease.encounter_id
+left join temp_deformity_of_foot deformity_of_foot on e.encounter_id = deformity_of_foot.encounter_id
+left join temp_foot_ulcer_or_infection foot_ulcer_or_infection on e.encounter_id = foot_ulcer_or_infection.encounter_id
+left join temp_patient_hospitalized_since_last_visit patient_hospitalized_since_last_visit on e.encounter_id = patient_hospitalized_since_last_visit.encounter_id
+left join temp_hospitalized_for_mental_health_since_last_visit hospitalized_for_mental_health_since_last_visit on e.encounter_id = hospitalized_for_mental_health_since_last_visit.encounter_id
 where e.encounter_type in (
     'CHRONIC_CARE_INITIAL', 'CHRONIC_CARE_FOLLOWUP',
     'DIABETES HYPERTENSION INITIAL VISIT', 'DIABETES HYPERTENSION FOLLOWUP',

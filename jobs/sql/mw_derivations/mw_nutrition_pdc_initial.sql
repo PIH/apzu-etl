@@ -14,16 +14,20 @@ create table mw_nutrition_pdc_initial (
     primary key (nutrition_initial_visit_id)
 );
 
+drop temporary table if exists temp_reason_enrolled_in_food_program;
+create temporary table temp_reason_enrolled_in_food_program as select encounter_id, value_coded from omrs_obs where concept = 'Reason enrolled in food program';
+alter table temp_reason_enrolled_in_food_program add index temp_reason_enrolled_in_food_program_encounter_idx (encounter_id);
+
 insert into mw_nutrition_pdc_initial
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
     e.location,
-    max(case when o.concept = 'Reason enrolled in food program' and o.value_coded = 'Maternal Death' then o.value_coded end) as enrollment_reason_martenal_death,
-    max(case when o.concept = 'Reason enrolled in food program' and o.value_coded = 'Malnutrition' then o.value_coded end) as enrollment_reason_malnutrition,
-    max(case when o.concept = 'Reason enrolled in food program' and o.value_coded = 'Other non-coded (text)' then o.value_coded end) as enrollment_reason_other,
-    max(case when o.concept = 'Reason enrolled in food program' and o.value_coded = 'Poser Support' then o.value_coded end) as enrollment_reason_poser_support
+    max(case when reason_enrolled_in_food_program.value_coded = 'Maternal Death' then reason_enrolled_in_food_program.value_coded end) as enrollment_reason_martenal_death,
+    max(case when reason_enrolled_in_food_program.value_coded = 'Malnutrition' then reason_enrolled_in_food_program.value_coded end) as enrollment_reason_malnutrition,
+    max(case when reason_enrolled_in_food_program.value_coded = 'Other non-coded (text)' then reason_enrolled_in_food_program.value_coded end) as enrollment_reason_other,
+    max(case when reason_enrolled_in_food_program.value_coded = 'Poser Support' then reason_enrolled_in_food_program.value_coded end) as enrollment_reason_poser_support
 from omrs_encounter e
-left join omrs_obs o on o.encounter_id = e.encounter_id
+left join temp_reason_enrolled_in_food_program reason_enrolled_in_food_program on e.encounter_id = reason_enrolled_in_food_program.encounter_id
 where e.encounter_type in ('NUTRITION_PDC_INITIAL')
 group by e.patient_id, e.encounter_date, e.location;

@@ -12,14 +12,23 @@ create table mw_pdc_hearing_test (
   primary key (pdc_hearing_test_id)
 ) ;
 
+drop temporary table if exists temp_left_ear;
+create temporary table temp_left_ear as select encounter_id, value_coded from omrs_obs where concept = 'Left Ear';
+alter table temp_left_ear add index temp_left_ear_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_right_ear;
+create temporary table temp_right_ear as select encounter_id, value_coded from omrs_obs where concept = 'Right Ear';
+alter table temp_right_ear add index temp_right_ear_encounter_idx (encounter_id);
+
 insert into mw_pdc_hearing_test
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
     e.location,
-    max(case when o.concept = 'Left Ear' then o.value_coded end) as left_ear,
-    max(case when o.concept = 'Right Ear' then o.value_coded end) as right_ear
+    max(left_ear.value_coded) as left_ear,
+    max(right_ear.value_coded) as right_ear
 from omrs_encounter e
-left join omrs_obs o on o.encounter_id = e.encounter_id
+left join temp_left_ear left_ear on e.encounter_id = left_ear.encounter_id
+left join temp_right_ear right_ear on e.encounter_id = right_ear.encounter_id
 where e.encounter_type in ('HEARING_TEST')
 group by e.patient_id, e.encounter_date, e.location;

@@ -37,57 +37,96 @@ create table mw_diabetes_hypertension_initial (
      primary key (initial_visit_id)
 );
 
+drop temporary table if exists temp_date_antiretrovirals_started;
+create temporary table temp_date_antiretrovirals_started as select encounter_id, value_date from omrs_obs where concept = 'Date antiretrovirals started';
+alter table temp_date_antiretrovirals_started add index temp_date_antiretrovirals_started_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_diagnosis_date;
+create temporary table temp_diagnosis_date as select encounter_id, value_date, obs_group_id from omrs_obs where concept = 'Diagnosis date';
+alter table temp_diagnosis_date add index temp_diagnosis_date_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_family_history_of_diabetes_mellitus;
+create temporary table temp_family_history_of_diabetes_mellitus as select encounter_id, value_coded from omrs_obs where concept = 'Family History of Diabetes Mellitus';
+alter table temp_family_history_of_diabetes_mellitus add index temp_family_history_of_diabetes_mellitus_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_family_history_of_hypertension;
+create temporary table temp_family_history_of_hypertension as select encounter_id, value_coded from omrs_obs where concept = 'Family history of hypertension';
+alter table temp_family_history_of_hypertension add index temp_family_history_of_hypertension_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_hiv_status;
+create temporary table temp_hiv_status as select encounter_id, value_coded from omrs_obs where concept = 'HIV status';
+alter table temp_hiv_status add index temp_hiv_status_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_hiv_test_date;
+create temporary table temp_hiv_test_date as select encounter_id, value_date from omrs_obs where concept = 'HIV test date';
+alter table temp_hiv_test_date add index temp_hiv_test_date_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_tb_status;
+create temporary table temp_tb_status as select encounter_id, value_coded from omrs_obs where concept = 'TB status';
+alter table temp_tb_status add index temp_tb_status_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_year_of_tuberculosis_diagnosis;
+create temporary table temp_year_of_tuberculosis_diagnosis as select encounter_id, value_numeric from omrs_obs where concept = 'Year of Tuberculosis diagnosis';
+alter table temp_year_of_tuberculosis_diagnosis add index temp_year_of_tuberculosis_diagnosis_encounter_idx (encounter_id);
+
 insert into mw_diabetes_hypertension_initial
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
     e.location,
-    max(case when o.concept = 'Date antiretrovirals started' then o.value_date end) as art_start_date,
-    max(case when o.concept = '' and o.value_coded = 'Cardiovascular disease' then o.value_coded end) as cardiovascular_disease,
-    max(case when o.concept = '' and o.value_coded = 'Cardiovascular disease' then o.obs_group_id end) as cardiovascular_disease_obs_group_id,
-    max(case when o.concept = 'Diagnosis date' then o.value_date end) as cardiovascular_disease_date,
-    max(case when o.concept = 'Diagnosis date' then o.obs_group_id end) as cardiovascular_disease_obs_group_id,
-    max(case when o.concept = 'Family History of Diabetes Mellitus' then o.value_coded end) as family_history_diabetes_mellitus,
-    max(case when o.concept = 'Family history of hypertension' then o.value_coded end) as family_history_hypertension,
-    max(case when o.concept = 'HIV status' then o.value_coded end) as hiv_status,
-    max(case when o.concept = 'HIV test date' then o.value_date end) as hiv_test_date,
-    max(case when o.concept = '' and o.value_coded = 'Hypertension' then o.value_coded end) as diagnosis_hypertension,
-    max(case when o.concept = '' and o.value_coded = 'Hypertension' then o.obs_group_id end) as hypertension_obs_group_id,
-    max(case when o.concept = 'Diagnosis date' then o.value_date end) as diagnosis_hypertension_date,
-    max(case when o.concept = 'Diagnosis date' then o.obs_group_id end) as hypertension_obs_group_id,
-    max(case when o.concept = '' and o.value_coded = 'Neuropathy' then o.value_coded end) as neuropathy,
-    max(case when o.concept = '' and o.value_coded = 'Neuropathy' then o.obs_group_id end) as neuropathy_obs_group_id,
-    max(case when o.concept = 'Diagnosis date' then o.value_date end) as neuropathy_date,
-    max(case when o.concept = 'Diagnosis date' then o.obs_group_id end) as neuropathy_obs_group_id,
-    max(case when o.concept = 'Diagnosis date' then o.value_date end) as peripheral_vascular_disease_date,
-    max(case when o.concept = 'Diagnosis date' then o.obs_group_id end) as peripheral_vascular_disease_obs_group_id,
-    max(case when o.concept = '' and o.value_coded = 'Peripheral vascular disease' then o.value_coded end) as peripheral_vascular_disease,
-    max(case when o.concept = '' and o.value_coded = 'Peripheral vascular disease' then o.obs_group_id end) as peripheral_vascular_disease_obs_group_id,
-    max(case when o.concept = '' and o.value_coded = 'Renal disease' then o.value_coded end) as renal_disease,
-    max(case when o.concept = '' and o.value_coded = 'Renal disease' then o.obs_group_id end) as renal_disease_obs_group_id,
-    max(case when o.concept = 'Diagnosis date' then o.value_date end) as renal_disease_date,
-    max(case when o.concept = 'Diagnosis date' then o.obs_group_id end) as renal_disease_obs_group_id,
-    max(case when o.concept = '' and o.value_coded = 'Retinopathy' then o.value_coded end) as retinopathy,
-    max(case when o.concept = '' and o.value_coded = 'Retinopathy' then o.obs_group_id end) as retinopathy_obs_group_id,
-    max(case when o.concept = 'Diagnosis date' then o.value_date end) as retinopathy_date,
-    max(case when o.concept = 'Diagnosis date' then o.obs_group_id end) as retinopathy_obs_group_id,
-    max(case when o.concept = '' and o.value_coded = 'Sexual Disorder' then o.value_coded end) as sexual_disorder,
-    max(case when o.concept = '' and o.value_coded = 'Sexual Disorder' then o.obs_group_id end) as sexual_disorder_obs_group_id,
-    max(case when o.concept = 'Diagnosis date' then o.value_date end) as sexual_disorder_date,
-    max(case when o.concept = 'Diagnosis date' then o.obs_group_id end) as sexual_disorder_obs_group_id,
-    max(case when o.concept = 'Diagnosis date' then o.value_date end) as stroke_and_tia_date,
-    max(case when o.concept = '' and o.value_coded = 'Stroke and Transient Ischemic Attack' then o.value_coded end) as stroke_and_tia,
-    max(case when o.concept = 'TB status' then o.value_coded end) as tb_status,
-    max(case when o.concept = 'Year of Tuberculosis diagnosis' then o.value_numeric end) as tb_status_year,
-    max(case when o.concept = '' and o.value_coded = 'Type 1 diabetes' then o.value_coded end) as diagnosis_type_1_diabetes,
-    max(case when o.concept = '' and o.value_coded = 'Type 1 diabetes' then o.obs_group_id end) as type_1_diabetes_obs_group_id,
-    max(case when o.concept = 'Diagnosis date' then o.value_date end) as diagnosis_type_1_diabetes_date,
-    max(case when o.concept = 'Diagnosis date' then o.obs_group_id end) as type_1_diabetes_obs_group_id,
-    max(case when o.concept = '' and o.value_coded = 'Type 2 diabetes' then o.value_coded end) as diagnosis_type_2_diabetes,
-    max(case when o.concept = '' and o.value_coded = 'Type 2 diabetes' then o.obs_group_id end) as type_2_diabetes_obs_group_id,
-    max(case when o.concept = 'Diagnosis date' then o.value_date end) as diagnosis_type_2_diabetes_date,
-    max(case when o.concept = 'Diagnosis date' then o.obs_group_id end) as type_2_diabetes_obs_group_id
+    max(date_antiretrovirals_started.value_date) as art_start_date,
+    max(null) as cardiovascular_disease,
+    max(null) as cardiovascular_disease_obs_group_id,
+    max(diagnosis_date.value_date) as cardiovascular_disease_date,
+    max(diagnosis_date.obs_group_id) as cardiovascular_disease_obs_group_id,
+    max(family_history_of_diabetes_mellitus.value_coded) as family_history_diabetes_mellitus,
+    max(family_history_of_hypertension.value_coded) as family_history_hypertension,
+    max(hiv_status.value_coded) as hiv_status,
+    max(hiv_test_date.value_date) as hiv_test_date,
+    max(null) as diagnosis_hypertension,
+    max(null) as hypertension_obs_group_id,
+    max(diagnosis_date.value_date) as diagnosis_hypertension_date,
+    max(diagnosis_date.obs_group_id) as hypertension_obs_group_id,
+    max(null) as neuropathy,
+    max(null) as neuropathy_obs_group_id,
+    max(diagnosis_date.value_date) as neuropathy_date,
+    max(diagnosis_date.obs_group_id) as neuropathy_obs_group_id,
+    max(diagnosis_date.value_date) as peripheral_vascular_disease_date,
+    max(diagnosis_date.obs_group_id) as peripheral_vascular_disease_obs_group_id,
+    max(null) as peripheral_vascular_disease,
+    max(null) as peripheral_vascular_disease_obs_group_id,
+    max(null) as renal_disease,
+    max(null) as renal_disease_obs_group_id,
+    max(diagnosis_date.value_date) as renal_disease_date,
+    max(diagnosis_date.obs_group_id) as renal_disease_obs_group_id,
+    max(null) as retinopathy,
+    max(null) as retinopathy_obs_group_id,
+    max(diagnosis_date.value_date) as retinopathy_date,
+    max(diagnosis_date.obs_group_id) as retinopathy_obs_group_id,
+    max(null) as sexual_disorder,
+    max(null) as sexual_disorder_obs_group_id,
+    max(diagnosis_date.value_date) as sexual_disorder_date,
+    max(diagnosis_date.obs_group_id) as sexual_disorder_obs_group_id,
+    max(diagnosis_date.value_date) as stroke_and_tia_date,
+    max(null) as stroke_and_tia,
+    max(tb_status.value_coded) as tb_status,
+    max(year_of_tuberculosis_diagnosis.value_numeric) as tb_status_year,
+    max(null) as diagnosis_type_1_diabetes,
+    max(null) as type_1_diabetes_obs_group_id,
+    max(diagnosis_date.value_date) as diagnosis_type_1_diabetes_date,
+    max(diagnosis_date.obs_group_id) as type_1_diabetes_obs_group_id,
+    max(null) as diagnosis_type_2_diabetes,
+    max(null) as type_2_diabetes_obs_group_id,
+    max(diagnosis_date.value_date) as diagnosis_type_2_diabetes_date,
+    max(diagnosis_date.obs_group_id) as type_2_diabetes_obs_group_id
 from omrs_encounter e
-left join omrs_obs o on o.encounter_id = e.encounter_id
+left join temp_date_antiretrovirals_started date_antiretrovirals_started on e.encounter_id = date_antiretrovirals_started.encounter_id
+left join temp_diagnosis_date diagnosis_date on e.encounter_id = diagnosis_date.encounter_id
+left join temp_family_history_of_diabetes_mellitus family_history_of_diabetes_mellitus on e.encounter_id = family_history_of_diabetes_mellitus.encounter_id
+left join temp_family_history_of_hypertension family_history_of_hypertension on e.encounter_id = family_history_of_hypertension.encounter_id
+left join temp_hiv_status hiv_status on e.encounter_id = hiv_status.encounter_id
+left join temp_hiv_test_date hiv_test_date on e.encounter_id = hiv_test_date.encounter_id
+left join temp_tb_status tb_status on e.encounter_id = tb_status.encounter_id
+left join temp_year_of_tuberculosis_diagnosis year_of_tuberculosis_diagnosis on e.encounter_id = year_of_tuberculosis_diagnosis.encounter_id
 where e.encounter_type in ('DIABETES HYPERTENSION INITIAL VISIT')
 group by e.patient_id, e.encounter_date, e.location;

@@ -13,15 +13,29 @@ create table mw_pdc_complications (
   primary key (pdc_complications_id)
 ) ;
 
+drop temporary table if exists temp_date_of_complication;
+create temporary table temp_date_of_complication as select encounter_id, value_date from omrs_obs where concept = 'Date of complication';
+alter table temp_date_of_complication add index temp_date_of_complication_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_details_of_complications;
+create temporary table temp_details_of_complications as select encounter_id, value_text from omrs_obs where concept = 'Details of Complications';
+alter table temp_details_of_complications add index temp_details_of_complications_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_complications_since_last_visit;
+create temporary table temp_complications_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Complications since last visit';
+alter table temp_complications_since_last_visit add index temp_complications_since_last_visit_encounter_idx (encounter_id);
+
 insert into mw_pdc_complications
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
     e.location,
-    max(case when o.concept = 'Date of complication' then o.value_date end) as date_of_complication,
-    max(case when o.concept = 'Details of Complications' then o.value_text end) as details_of_complications,
-    max(case when o.concept = 'Complications since last visit' then o.value_coded end) as self_reported_complication
+    max(date_of_complication.value_date) as date_of_complication,
+    max(details_of_complications.value_text) as details_of_complications,
+    max(complications_since_last_visit.value_coded) as self_reported_complication
 from omrs_encounter e
-left join omrs_obs o on o.encounter_id = e.encounter_id
+left join temp_date_of_complication date_of_complication on e.encounter_id = date_of_complication.encounter_id
+left join temp_details_of_complications details_of_complications on e.encounter_id = details_of_complications.encounter_id
+left join temp_complications_since_last_visit complications_since_last_visit on e.encounter_id = complications_since_last_visit.encounter_id
 where e.encounter_type in ('PDC_COMPLICATIONS')
 group by e.patient_id, e.encounter_date, e.location;

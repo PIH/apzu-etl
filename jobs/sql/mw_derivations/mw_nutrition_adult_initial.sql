@@ -13,15 +13,19 @@ create table mw_nutrition_adult_initial (
     enrollment_reason_ncd varchar(255),
     primary key (nutrition_initial_visit_id));
 
+drop temporary table if exists temp_reason_enrolled_in_food_program;
+create temporary table temp_reason_enrolled_in_food_program as select encounter_id, value_coded from omrs_obs where concept = 'Reason enrolled in food program';
+alter table temp_reason_enrolled_in_food_program add index temp_reason_enrolled_in_food_program_encounter_idx (encounter_id);
+
 insert into mw_nutrition_adult_initial
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
     e.location,
-    max(case when o.concept = 'Reason enrolled in food program' and o.value_coded = 'Patient in tuberculosis treatment' then o.value_coded end) as enrollment_reason_tb,
-    max(case when o.concept = 'Reason enrolled in food program' and o.value_coded = 'Patient in HIV treatment' then o.value_coded end) as enrollment_reason_hiv,
-    max(case when o.concept = 'Reason enrolled in food program' and o.value_coded = 'Enrolled in NCD' then o.value_coded end) as enrollment_reason_ncd
+    max(case when reason_enrolled_in_food_program.value_coded = 'Patient in tuberculosis treatment' then reason_enrolled_in_food_program.value_coded end) as enrollment_reason_tb,
+    max(case when reason_enrolled_in_food_program.value_coded = 'Patient in HIV treatment' then reason_enrolled_in_food_program.value_coded end) as enrollment_reason_hiv,
+    max(case when reason_enrolled_in_food_program.value_coded = 'Enrolled in NCD' then reason_enrolled_in_food_program.value_coded end) as enrollment_reason_ncd
 from omrs_encounter e
-left join omrs_obs o on o.encounter_id = e.encounter_id
+left join temp_reason_enrolled_in_food_program reason_enrolled_in_food_program on e.encounter_id = reason_enrolled_in_food_program.encounter_id
 where e.encounter_type in ('NUTRITION_ADULTS_INITIAL')
 group by e.patient_id, e.encounter_date, e.location;
