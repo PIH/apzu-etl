@@ -24,7 +24,7 @@ select
     p.enrollment_date as start_date,
     p.completion_date as end_date,
     if(p.completion_date is null, null, ifnull(latest_state.state, p.outcome)) as outcome,
-    max(case when o.value_coded = 'Cardiovascular disease' then TRUE else FALSE end) as cv_disease
+    false
 from omrs_program_enrollment p
 left join (
     select i.patient_id, i.location, i.identifier
@@ -52,6 +52,9 @@ left join (
         limit 1
     )
 ) latest_state on latest_state.program_enrollment_id = p.program_enrollment_id
-left join omrs_obs o on o.patient_id = p.patient_id
 where p.program = 'Chronic care program'
 group by p.program_enrollment_id, p.patient_id, p.location, p.enrollment_date, p.completion_date, p.outcome, i.identifier, latest_state.state;
+
+update mw_ncd_register r
+inner join omrs_obs o on r.patient_id = o.patient_id and o.value_coded = 'Cardiovascular disease'
+set cv_disease = true;
