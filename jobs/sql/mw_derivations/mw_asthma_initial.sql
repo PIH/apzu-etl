@@ -106,7 +106,7 @@ drop temporary table if exists temp_smoking_history;
 create temporary table temp_smoking_history as select encounter_id, value_coded from omrs_obs where concept = 'Smoking history';
 alter table temp_smoking_history add index temp_smoking_history_encounter_idx (encounter_id);
 
-insert into mw_asthma_initial (patient_id, visit_date, location, art_start_date, chronic_dry_cough, chronic_dry_cough_age_at_onset, chronic_dry_cough_duration_in_months, cooking_indoor, diagnosis_asthma, diagnosis_copd, diagnosis_date_asthma, diagnosis_date_copd, family_history_asthma, family_history_copd, hiv_status, hiv_test_date, tb_contact, tb_contact_date, tb_status, tb_year, cooking_indoor, last_smoking_history_date, occupation, occupation_exposure, occupation_exposure_date, second_hand_smoking, second_hand_smoking_date, smoking_history)
+insert into mw_asthma_initial (patient_id, visit_date, location, art_start_date, chronic_dry_cough, chronic_dry_cough_age_at_onset, chronic_dry_cough_duration_in_months, cooking_indoor, diagnosis_asthma, diagnosis_copd, diagnosis_date_asthma, diagnosis_date_copd, family_history_asthma, family_history_copd, hiv_status, hiv_test_date, tb_contact, tb_contact_date, tb_status, tb_year, last_smoking_history_date, occupation, occupation_exposure, occupation_exposure_date, second_hand_smoking, second_hand_smoking_date, smoking_history)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -115,7 +115,7 @@ select
     max(case when symptom_present.value_coded = 'Dry cough' then symptom_present.value_coded end) as chronic_dry_cough,
     max(age_at_cough_onset.value_numeric) as chronic_dry_cough_age_at_onset,
     max(duration_of_symptom_in_months.value_numeric) as chronic_dry_cough_duration_in_months,
-    max(case when location_of_cooking.value_coded = 'Indoors' then location_of_cooking.value_coded end) as cooking_indoor,
+    max(location_of_cooking.value_coded) as cooking_indoor,
     max(case when chronic_care_diagnosis.value_coded = 'Asthma' then chronic_care_diagnosis.value_coded end) as diagnosis_asthma,
     max(case when chronic_care_diagnosis.value_coded = 'Chronic obstructive pulmonary disease' then chronic_care_diagnosis.value_coded end) as diagnosis_copd,
     max(diagnosis_date.value_date) as diagnosis_date_asthma,
@@ -128,7 +128,6 @@ select
     max(date_of_exposure.value_date) as tb_contact_date,
     max(tb_status.value_coded) as tb_status,
     max(year_of_tuberculosis_diagnosis.value_numeric) as tb_year,
-    max(case when location_of_cooking.value_coded = 'Outdoors' then location_of_cooking.value_coded end) as cooking_indoor,
     max(last_time_person_used_tobacco.value_date) as last_smoking_history_date,
     max(main_activity.value_coded) as occupation,
     max(case when exposure.value_coded = 'Occupational exposure' then exposure.value_coded end) as occupation_exposure,
