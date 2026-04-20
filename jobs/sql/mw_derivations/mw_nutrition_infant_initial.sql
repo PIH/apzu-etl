@@ -22,7 +22,7 @@ drop temporary table if exists temp_other_non_coded_text;
 create temporary table temp_other_non_coded_text as select encounter_id, value_text from omrs_obs where concept = 'Other non-coded (text)';
 alter table temp_other_non_coded_text add index temp_other_non_coded_text_encounter_idx (encounter_id);
 
-insert into mw_nutrition_infant_initial (patient_id, visit_date, location, enrollment_reason_multiple_births, enrollment_reason_other, enrollment_reason_severe_maternal_illness, enrollment_reason_severe_maternal_death)
+insert into mw_nutrition_infant_initial (patient_id, visit_date, location, enrollment_reason_multiple_births, enrollment_reason_other, enrollment_reason_severe_maternal_illness, enrollment_reason_maternal_death)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -30,7 +30,7 @@ select
     max(case when reason_enrolled_in_food_program.value_coded = 'Multiple births' then reason_enrolled_in_food_program.value_coded end) as enrollment_reason_multiple_births,
     max(other_non_coded_text.value_text) as enrollment_reason_other,
     max(case when reason_enrolled_in_food_program.value_coded = 'Severe Maternal Illness' then reason_enrolled_in_food_program.value_coded end) as enrollment_reason_severe_maternal_illness,
-    max(case when reason_enrolled_in_food_program.value_coded = 'Maternal Death' then reason_enrolled_in_food_program.value_coded end) as enrollment_reason_severe_maternal_Death
+    max(case when reason_enrolled_in_food_program.value_coded = 'Maternal Death' then reason_enrolled_in_food_program.value_coded end) as enrollment_reason_maternal_Death
 from omrs_encounter e
 left join temp_reason_enrolled_in_food_program reason_enrolled_in_food_program on e.encounter_id = reason_enrolled_in_food_program.encounter_id
 left join temp_other_non_coded_text other_non_coded_text on e.encounter_id = other_non_coded_text.encounter_id
