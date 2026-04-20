@@ -1,8 +1,6 @@
 -- Derivation script for mw_diabetes_hypertension_followup
 -- Generated from Pentaho transform: import-into-mw-diabetes-hypertension-followup.ktr
 
--- TODO: This needs to be fixed.  See all the max(null) in the select statement
-
 drop table if exists mw_diabetes_hypertension_followup;
 create table mw_diabetes_hypertension_followup
 (
@@ -134,52 +132,143 @@ drop temporary table if exists temp_weight_kg;
 create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
-insert into mw_diabetes_hypertension_followup (patient_id, visit_date, location, alcohol, ccb_aml, asprin_asa, bb_aten, statin_atorva, bp_stystolic, bb_bis, blood_sugar_test_type, body_mass_index, ace_i_capt, cardiovascular_risk, days_per_week_with_30_min_of_exercise, deformities, bp_diastolic, ace_i_enal, fasting_blood_sugar, diuretic_furp, diabetes_med_gilbenclamide, hba1c, height, other_hyd, diuretic_hctz, other_issmn, ace_i_lisin, diabetes_med_long_acting, diabetes_med_metformin, neuropathy_or_pvd, next_appointment_date, ccb_nif, number_of_fruit_and_vegetable_portions, hospitalized_since_last_visit, statin_prava, bb_prop, pulse_rate, diabetes_med_short_acting, statin_simva, diuretic_spiro, tobbacco, ulcers, visual_acuity, weight)
+drop temporary table if exists temp_ccb_aml;
+create temporary table temp_ccb_aml as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Amlodipine';
+alter table temp_ccb_aml add index temp_ccb_aml_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_asprin_asa;
+create temporary table temp_asprin_asa as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Aspirin';
+alter table temp_asprin_asa add index temp_asprin_asa_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_bb_aten;
+create temporary table temp_bb_aten as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Atenolol';
+alter table temp_bb_aten add index temp_bb_aten_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_statin_atorva;
+create temporary table temp_statin_atorva as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Atorvastatin';
+alter table temp_statin_atorva add index temp_statin_atorva_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_bb_bis;
+create temporary table temp_bb_bis as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Bisoprolol';
+alter table temp_bb_bis add index temp_bb_bis_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_ace_i_capt;
+create temporary table temp_ace_i_capt as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Captopril';
+alter table temp_ace_i_capt add index temp_ace_i_capt_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_ace_i_enal;
+create temporary table temp_ace_i_enal as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Enalapril';
+alter table temp_ace_i_enal add index temp_ace_i_enal_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_diuretic_furp;
+create temporary table temp_diuretic_furp as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Furosemide';
+alter table temp_diuretic_furp add index temp_diuretic_furp_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_diabetes_med_gilbenclamide;
+create temporary table temp_diabetes_med_gilbenclamide as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Glibenclamide';
+alter table temp_diabetes_med_gilbenclamide add index temp_diabetes_med_gilbenclamide_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_other_hyd;
+create temporary table temp_other_hyd as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Hydralazine';
+alter table temp_other_hyd add index temp_other_hyd_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_diuretic_hctz;
+create temporary table temp_diuretic_hctz as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Hydrochlorothiazide';
+alter table temp_diuretic_hctz add index temp_diuretic_hctz_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_other_issmn;
+create temporary table temp_other_issmn as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Isosorbide mononitrate';
+alter table temp_other_issmn add index temp_other_issmn_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_ace_i_lisin;
+create temporary table temp_ace_i_lisin as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Lisinopril';
+alter table temp_ace_i_lisin add index temp_ace_i_lisin_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_diabetes_med_long_acting;
+create temporary table temp_diabetes_med_long_acting as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Long acting insulin';
+alter table temp_diabetes_med_long_acting add index temp_diabetes_med_long_acting_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_diabetes_med_metformin;
+create temporary table temp_diabetes_med_metformin as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Metformin';
+alter table temp_diabetes_med_metformin add index temp_diabetes_med_metformin_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_ccb_nif;
+create temporary table temp_ccb_nif as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Nifedipine';
+alter table temp_ccb_nif add index temp_ccb_nif_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_statin_prava;
+create temporary table temp_statin_prava as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Pravastatin';
+alter table temp_statin_prava add index temp_statin_prava_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_bb_prop;
+create temporary table temp_bb_prop as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Propranolol';
+alter table temp_bb_prop add index temp_bb_prop_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_diabetes_med_short_acting;
+create temporary table temp_diabetes_med_short_acting as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Insulin, soluble';
+alter table temp_diabetes_med_short_acting add index temp_diabetes_med_short_acting_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_statin_simva;
+create temporary table temp_statin_simva as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Simvastatin';
+alter table temp_statin_simva add index temp_statin_simva_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_diuretic_spiro;
+create temporary table temp_diuretic_spiro as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Spironolactone';
+alter table temp_diuretic_spiro add index temp_diuretic_spiro_encounter_idx (encounter_id);
+
+insert into mw_diabetes_hypertension_followup (
+    patient_id, visit_date, location, alcohol, bp_stystolic, blood_sugar_test_type, body_mass_index, cardiovascular_risk,
+    days_per_week_with_30_min_of_exercise, deformities, bp_diastolic, fasting_blood_sugar, hba1c, height, neuropathy_or_pvd,
+    next_appointment_date, number_of_fruit_and_vegetable_portions, hospitalized_since_last_visit, pulse_rate, tobbacco, ulcers, visual_acuity, weight,
+    ccb_aml, asprin_asa, bb_aten, statin_atorva, bb_bis, ace_i_capt, ace_i_enal, diuretic_furp, diabetes_med_gilbenclamide, other_hyd,
+    diuretic_hctz, other_issmn, ace_i_lisin, diabetes_med_long_acting, diabetes_med_metformin, ccb_nif, statin_prava, bb_prop,
+    diabetes_med_short_acting, statin_simva, diuretic_spiro
+)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
     e.location,
     max(history_of_alcohol_use.value_coded) as alcohol,
-    max(null) as ccb_aml,
-    max(null) as asprin_asa,
-    max(null) as bb_aten,
-    max(null) as statin_atorva,
     max(systolic_blood_pressure.value_numeric) as bp_stystolic,
-    max(null) as bb_bis,
     max(blood_sugar_test_type.value_coded) as blood_sugar_test_type,
     max(body_mass_index_coded.value_coded) as body_mass_index,
-    max(null) as ace_i_capt,
     max(cardiovascular_risk_score.value_numeric) as cardiovascular_risk,
     max(days_per_week_of_moderate_exercise.value_numeric) as days_per_week_with_30_min_of_exercise,
     max(deformity_of_foot.value_coded) as deformities,
     max(diastolic_blood_pressure.value_numeric) as bp_diastolic,
-    max(null) as ace_i_enal,
     max(serum_glucose.value_numeric) as fasting_blood_sugar,
-    max(null) as diuretic_furp,
-    max(null) as diabetes_med_gilbenclamide,
     max(glycated_hemoglobin.value_numeric) as hba1c,
     max(height_cm.value_numeric) as height,
-    max(null) as other_hyd,
-    max(null) as diuretic_hctz,
-    max(null) as other_issmn,
-    max(null) as ace_i_lisin,
-    max(null) as diabetes_med_long_acting,
-    max(null) as diabetes_med_metformin,
     max(neuropathy_and_peripheral_vascular_disease.value_coded) as neuropathy_or_pvd,
     max(appointment_date.value_date) as next_appointment_date,
-    max(null) as ccb_nif,
     max(number_of_servings_of_fruits_and_vegetables_consumed_per_day.value_numeric) as number_of_fruit_and_vegetable_portions,
     max(patient_hospitalized_since_last_visit.value_coded) as hospitalized_since_last_visit,
-    max(null) as statin_prava,
-    max(null) as bb_prop,
     max(pulse.value_numeric) as pulse_rate,
-    max(null) as diabetes_med_short_acting,
-    max(null) as statin_simva,
-    max(null) as diuretic_spiro,
     max(smoking_history.value_coded) as tobbacco,
     max(foot_ulcer_or_infection.value_coded) as ulcers,
     max(visual_acuity_text.value_text) as visual_acuity,
-    max(weight_kg.value_numeric) as weight
+    max(weight_kg.value_numeric) as weight,
+    max(temp_ccb_aml.value_coded) as ccb_aml,
+    max(temp_asprin_asa.value_coded) as asprin_asa,
+    max(temp_bb_aten.value_coded) as bb_aten,
+    max(temp_statin_atorva.value_coded) as statin_atorva,
+    max(temp_bb_bis.value_coded) as bb_bis,
+    max(temp_ace_i_capt.value_coded) as ace_i_capt,
+    max(temp_ace_i_enal.value_coded) as ace_i_enal,
+    max(temp_diuretic_furp.value_coded) as diuretic_furp,
+    max(temp_diabetes_med_gilbenclamide.value_coded) as diabetes_med_gilbenclamide,
+    max(temp_other_hyd.value_coded) as other_hyd,
+    max(temp_diuretic_hctz.value_coded) as diuretic_hctz,
+    max(temp_other_issmn.value_coded) as other_issmn,
+    max(temp_ace_i_lisin.value_coded) as ace_i_lisin,
+    max(temp_diabetes_med_long_acting.value_coded) as diabetes_med_long_acting,
+    max(temp_diabetes_med_metformin.value_coded) as diabetes_med_metformin,
+    max(temp_ccb_nif.value_coded) as ccb_nif,
+    max(temp_statin_prava.value_coded) as statin_prava,
+    max(temp_bb_prop.value_coded) as bb_prop,
+    max(temp_diabetes_med_short_acting.value_coded) as diabetes_med_short_acting,
+    max(temp_statin_simva.value_coded) as statin_simva,
+    max(temp_diuretic_spiro.value_coded) as diuretic_spiro
 from omrs_encounter e
 left join temp_history_of_alcohol_use history_of_alcohol_use on e.encounter_id = history_of_alcohol_use.encounter_id
 left join temp_systolic_blood_pressure systolic_blood_pressure on e.encounter_id = systolic_blood_pressure.encounter_id
@@ -201,5 +290,26 @@ left join temp_smoking_history smoking_history on e.encounter_id = smoking_histo
 left join temp_foot_ulcer_or_infection foot_ulcer_or_infection on e.encounter_id = foot_ulcer_or_infection.encounter_id
 left join temp_visual_acuity_text visual_acuity_text on e.encounter_id = visual_acuity_text.encounter_id
 left join temp_weight_kg weight_kg on e.encounter_id = weight_kg.encounter_id
+left join temp_ccb_aml on e.encounter_id = temp_ccb_aml.encounter_id
+left join temp_asprin_asa on e.encounter_id = temp_asprin_asa.encounter_id
+left join temp_bb_aten on e.encounter_id = temp_bb_aten.encounter_id
+left join temp_statin_atorva on e.encounter_id = temp_statin_atorva.encounter_id
+left join temp_bb_bis on e.encounter_id = temp_bb_bis.encounter_id
+left join temp_ace_i_capt on e.encounter_id = temp_ace_i_capt.encounter_id
+left join temp_ace_i_enal on e.encounter_id = temp_ace_i_enal.encounter_id
+left join temp_diuretic_furp on e.encounter_id = temp_diuretic_furp.encounter_id
+left join temp_diabetes_med_gilbenclamide on e.encounter_id = temp_diabetes_med_gilbenclamide.encounter_id
+left join temp_other_hyd on e.encounter_id = temp_other_hyd.encounter_id
+left join temp_diuretic_hctz on e.encounter_id = temp_diuretic_hctz.encounter_id
+left join temp_other_issmn on e.encounter_id = temp_other_issmn.encounter_id
+left join temp_ace_i_lisin on e.encounter_id = temp_ace_i_lisin.encounter_id
+left join temp_diabetes_med_long_acting on e.encounter_id = temp_diabetes_med_long_acting.encounter_id
+left join temp_diabetes_med_metformin on e.encounter_id = temp_diabetes_med_metformin.encounter_id
+left join temp_ccb_nif on e.encounter_id = temp_ccb_nif.encounter_id
+left join temp_statin_prava on e.encounter_id = temp_statin_prava.encounter_id
+left join temp_bb_prop on e.encounter_id = temp_bb_prop.encounter_id
+left join temp_diabetes_med_short_acting on e.encounter_id = temp_diabetes_med_short_acting.encounter_id
+left join temp_statin_simva on e.encounter_id = temp_statin_simva.encounter_id
+left join temp_diuretic_spiro on e.encounter_id = temp_diuretic_spiro.encounter_id
 where e.encounter_type in ('DIABETES HYPERTENSION FOLLOWUP')
 group by e.patient_id, e.encounter_date, e.location;
