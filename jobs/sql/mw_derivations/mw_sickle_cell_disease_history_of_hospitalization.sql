@@ -2,16 +2,19 @@
 -- Generated from Pentaho transform: import-into-mw-sickle-cell-disease-history-of-hospitalization.ktr
 
 drop table if exists mw_sickle_cell_disease_history_of_hospitalization;
-create table mw_sickle_cell_disease_history_of_hospitalization (
-  sickle_cell_disease_history_of_hospitalization int not null auto_increment,
-  patient_id 				int not null,
-  visit_date 				date default null,
-  location 				varchar(255) default null,
-  length_of_stay			int not null,
-  reason_for_admission			varchar(255) default null,
-  discharge_diagnosis			varchar(255) default null,
-  discharge_medications			varchar(255) default null,
-  primary key (sickle_cell_disease_history_of_hospitalization));
+create table mw_sickle_cell_disease_history_of_hospitalization
+(
+    sickle_cell_disease_history_of_hospitalization int not null auto_increment,
+    patient_id                                     int not null,
+    visit_date                                     date,
+    location                                       varchar(255),
+    length_of_stay                                 int,
+    reason_for_admission                           varchar(255),
+    discharge_date                                 date,
+    discharge_diagnosis                            varchar(255),
+    discharge_medications                          varchar(255),
+    primary key (sickle_cell_disease_history_of_hospitalization)
+);
 
 drop temporary table if exists temp_hospitalization_discharge_date;
 create temporary table temp_hospitalization_discharge_date as select encounter_id, value_date from omrs_obs where concept = 'Hospitalization discharge date';
