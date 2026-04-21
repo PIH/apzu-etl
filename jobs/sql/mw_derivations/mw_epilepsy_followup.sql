@@ -98,149 +98,141 @@ group by t.encounter_id, t.obs_group_id, t.drug_name;
 alter table temp_medications add index temp_medications_encounter_idx (encounter_id);
 alter table temp_medications add index temp_medications_drug_idx (drug_name);
 
-drop temporary table if exists temp_med_carbamazepine;
-create temporary table temp_med_carbamazepine as select * from temp_medications where drug_name = 'Carbamazepine';
-alter table temp_med_carbamazepine add index temp_med_carbamazepine_encounter_idx (encounter_id);
+drop temporary table if exists temp_med_values;
+create temporary table temp_med_values as
+select
+    encounter_id,
+    max(case when drug_name = 'Carbamazepine'    then drug_name    end) as med_carbamazepine,
+    max(case when drug_name = 'Carbamazepine'    then dose         end) as med_carbamazepine_dose,
+    max(case when drug_name = 'Carbamazepine'    then dosing_unit  end) as med_carbamazepine_dosing_unit,
+    max(case when drug_name = 'Carbamazepine'    then route        end) as med_carbamazepine_route,
+    max(case when drug_name = 'Carbamazepine'    then frequency    end) as med_carbamazepine_frequency,
+    max(case when drug_name = 'Carbamazepine'    then duration     end) as med_carbamazepine_duration,
+    max(case when drug_name = 'Carbamazepine'    then duration_units end) as med_carbamazepine_duration_units,
+    max(case when drug_name = 'Phenobarbital'    then drug_name    end) as med_Phenobarbital,
+    max(case when drug_name = 'Phenobarbital'    then dose         end) as med_Phenobarbital_dose,
+    max(case when drug_name = 'Phenobarbital'    then dosing_unit  end) as med_Phenobarbital_dosing_unit,
+    max(case when drug_name = 'Phenobarbital'    then route        end) as med_Phenobarbital_route,
+    max(case when drug_name = 'Phenobarbital'    then frequency    end) as med_Phenobarbital_frequency,
+    max(case when drug_name = 'Phenobarbital'    then duration     end) as med_Phenobarbital_duration,
+    max(case when drug_name = 'Phenobarbital'    then duration_units end) as med_Phenobarbital_duration_units,
+    max(case when drug_name = 'Phenytoin'        then drug_name    end) as med_Phenytoin,
+    max(case when drug_name = 'Phenytoin'        then dose         end) as med_Phenytoin_dose,
+    max(case when drug_name = 'Phenytoin'        then dosing_unit  end) as med_Phenytoin_dosing_unit,
+    max(case when drug_name = 'Phenytoin'        then route        end) as med_Phenytoin_route,
+    max(case when drug_name = 'Phenytoin'        then frequency    end) as med_Phenytoin_frequency,
+    max(case when drug_name = 'Phenytoin'        then duration     end) as med_Phenytoin_duration,
+    max(case when drug_name = 'Phenytoin'        then duration_units end) as med_Phenytoin_duration_units,
+    max(case when drug_name = 'Sodium valproate' then drug_name    end) as med_Sodium_Valproate,
+    max(case when drug_name = 'Sodium valproate' then dose         end) as med_Sodium_Valproate_dose,
+    max(case when drug_name = 'Sodium valproate' then dosing_unit  end) as med_Sodium_Valproate_dosing_unit,
+    max(case when drug_name = 'Sodium valproate' then route        end) as med_Sodium_Valproate_route,
+    max(case when drug_name = 'Sodium valproate' then frequency    end) as med_Sodium_Valproate_frequency,
+    max(case when drug_name = 'Sodium valproate' then duration     end) as med_Sodium_Valproate_duration,
+    max(case when drug_name = 'Sodium valproate' then duration_units end) as med_Sodium_Valproate_duration_units
+from temp_medications
+group by encounter_id;
+alter table temp_med_values add index temp_med_values_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_med_phenobarbital;
-create temporary table temp_med_phenobarbital as select * from temp_medications where drug_name = 'Phenobarbital';
-alter table temp_med_phenobarbital add index temp_med_phenobarbital_encounter_idx (encounter_id);
+drop temporary table if exists temp_epilepsy_followup_obs;
+create temporary table temp_epilepsy_followup_obs as
+select encounter_id, obs_group_id, concept, value_coded, value_numeric, value_date, value_text
+from omrs_obs
+where encounter_type = 'EPILEPSY_FOLLOWUP';
+alter table temp_epilepsy_followup_obs add index temp_epilepsy_followup_obs_concept_idx (concept);
+alter table temp_epilepsy_followup_obs add index temp_epilepsy_followup_obs_encounter_idx (encounter_id);
+alter table temp_epilepsy_followup_obs add index temp_epilepsy_followup_obs_group_idx (obs_group_id);
 
-drop temporary table if exists temp_med_phenytoin;
-create temporary table temp_med_phenytoin as select * from temp_medications where drug_name = 'Phenytoin';
-alter table temp_med_phenytoin add index temp_med_phenytoin_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_sodium_valproate;
-create temporary table temp_med_sodium_valproate as select * from temp_medications where drug_name = 'Sodium valproate';
-alter table temp_med_sodium_valproate add index temp_med_sodium_valproate_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_any_seizure_triggers_present;
-create temporary table temp_any_seizure_triggers_present as select encounter_id, value_coded from omrs_obs where concept = 'Any seizure triggers present';
-alter table temp_any_seizure_triggers_present add index temp_any_seizure_triggers_present_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_family_planning;
-create temporary table temp_family_planning as select encounter_id, value_coded from omrs_obs where concept = 'Family planning';
-alter table temp_family_planning add index temp_family_planning_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_height_cm;
-create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
-alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_patient_hospitalized_since_last_visit;
-create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Patient hospitalized since last visit';
-alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_2 (encounter_id);
-
-drop temporary table if exists temp_current_drugs_used;
-create temporary table temp_current_drugs_used as select encounter_id, value_coded from omrs_obs where concept = 'Current drugs used';
-alter table temp_current_drugs_used add index temp_current_drugs_used_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_number_of_seizures;
-create temporary table temp_number_of_seizures as select encounter_id, value_numeric from omrs_obs where concept = 'NUMBER OF SEIZURES';
-alter table temp_number_of_seizures add index temp_number_of_seizures_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_is_patient_pregnant;
-create temporary table temp_is_patient_pregnant as select encounter_id, value_coded from omrs_obs where concept = 'Is patient pregnant?';
-alter table temp_is_patient_pregnant add index temp_is_patient_pregnant_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_symptoms_during_seizure;
-create temporary table temp_symptoms_during_seizure as select encounter_id, value_coded from omrs_obs where concept = 'Symptoms during seizure';
-alter table temp_symptoms_during_seizure add index temp_symptoms_during_seizure_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_epilepsy_trigger;
-create temporary table temp_epilepsy_trigger as select encounter_id, value_coded from omrs_obs where concept = 'Epilepsy trigger';
-alter table temp_epilepsy_trigger add index temp_epilepsy_trigger_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_body_mass_index_coded;
-create temporary table temp_body_mass_index_coded as select encounter_id, value_coded from omrs_obs where concept = 'Body Mass Index, coded';
-alter table temp_body_mass_index_coded add index temp_body_mass_index_coded_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_any_seizure_occurred_since_last_visit;
-create temporary table temp_any_seizure_occurred_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Any seizure occurred since last visit';
-alter table temp_any_seizure_occurred_since_last_visit add index temp_seizure_occurred_since_last_visit_encounter (encounter_id);
-
-drop temporary table if exists temp_weight_kg;
-create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
-alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_clinical_impression_comments;
-create temporary table temp_clinical_impression_comments as select encounter_id, value_text from omrs_obs where concept = 'Clinical impression comments';
-alter table temp_clinical_impression_comments add index temp_clinical_impression_comments_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_appointment_date;
-create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
-alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
+drop temporary table if exists temp_single_values;
+create temporary table temp_single_values as
+select
+    encounter_id,
+    max(case when concept = 'Epilepsy trigger' and value_coded = 'Alcohol trigger'                                                                        then value_coded end) as alcohol_trigger,
+    max(case when concept = 'Any seizure occurred since last visit'                                                                                      then value_coded end) as seizure_since_last_visit,
+    max(case when concept = 'Any seizure triggers present'                                                                                               then value_coded end) as any_triggers,
+    max(case when concept = 'Appointment date'                                                                                                           then value_date  end) as next_appointment_date,
+    max(case when concept = 'Body Mass Index, coded'                                                                                                     then value_coded end) as bmi,
+    max(case when concept = 'Clinical impression comments'                                                                                               then value_text  end) as comments,
+    max(case when concept = 'Current drugs used' and value_coded = 'Other'                                                                               then value_coded end) as med_other,
+    max(case when concept = 'Epilepsy trigger' and value_coded = 'Emotional stress, anger, boredom'                                                      then value_coded end) as emotional_stress_anger_boredom_trigger,
+    max(case when concept = 'Epilepsy trigger' and value_coded = 'Fever trigger'                                                                         then value_coded end) as fever_trigger,
+    max(case when concept = 'Epilepsy trigger' and value_coded = 'Menstruation trigger'                                                                  then value_coded end) as menstruation_trigger,
+    max(case when concept = 'Epilepsy trigger' and value_coded = 'Missed medication trigger'                                                             then value_coded end) as missed_medication_trigger,
+    max(case when concept = 'Epilepsy trigger' and value_coded = 'Sleep deprivation and overtired'                                                       then value_coded end) as sleep_deprivation_and_overtired_trigger,
+    max(case when concept = 'Epilepsy trigger' and value_coded = 'Sound, light, and touch'                                                               then value_coded end) as sound_light_and_touch_trigger,
+    max(case when concept = 'Family planning'                                                                                                            then value_coded end) as family_planning,
+    max(case when concept = 'Height (cm)'                                                                                                                then value_numeric end) as height,
+    max(case when concept = 'Is patient pregnant?'                                                                                                       then value_coded end) as pregnant,
+    max(case when concept = 'NUMBER OF SEIZURES'                                                                                                         then value_numeric end) as number_of_seizures,
+    max(case when concept = 'Patient hospitalized since last visit'                                                                                      then value_coded end) as hospitalized_since_last_visit,
+    max(case when concept = 'Symptoms during seizure'                                                                                                    then value_coded end) as silent_makers,
+    max(case when concept = 'Weight (kg)'                                                                                                                then value_numeric end) as weight
+from temp_epilepsy_followup_obs
+group by encounter_id;
+alter table temp_single_values add index temp_single_values_encounter_idx (encounter_id);
 
 insert into mw_epilepsy_followup (patient_id, visit_date, location, med_carbamazepine_frequency, med_phenobarbital_frequency, med_sodium_valproate_frequency, med_sodium_valproate_route, any_triggers, med_carbamazepine_dose, med_carbamazepine_dosing_unit, med_carbamazepine_duration, med_carbamazepine_duration_units, med_carbamazepine_route, family_planning, height, hospitalized_since_last_visit, med_carbamazepine, number_of_seizures, med_phenobarbital_dose, med_phenobarbital_dosing_unit, med_phenobarbital_duration, med_phenobarbital_duration_units, med_phenobarbital_route, med_phenytoin_dose, med_phenytoin_dosing_unit, med_phenytoin_duration, med_phenytoin_duration_units, med_phenytoin_frequency, med_phenytoin_route, pregnant, silent_makers, med_sodium_valproate_dose, med_sodium_valproate_dosing_unit, med_sodium_valproate_duration, med_sodium_valproate_duration_units, alcohol_trigger, bmi, emotional_stress_anger_boredom_trigger, fever_trigger, menstruation_trigger, missed_medication_trigger, seizure_since_last_visit, sleep_deprivation_and_overtired_trigger, sound_light_and_touch_trigger, weight, comments, med_phenobarbital, med_phenytoin, med_sodium_valproate, med_other, next_appointment_date)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
     e.location,
-    max(med_carbamazepine.frequency) as med_carbamazepine_frequency,
-    max(med_phenobarbital.frequency) as med_Phenobarbital_frequency,
-    max(med_sodium_valproate.frequency) as med_sodium_valproate_frequency,
-    max(med_sodium_valproate.route) as med_sodium_valproate_route,
-    max(any_seizure_triggers_present.value_coded) as any_triggers,
-    max(med_carbamazepine.dose) as med_carbamazepine_dose,
-    max(med_carbamazepine.dosing_unit) as med_carbamazepine_dosing_unit,
-    max(med_carbamazepine.duration) as med_carbamazepine_duration,
-    max(med_carbamazepine.duration_units) as med_carbamazepine_duration_units,
-    max(med_carbamazepine.route) as med_carbamazepine_route,
-    max(family_planning.value_coded) as family_planning,
-    max(height_cm.value_numeric) as height,
-    max(patient_hospitalized_since_last_visit.value_coded) as hospitalized_since_last_visit,
-    max(med_carbamazepine.drug_name) as med_carbamazepine,
-    max(number_of_seizures.value_numeric) as number_of_seizures,
-    max(med_phenobarbital.dose) as med_Phenobarbital_dose,
-    max(med_phenobarbital.dosing_unit) as med_Phenobarbital_dosing_unit,
-    max(med_phenobarbital.duration) as med_Phenobarbital_duration,
-    max(med_phenobarbital.duration_units) as med_Phenobarbital_duration_units,
-    max(med_phenobarbital.route) as med_Phenobarbital_route,
-    max(med_phenytoin.dose) as med_Phenytoin_dose,
-    max(med_phenytoin.dosing_unit) as med_Phenytoin_dosing_unit,
-    max(med_phenytoin.duration) as med_Phenytoin_duration,
-    max(med_phenytoin.duration_units) as med_Phenytoin_duration_units,
-    max(med_phenytoin.frequency) as med_Phenytoin_frequency,
-    max(med_phenytoin.route) as med_Phenytoin_route,
-    max(is_patient_pregnant.value_coded) as pregnant,
-    max(symptoms_during_seizure.value_coded) as silent_makers,
-    max(med_sodium_valproate.dose) as med_sodium_valproate_dose,
-    max(med_sodium_valproate.dosing_unit) as med_sodium_valproate_dosing_unit,
-    max(med_sodium_valproate.duration) as med_sodium_valproate_duration,
-    max(med_sodium_valproate.duration_units) as med_sodium_valproate_duration_units,
-    max(case when epilepsy_trigger.value_coded = 'Alcohol trigger' then epilepsy_trigger.value_coded end) as alcohol_trigger,
-    max(body_mass_index_coded.value_coded) as bmi,
-    max(case when epilepsy_trigger.value_coded = 'Emotional stress, anger, boredom' then epilepsy_trigger.value_coded end) as emotional_stress_anger_boredom_trigger,
-    max(case when epilepsy_trigger.value_coded = 'Fever trigger' then epilepsy_trigger.value_coded end) as fever_trigger,
-    max(case when epilepsy_trigger.value_coded = 'Menstruation trigger' then epilepsy_trigger.value_coded end) as menstruation_trigger,
-    max(case when epilepsy_trigger.value_coded = 'Missed medication trigger' then epilepsy_trigger.value_coded end) as missed_medication_trigger,
-    max(any_seizure_occurred_since_last_visit.value_coded) as seizure_since_last_visit,
-    max(case when epilepsy_trigger.value_coded = 'Sleep deprivation and overtired' then epilepsy_trigger.value_coded end) as sleep_deprivation_and_overtired_trigger,
-    max(case when epilepsy_trigger.value_coded = 'Sound, light, and touch' then epilepsy_trigger.value_coded end) as sound_light_and_touch_trigger,
-    max(weight_kg.value_numeric) as weight,
-    max(clinical_impression_comments.value_text) as comments,
-    max(med_phenobarbital.drug_name) as med_phenobarbital,
-    max(med_phenytoin.drug_name) as med_phenytoin,
-    max(med_sodium_valproate.drug_name) as med_sodium_valproate,
-    max(case when current_drugs_used.value_coded = 'Other' then current_drugs_used.value_coded end) as med_other,
-    max(appointment_date.value_date) as next_appointment_date
+    mv.med_carbamazepine_frequency,
+    mv.med_Phenobarbital_frequency,
+    mv.med_Sodium_Valproate_frequency,
+    mv.med_Sodium_Valproate_route,
+    sv.any_triggers,
+    mv.med_carbamazepine_dose,
+    mv.med_carbamazepine_dosing_unit,
+    mv.med_carbamazepine_duration,
+    mv.med_carbamazepine_duration_units,
+    mv.med_carbamazepine_route,
+    sv.family_planning,
+    sv.height,
+    sv.hospitalized_since_last_visit,
+    mv.med_carbamazepine,
+    sv.number_of_seizures,
+    mv.med_Phenobarbital_dose,
+    mv.med_Phenobarbital_dosing_unit,
+    mv.med_Phenobarbital_duration,
+    mv.med_Phenobarbital_duration_units,
+    mv.med_Phenobarbital_route,
+    mv.med_Phenytoin_dose,
+    mv.med_Phenytoin_dosing_unit,
+    mv.med_Phenytoin_duration,
+    mv.med_Phenytoin_duration_units,
+    mv.med_Phenytoin_frequency,
+    mv.med_Phenytoin_route,
+    sv.pregnant,
+    sv.silent_makers,
+    mv.med_Sodium_Valproate_dose,
+    mv.med_Sodium_Valproate_dosing_unit,
+    mv.med_Sodium_Valproate_duration,
+    mv.med_Sodium_Valproate_duration_units,
+    sv.alcohol_trigger,
+    sv.bmi,
+    sv.emotional_stress_anger_boredom_trigger,
+    sv.fever_trigger,
+    sv.menstruation_trigger,
+    sv.missed_medication_trigger,
+    sv.seizure_since_last_visit,
+    sv.sleep_deprivation_and_overtired_trigger,
+    sv.sound_light_and_touch_trigger,
+    sv.weight,
+    sv.comments,
+    mv.med_Phenobarbital,
+    mv.med_Phenytoin,
+    mv.med_Sodium_Valproate,
+    sv.med_other,
+    sv.next_appointment_date
 from omrs_encounter e
-left join temp_med_carbamazepine med_carbamazepine on e.encounter_id = med_carbamazepine.encounter_id
-left join temp_med_phenobarbital med_phenobarbital on e.encounter_id = med_phenobarbital.encounter_id
-left join temp_med_phenytoin med_phenytoin on e.encounter_id = med_phenytoin.encounter_id
-left join temp_med_sodium_valproate med_sodium_valproate on e.encounter_id = med_sodium_valproate.encounter_id
-left join temp_any_seizure_triggers_present any_seizure_triggers_present on e.encounter_id = any_seizure_triggers_present.encounter_id
-left join temp_family_planning family_planning on e.encounter_id = family_planning.encounter_id
-left join temp_height_cm height_cm on e.encounter_id = height_cm.encounter_id
-left join temp_patient_hospitalized_since_last_visit patient_hospitalized_since_last_visit on e.encounter_id = patient_hospitalized_since_last_visit.encounter_id
-left join temp_current_drugs_used current_drugs_used on e.encounter_id = current_drugs_used.encounter_id
-left join temp_number_of_seizures number_of_seizures on e.encounter_id = number_of_seizures.encounter_id
-left join temp_is_patient_pregnant is_patient_pregnant on e.encounter_id = is_patient_pregnant.encounter_id
-left join temp_symptoms_during_seizure symptoms_during_seizure on e.encounter_id = symptoms_during_seizure.encounter_id
-left join temp_epilepsy_trigger epilepsy_trigger on e.encounter_id = epilepsy_trigger.encounter_id
-left join temp_body_mass_index_coded body_mass_index_coded on e.encounter_id = body_mass_index_coded.encounter_id
-left join temp_any_seizure_occurred_since_last_visit any_seizure_occurred_since_last_visit on e.encounter_id = any_seizure_occurred_since_last_visit.encounter_id
-left join temp_weight_kg weight_kg on e.encounter_id = weight_kg.encounter_id
-left join temp_clinical_impression_comments clinical_impression_comments on e.encounter_id = clinical_impression_comments.encounter_id
-left join temp_appointment_date appointment_date on e.encounter_id = appointment_date.encounter_id
+left join temp_med_values mv on mv.encounter_id = e.encounter_id
+left join temp_single_values sv on sv.encounter_id = e.encounter_id
 where e.encounter_type in ('EPILEPSY_FOLLOWUP')
 group by e.patient_id, e.encounter_date, e.location;
+
+drop temporary table if exists temp_drug_name_obs;
+drop temporary table if exists temp_drug_detail_obs;
+drop temporary table if exists temp_medications;
+drop temporary table if exists temp_med_values;
+drop temporary table if exists temp_epilepsy_followup_obs;
+drop temporary table if exists temp_single_values;

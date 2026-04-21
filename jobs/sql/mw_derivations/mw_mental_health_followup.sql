@@ -168,113 +168,127 @@ group by t.encounter_id, t.obs_group_id, t.drug_name;
 alter table temp_medications add index temp_medications_encounter_idx (encounter_id);
 alter table temp_medications add index temp_medications_drug_idx (drug_name);
 
-drop temporary table if exists temp_med_carbamazepine;
-create temporary table temp_med_carbamazepine as select * from temp_medications where drug_name = 'Carbamazepine';
-alter table temp_med_carbamazepine add index temp_med_carbamazepine_encounter_idx (encounter_id);
+drop temporary table if exists temp_med_values;
+create temporary table temp_med_values as
+select
+    encounter_id,
+    max(case when drug_name = 'Carbamazepine'    then drug_name   end) as med_carbamazepine,
+    max(case when drug_name = 'Carbamazepine'    then dose        end) as med_carbamazepine_dose,
+    max(case when drug_name = 'Carbamazepine'    then dosing_unit end) as med_carbamazepine_dosing_unit,
+    max(case when drug_name = 'Carbamazepine'    then route       end) as med_carbamazepine_route,
+    max(case when drug_name = 'Carbamazepine'    then frequency   end) as med_carbamazepine_frequency,
+    max(case when drug_name = 'Carbamazepine'    then duration    end) as med_carbamazepine_duration,
+    max(case when drug_name = 'Carbamazepine'    then duration_units end) as med_carbamazepine_duration_units,
+    max(case when drug_name = 'Chlorpromazine'   then drug_name   end) as med_chloropromazine,
+    max(case when drug_name = 'Chlorpromazine'   then dose        end) as med_chloropromazine_dose,
+    max(case when drug_name = 'Chlorpromazine'   then dosing_unit end) as med_chloropromazine_dosing_unit,
+    max(case when drug_name = 'Chlorpromazine'   then route       end) as med_chloropromazine_route,
+    max(case when drug_name = 'Chlorpromazine'   then frequency   end) as med_chloropromazine_frequency,
+    max(case when drug_name = 'Chlorpromazine'   then duration    end) as med_chloropromazine_duration,
+    max(case when drug_name = 'Chlorpromazine'   then duration_units end) as med_chloropromazine_duration_units,
+    max(case when drug_name = 'Clopixol'         then drug_name   end) as med_clopixol,
+    max(case when drug_name = 'Clopixol'         then dose        end) as med_clopixol_dose,
+    max(case when drug_name = 'Clopixol'         then dosing_unit end) as med_clopixol_dosing_unit,
+    max(case when drug_name = 'Clopixol'         then route       end) as med_clopixol_route,
+    max(case when drug_name = 'Clopixol'         then frequency   end) as med_clopixol_frequency,
+    max(case when drug_name = 'Clopixol'         then duration    end) as med_clopixol_duration,
+    max(case when drug_name = 'Clopixol'         then duration_units end) as med_clopixol_duration_units,
+    max(case when drug_name = 'Clozapine'        then drug_name   end) as med_clozapine,
+    max(case when drug_name = 'Clozapine'        then dose        end) as med_clozapine_dose,
+    max(case when drug_name = 'Clozapine'        then dosing_unit end) as med_clozapine_dosing_unit,
+    max(case when drug_name = 'Clozapine'        then route       end) as med_clozapine_route,
+    max(case when drug_name = 'Clozapine'        then frequency   end) as med_clozapine_frequency,
+    max(case when drug_name = 'Clozapine'        then duration    end) as med_clozapine_duration,
+    max(case when drug_name = 'Clozapine'        then duration_units end) as med_clozapine_duration_units,
+    max(case when drug_name = 'Fluoxetine'       then drug_name   end) as med_fluoxetine,
+    max(case when drug_name = 'Fluoxetine'       then dose        end) as med_fluoxetine_dose,
+    max(case when drug_name = 'Fluoxetine'       then dosing_unit end) as med_fluoxetine_dosing_unit,
+    max(case when drug_name = 'Fluoxetine'       then route       end) as med_fluoxetine_route,
+    max(case when drug_name = 'Fluoxetine'       then frequency   end) as med_fluoxetine_frequency,
+    max(case when drug_name = 'Fluoxetine'       then duration    end) as med_fluoxetine_duration,
+    max(case when drug_name = 'Fluoxetine'       then duration_units end) as med_fluoxetine_duration_units,
+    max(case when drug_name = 'Fluphenazine'     then drug_name   end) as med_fluphenazine,
+    max(case when drug_name = 'Fluphenazine'     then dose        end) as med_fluphenazine_dose,
+    max(case when drug_name = 'Fluphenazine'     then dosing_unit end) as med_fluphenazine_dosing_unit,
+    max(case when drug_name = 'Fluphenazine'     then route       end) as med_fluphenazine_route,
+    max(case when drug_name = 'Fluphenazine'     then frequency   end) as med_fluphenazine_frequency,
+    max(case when drug_name = 'Fluphenazine'     then duration    end) as med_fluphenazine_duration,
+    max(case when drug_name = 'Fluphenazine'     then duration_units end) as med_fluphenazine_duration_units,
+    max(case when drug_name = 'Haloperidol'      then drug_name   end) as med_haloperidol,
+    max(case when drug_name = 'Haloperidol'      then dose        end) as med_haloperidolp_dose,
+    max(case when drug_name = 'Haloperidol'      then dosing_unit end) as med_haloperidol_dosing_unit,
+    max(case when drug_name = 'Haloperidol'      then route       end) as med_haloperidol_route,
+    max(case when drug_name = 'Haloperidol'      then frequency   end) as med_haloperidol_frequency,
+    max(case when drug_name = 'Haloperidol'      then duration    end) as med_haloperidol_duration,
+    max(case when drug_name = 'Haloperidol'      then duration_units end) as med_haloperidol_duration_units,
+    max(case when drug_name = 'Olanzapine'       then drug_name   end) as med_olanzapine,
+    max(case when drug_name = 'Olanzapine'       then dose        end) as med_olanzapine_dose,
+    max(case when drug_name = 'Olanzapine'       then dosing_unit end) as med_olanzapine_dosing_unit,
+    max(case when drug_name = 'Olanzapine'       then route       end) as med_olanzapine_route,
+    max(case when drug_name = 'Olanzapine'       then frequency   end) as med_olanzapine_frequency,
+    max(case when drug_name = 'Olanzapine'       then duration    end) as med_olanzapine_duration,
+    max(case when drug_name = 'Olanzapine'       then duration_units end) as med_olanzapine_duration_units,
+    max(case when drug_name = 'Risperidone'      then drug_name   end) as med_risperidone,
+    max(case when drug_name = 'Risperidone'      then dose        end) as med_risperidone_dose,
+    max(case when drug_name = 'Risperidone'      then dosing_unit end) as med_risperidone_dosing_unit,
+    max(case when drug_name = 'Risperidone'      then route       end) as med_risperidone_route,
+    max(case when drug_name = 'Risperidone'      then frequency   end) as med_risperidone_frequency,
+    max(case when drug_name = 'Risperidone'      then duration    end) as med_risperidone_duration,
+    max(case when drug_name = 'Risperidone'      then duration_units end) as med_risperidone_duration_units,
+    max(case when drug_name = 'Sodium valproate' then drug_name   end) as med_sodium_valproate,
+    max(case when drug_name = 'Sodium valproate' then dose        end) as med_sodium_valproate_dose,
+    max(case when drug_name = 'Sodium valproate' then dosing_unit end) as med_sodium_valproate_dosing_unit,
+    max(case when drug_name = 'Sodium valproate' then route       end) as med_sodium_valproate_route,
+    max(case when drug_name = 'Sodium valproate' then frequency   end) as med_sodium_valproate_frequency,
+    max(case when drug_name = 'Sodium valproate' then duration    end) as med_sodium_valproate_duration,
+    max(case when drug_name = 'Sodium valproate' then duration_units end) as med_sodium_valproate_duration_units,
+    max(case when drug_name = 'Trifluoperazine'  then drug_name   end) as med_trifluoperazine,
+    max(case when drug_name = 'Trifluoperazine'  then dose        end) as med_trifluoperazine_dose,
+    max(case when drug_name = 'Trifluoperazine'  then dosing_unit end) as med_trifluoperazine_dosing_unit,
+    max(case when drug_name = 'Trifluoperazine'  then route       end) as med_trifluoperazine_route,
+    max(case when drug_name = 'Trifluoperazine'  then frequency   end) as med_trifluoperazine_frequency,
+    max(case when drug_name = 'Trifluoperazine'  then duration    end) as med_trifluoperazine_duration,
+    max(case when drug_name = 'Trifluoperazine'  then duration_units end) as med_trifluoperazine_duration_units,
+    max(case when drug_name = 'Amitriptyline'    then drug_name   end) as med_amitriptyline,
+    max(case when drug_name = 'Amitriptyline'    then dose        end) as med_amitriptyline_dose,
+    max(case when drug_name = 'Amitriptyline'    then dosing_unit end) as med_amitriptyline_dosing_unit,
+    max(case when drug_name = 'Amitriptyline'    then route       end) as med_amitriptyline_route,
+    max(case when drug_name = 'Amitriptyline'    then frequency   end) as med_amitriptyline_frequency,
+    max(case when drug_name = 'Amitriptyline'    then duration    end) as med_amitriptyline_duration,
+    max(case when drug_name = 'Amitriptyline'    then duration_units end) as med_amitriptyline_duration_units
+from temp_medications
+group by encounter_id;
+alter table temp_med_values add index temp_med_values_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_med_chlorpromazine;
-create temporary table temp_med_chlorpromazine as select * from temp_medications where drug_name = 'Chlorpromazine';
-alter table temp_med_chlorpromazine add index temp_med_chlorpromazine_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_clopixol;
-create temporary table temp_med_clopixol as select * from temp_medications where drug_name = 'Clopixol';
-alter table temp_med_clopixol add index temp_med_clopixol_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_clozapine;
-create temporary table temp_med_clozapine as select * from temp_medications where drug_name = 'Clozapine';
-alter table temp_med_clozapine add index temp_med_clozapine_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_fluoxetine;
-create temporary table temp_med_fluoxetine as select * from temp_medications where drug_name = 'Fluoxetine';
-alter table temp_med_fluoxetine add index temp_med_fluoxetine_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_fluphenazine;
-create temporary table temp_med_fluphenazine as select * from temp_medications where drug_name = 'Fluphenazine';
-alter table temp_med_fluphenazine add index temp_med_fluphenazine_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_haloperidol;
-create temporary table temp_med_haloperidol as select * from temp_medications where drug_name = 'Haloperidol';
-alter table temp_med_haloperidol add index temp_med_haloperidol_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_olanzapine;
-create temporary table temp_med_olanzapine as select * from temp_medications where drug_name = 'Olanzapine';
-alter table temp_med_olanzapine add index temp_med_olanzapine_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_risperidone;
-create temporary table temp_med_risperidone as select * from temp_medications where drug_name = 'Risperidone';
-alter table temp_med_risperidone add index temp_med_risperidone_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_sodium_valproate;
-create temporary table temp_med_sodium_valproate as select * from temp_medications where drug_name = 'Sodium valproate';
-alter table temp_med_sodium_valproate add index temp_med_sodium_valproate_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_trifluoperazine;
-create temporary table temp_med_trifluoperazine as select * from temp_medications where drug_name = 'Trifluoperazine';
-alter table temp_med_trifluoperazine add index temp_med_trifluoperazine_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_amitriptyline;
-create temporary table temp_med_amitriptyline as select * from temp_medications where drug_name = 'Amitriptyline';
-alter table temp_med_amitriptyline add index temp_med_amitriptyline_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_able_to_perform_daily_activities;
-create temporary table temp_able_to_perform_daily_activities as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Able to perform daily activities';
-alter table temp_able_to_perform_daily_activities add index temp_able_perform_daily_acts_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_history_of_alcohol_use;
-create temporary table temp_history_of_alcohol_use as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'History of alcohol use';
-alter table temp_history_of_alcohol_use add index temp_history_of_alcohol_use_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_mental_health_chief_complaint_absent;
-create temporary table temp_mental_health_chief_complaint_absent as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Mental health chief complaint absent';
-alter table temp_mental_health_chief_complaint_absent add index temp_mental_health_chief_complaint_absent_2 (encounter_id);
-
-drop temporary table if exists temp_family_planning;
-create temporary table temp_family_planning as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Family planning';
-alter table temp_family_planning add index temp_family_planning_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_phq_9_score;
-create temporary table temp_phq_9_score as select encounter_id, value_numeric from temp_mh_followup_obs where concept = 'PHQ 9 Score';
-alter table temp_phq_9_score add index temp_phq_9_score_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_stable;
-create temporary table temp_stable as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Stable';
-alter table temp_stable add index temp_stable_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_suicide_risk;
-create temporary table temp_suicide_risk as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Suicide risk';
-alter table temp_suicide_risk add index temp_suicide_risk_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_clinical_impression_comments;
-create temporary table temp_clinical_impression_comments as select encounter_id, value_text from temp_mh_followup_obs where concept = 'Clinical impression comments';
-alter table temp_clinical_impression_comments add index temp_clinical_impression_comments_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_height_cm;
-create temporary table temp_height_cm as select encounter_id, value_numeric from temp_mh_followup_obs where concept = 'Height (cm)';
-alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_is_patient_pregnant;
-create temporary table temp_is_patient_pregnant as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Is patient pregnant?';
-alter table temp_is_patient_pregnant add index temp_is_patient_pregnant_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_weight_kg;
-create temporary table temp_weight_kg as select encounter_id, value_numeric from temp_mh_followup_obs where concept = 'Weight (kg)';
-alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_group_counselling;
-create temporary table temp_group_counselling as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Group Counselling';
-alter table temp_group_counselling add index temp_group_counselling_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_hospitalized_mental_health_since_last_visit;
-create temporary table temp_hospitalized_mental_health_since_last_visit as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Hospitalized for mental health since last visit';
-alter table temp_hospitalized_mental_health_since_last_visit add index temp_hospitalized_mental_health_since_last_visit_2 (encounter_id);
-
-drop temporary table if exists temp_does_patient_have_adverse_effects;
-create temporary table temp_does_patient_have_adverse_effects as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Does patient have adverse effects';
-alter table temp_does_patient_have_adverse_effects add index temp_does_patient_adverse_effects_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_appointment_date;
-create temporary table temp_appointment_date as select encounter_id, value_date from temp_mh_followup_obs where concept = 'Appointment date';
-alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
+drop temporary table if exists temp_single_values;
+create temporary table temp_single_values as
+select
+    encounter_id,
+    max(case when concept = 'Able to perform daily activities'                                                     then value_coded   end) as able_to_do_daily_activities,
+    max(case when concept = 'History of alcohol use'                                                               then value_coded   end) as current_use_alcohol,
+    max(case when concept = 'Family planning'                                                                      then value_coded   end) as on_family_planning,
+    max(case when concept = 'PHQ 9 Score'                                                                          then value_numeric end) as phq_nine_score,
+    max(case when concept = 'Stable'                                                                               then value_coded   end) as patient_stable,
+    max(case when concept = 'Suicide risk'                                                                         then value_coded   end) as suicide_risk,
+    max(case when concept = 'Clinical impression comments'                                                         then value_text    end) as comments,
+    max(case when concept = 'Height (cm)'                                                                          then value_numeric end) as height,
+    max(case when concept = 'Is patient pregnant?'                                                                 then value_coded   end) as pregnant,
+    max(case when concept = 'Weight (kg)'                                                                          then value_numeric end) as weight,
+    max(case when concept = 'Group Counselling'                                                                    then value_coded   end) as counselling_provided,
+    max(case when concept = 'Hospitalized for mental health since last visit'                                      then value_coded   end) as hospitalized_since_last_visit,
+    max(case when concept = 'Does patient have adverse effects'                                                    then value_coded   end) as medications_side_effects,
+    max(case when concept = 'Appointment date'                                                                     then value_date    end) as next_appointment_date,
+    max(case when concept = 'Mental health chief complaint absent' and value_coded = 'Depressive Disorder'         then value_coded   end) as mse_depressed_mood,
+    max(case when concept = 'Mental health chief complaint absent' and value_coded = 'Abnormal speech'             then value_coded   end) as mse_disorganized_speech,
+    max(case when concept = 'Mental health chief complaint absent' and value_coded = 'Disruptive Behavior Disorder' then value_coded  end) as mse_disruptive_behaviour,
+    max(case when concept = 'Mental health chief complaint absent' and value_coded = 'Hypomania'                   then value_coded   end) as mse_elevated_mood,
+    max(case when concept = 'Mental health chief complaint absent' and value_coded = 'Lack of insight'             then value_coded   end) as mse_lack_of_insight,
+    max(case when concept = 'Mental health chief complaint absent' and value_coded = 'Delusions'                   then value_coded   end) as mse_delusions,
+    max(case when concept = 'Mental health chief complaint absent' and value_coded = 'Hallucinations'              then value_coded   end) as mse_hallucinations,
+    max(case when concept = 'Mental health chief complaint absent' and value_coded = 'Other non-coded'             then value_coded   end) as mse_other
+from temp_mh_followup_obs
+group by encounter_id;
+alter table temp_single_values add index temp_single_values_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_current_use_marijuana;
 create temporary table temp_current_use_marijuana as
@@ -303,144 +317,128 @@ select
     e.patient_id,
     date(e.encounter_date) as visit_date,
     e.location,
-    max(med_carbamazepine.frequency) as med_carbamazepine_frequency,
-    max(med_clopixol.frequency) as med_clopixol_frequency,
-    max(med_clozapine.frequency) as med_clozapine_frequency,
-    max(med_fluphenazine.frequency) as med_fluphenazine_frequency,
-    max(med_haloperidol.frequency) as med_haloperidol_frequency,
-    max(med_sodium_valproate.frequency) as med_sodium_valproate_frequency,
-    max(med_sodium_valproate.route) as med_sodium_valproate_route,
-    max(med_trifluoperazine.frequency) as med_trifluoperazine_frequency,
-    max(able_to_perform_daily_activities.value_coded) as able_to_do_daily_activities,
-    max(med_amitriptyline.dose) as med_amitriptyline_dose,
-    max(med_amitriptyline.dosing_unit) as med_amitriptyline_dosing_unit,
-    max(med_amitriptyline.duration) as med_amitriptyline_duration,
-    max(med_amitriptyline.duration_units) as med_amitriptyline_duration_units,
-    max(med_amitriptyline.frequency) as med_amitriptyline_frequency,
-    max(med_amitriptyline.route) as med_amitriptyline_route,
-    max(med_carbamazepine.dose) as med_carbamazepine_dose,
-    max(med_carbamazepine.dosing_unit) as med_carbamazepine_dosing_unit,
-    max(med_carbamazepine.duration) as med_carbamazepine_duration,
-    max(med_carbamazepine.duration_units) as med_carbamazepine_duration_units,
-    max(med_carbamazepine.route) as med_carbamazepine_route,
-    max(med_chlorpromazine.dose) as med_chloropromazine_dose,
-    max(med_chlorpromazine.dosing_unit) as med_chloropromazine_dosing_unit,
-    max(med_chlorpromazine.duration) as med_chloropromazine_duration,
-    max(med_chlorpromazine.duration_units) as med_chloropromazine_duration_units,
-    max(med_chlorpromazine.frequency) as med_chloropromazine_frequency,
-    max(med_chlorpromazine.route) as med_chloropromazine_route,
-    max(med_clopixol.dose) as med_clopixol_dose,
-    max(med_clopixol.dosing_unit) as med_clopixol_dosing_unit,
-    max(med_clopixol.duration) as med_clopixol_duration,
-    max(med_clopixol.duration_units) as med_clopixol_duration_units,
-    max(med_clopixol.route) as med_clopixol_route,
-    max(med_clozapine.dose) as med_clozapine_dose,
-    max(med_clozapine.dosing_unit) as med_clozapine_dosing_unit,
-    max(med_clozapine.duration) as med_clozapine_duration,
-    max(med_clozapine.duration_units) as med_clozapine_duration_units,
-    max(med_clozapine.route) as med_clozapine_route,
-    max(history_of_alcohol_use.value_coded) as current_use_alcohol,
-    max(med_fluoxetine.dose) as med_fluoxetine_dose,
-    max(med_fluoxetine.dosing_unit) as med_fluoxetine_dosing_unit,
-    max(med_fluoxetine.duration) as med_fluoxetine_duration,
-    max(med_fluoxetine.duration_units) as med_fluoxetine_duration_units,
-    max(med_fluoxetine.frequency) as med_fluoxetine_frequency,
-    max(med_fluoxetine.route) as med_fluoxetine_route,
-    max(med_fluphenazine.dose) as med_fluphenazine_dose,
-    max(med_fluphenazine.dosing_unit) as med_fluphenazine_dosing_unit,
-    max(med_fluphenazine.duration) as med_fluphenazine_duration,
-    max(med_fluphenazine.duration_units) as med_fluphenazine_duration_units,
-    max(med_fluphenazine.route) as med_fluphenazine_route,
-    max(med_haloperidol.dose) as med_haloperidolp_dose,
-    max(med_haloperidol.dosing_unit) as med_haloperidol_dosing_unit,
-    max(med_haloperidol.duration) as med_haloperidol_duration,
-    max(med_haloperidol.duration_units) as med_haloperidol_duration_units,
-    max(med_haloperidol.route) as med_haloperidol_route,
-    max(case when mental_health_chief_complaint_absent.value_coded = 'Depressive Disorder' then mental_health_chief_complaint_absent.value_coded end) as mse_depressed_mood,
-    max(case when mental_health_chief_complaint_absent.value_coded = 'Abnormal speech' then mental_health_chief_complaint_absent.value_coded end) as mse_disorganized_speech,
-    max(case when mental_health_chief_complaint_absent.value_coded = 'Disruptive Behavior Disorder' then mental_health_chief_complaint_absent.value_coded end) as mse_disruptive_behaviour,
-    max(case when mental_health_chief_complaint_absent.value_coded = 'Hypomania' then mental_health_chief_complaint_absent.value_coded end) as mse_elevated_mood,
-    max(case when mental_health_chief_complaint_absent.value_coded = 'Lack of insight' then mental_health_chief_complaint_absent.value_coded end) as mse_lack_of_insight,
-    max(case when mental_health_chief_complaint_absent.value_coded = 'Delusions' then mental_health_chief_complaint_absent.value_coded end) as mse_delusions,
-    max(case when mental_health_chief_complaint_absent.value_coded = 'Hallucinations' then mental_health_chief_complaint_absent.value_coded end) as mse_hallucinations,
-    max(case when mental_health_chief_complaint_absent.value_coded = 'Other non-coded' then mental_health_chief_complaint_absent.value_coded end) as mse_other,
-    max(med_olanzapine.dose) as med_olanzapine_dose,
-    max(med_olanzapine.dosing_unit) as med_olanzapine_dosing_unit,
-    max(med_olanzapine.duration) as med_olanzapine_duration,
-    max(med_olanzapine.duration_units) as med_olanzapine_duration_units,
-    max(med_olanzapine.frequency) as med_olanzapine_frequency,
-    max(med_olanzapine.route) as med_olanzapine_route,
-    max(family_planning.value_coded) as on_family_planning,
-    max(phq_9_score.value_numeric) as phq_nine_score,
-    max(stable.value_coded) as patient_stable,
-    max(med_risperidone.dose) as med_risperidone_dose,
-    max(med_risperidone.dosing_unit) as med_risperidone_dosing_unit,
-    max(med_risperidone.duration) as med_risperidone_duration,
-    max(med_risperidone.duration_units) as med_risperidone_duration_units,
-    max(med_risperidone.frequency) as med_risperidone_frequency,
-    max(med_risperidone.route) as med_risperidone_route,
-    max(med_sodium_valproate.dose) as med_sodium_valproate_dose,
-    max(med_sodium_valproate.dosing_unit) as med_sodium_valproate_dosing_unit,
-    max(med_sodium_valproate.duration) as med_sodium_valproate_duration,
-    max(med_sodium_valproate.duration_units) as med_sodium_valproate_duration_units,
-    max(suicide_risk.value_coded) as suicide_risk,
-    max(med_trifluoperazine.dose) as med_trifluoperazine_dose,
-    max(med_trifluoperazine.dosing_unit) as med_trifluoperazine_dosing_unit,
-    max(med_trifluoperazine.duration) as med_trifluoperazine_duration,
-    max(med_trifluoperazine.duration_units) as med_trifluoperazine_duration_units,
-    max(med_trifluoperazine.route) as med_trifluoperazine_route,
-    max(clinical_impression_comments.value_text) as comments,
-    max(height_cm.value_numeric) as height,
-    max(is_patient_pregnant.value_coded) as pregnant,
-    max(weight_kg.value_numeric) as weight,
-    max(group_counselling.value_coded) as counselling_provided,
-    max(hospitalized_for_mental_health_since_last_visit.value_coded) as hospitalized_since_last_visit,
-    max(med_carbamazepine.drug_name) as med_carbamazepine,
-    max(med_chlorpromazine.drug_name) as med_chloropromazine,
-    max(med_clopixol.drug_name) as med_clopixol,
-    max(med_clozapine.drug_name) as med_clozapine,
-    max(med_fluoxetine.drug_name) as med_fluoxetine,
-    max(med_fluphenazine.drug_name) as med_fluphenazine,
-    max(med_haloperidol.drug_name) as med_haloperidol,
-    max(med_olanzapine.drug_name) as med_olanzapine,
-    max(med_risperidone.drug_name) as med_risperidone,
-    max(med_sodium_valproate.drug_name) as med_sodium_valproate,
-    max(med_trifluoperazine.drug_name) as med_trifluoperazine,
-    max(med_amitriptyline.drug_name) as med_amitriptyline,
+    mv.med_carbamazepine_frequency,
+    mv.med_clopixol_frequency,
+    mv.med_clozapine_frequency,
+    mv.med_fluphenazine_frequency,
+    mv.med_haloperidol_frequency,
+    mv.med_sodium_valproate_frequency,
+    mv.med_sodium_valproate_route,
+    mv.med_trifluoperazine_frequency,
+    sv.able_to_do_daily_activities,
+    mv.med_amitriptyline_dose,
+    mv.med_amitriptyline_dosing_unit,
+    mv.med_amitriptyline_duration,
+    mv.med_amitriptyline_duration_units,
+    mv.med_amitriptyline_frequency,
+    mv.med_amitriptyline_route,
+    mv.med_carbamazepine_dose,
+    mv.med_carbamazepine_dosing_unit,
+    mv.med_carbamazepine_duration,
+    mv.med_carbamazepine_duration_units,
+    mv.med_carbamazepine_route,
+    mv.med_chloropromazine_dose,
+    mv.med_chloropromazine_dosing_unit,
+    mv.med_chloropromazine_duration,
+    mv.med_chloropromazine_duration_units,
+    mv.med_chloropromazine_frequency,
+    mv.med_chloropromazine_route,
+    mv.med_clopixol_dose,
+    mv.med_clopixol_dosing_unit,
+    mv.med_clopixol_duration,
+    mv.med_clopixol_duration_units,
+    mv.med_clopixol_route,
+    mv.med_clozapine_dose,
+    mv.med_clozapine_dosing_unit,
+    mv.med_clozapine_duration,
+    mv.med_clozapine_duration_units,
+    mv.med_clozapine_route,
+    sv.current_use_alcohol,
+    mv.med_fluoxetine_dose,
+    mv.med_fluoxetine_dosing_unit,
+    mv.med_fluoxetine_duration,
+    mv.med_fluoxetine_duration_units,
+    mv.med_fluoxetine_frequency,
+    mv.med_fluoxetine_route,
+    mv.med_fluphenazine_dose,
+    mv.med_fluphenazine_dosing_unit,
+    mv.med_fluphenazine_duration,
+    mv.med_fluphenazine_duration_units,
+    mv.med_fluphenazine_route,
+    mv.med_haloperidolp_dose,
+    mv.med_haloperidol_dosing_unit,
+    mv.med_haloperidol_duration,
+    mv.med_haloperidol_duration_units,
+    mv.med_haloperidol_route,
+    sv.mse_depressed_mood,
+    sv.mse_disorganized_speech,
+    sv.mse_disruptive_behaviour,
+    sv.mse_elevated_mood,
+    sv.mse_lack_of_insight,
+    sv.mse_delusions,
+    sv.mse_hallucinations,
+    sv.mse_other,
+    mv.med_olanzapine_dose,
+    mv.med_olanzapine_dosing_unit,
+    mv.med_olanzapine_duration,
+    mv.med_olanzapine_duration_units,
+    mv.med_olanzapine_frequency,
+    mv.med_olanzapine_route,
+    sv.on_family_planning,
+    sv.phq_nine_score,
+    sv.patient_stable,
+    mv.med_risperidone_dose,
+    mv.med_risperidone_dosing_unit,
+    mv.med_risperidone_duration,
+    mv.med_risperidone_duration_units,
+    mv.med_risperidone_frequency,
+    mv.med_risperidone_route,
+    mv.med_sodium_valproate_dose,
+    mv.med_sodium_valproate_dosing_unit,
+    mv.med_sodium_valproate_duration,
+    mv.med_sodium_valproate_duration_units,
+    sv.suicide_risk,
+    mv.med_trifluoperazine_dose,
+    mv.med_trifluoperazine_dosing_unit,
+    mv.med_trifluoperazine_duration,
+    mv.med_trifluoperazine_duration_units,
+    mv.med_trifluoperazine_route,
+    sv.comments,
+    sv.height,
+    sv.pregnant,
+    sv.weight,
+    sv.counselling_provided,
+    sv.hospitalized_since_last_visit,
+    mv.med_carbamazepine,
+    mv.med_chloropromazine,
+    mv.med_clopixol,
+    mv.med_clozapine,
+    mv.med_fluoxetine,
+    mv.med_fluphenazine,
+    mv.med_haloperidol,
+    mv.med_olanzapine,
+    mv.med_risperidone,
+    mv.med_sodium_valproate,
+    mv.med_trifluoperazine,
+    mv.med_amitriptyline,
     max(null) as med_other,
-    max(does_patient_have_adverse_effects.value_coded) as medications_side_effects,
-    max(appointment_date.value_date) as next_appointment_date,
-    max(current_use_marijuana.value_coded) as current_use_marijuana,
-    max(current_use_other.value_coded) as current_use_other
+    sv.medications_side_effects,
+    sv.next_appointment_date,
+    max(cum.value_coded) as current_use_marijuana,
+    max(cuo.value_coded) as current_use_other
 from omrs_encounter e
-left join temp_med_carbamazepine med_carbamazepine on e.encounter_id = med_carbamazepine.encounter_id
-left join temp_med_chlorpromazine med_chlorpromazine on e.encounter_id = med_chlorpromazine.encounter_id
-left join temp_med_clopixol med_clopixol on e.encounter_id = med_clopixol.encounter_id
-left join temp_med_clozapine med_clozapine on e.encounter_id = med_clozapine.encounter_id
-left join temp_med_fluoxetine med_fluoxetine on e.encounter_id = med_fluoxetine.encounter_id
-left join temp_med_fluphenazine med_fluphenazine on e.encounter_id = med_fluphenazine.encounter_id
-left join temp_med_haloperidol med_haloperidol on e.encounter_id = med_haloperidol.encounter_id
-left join temp_med_olanzapine med_olanzapine on e.encounter_id = med_olanzapine.encounter_id
-left join temp_med_risperidone med_risperidone on e.encounter_id = med_risperidone.encounter_id
-left join temp_med_sodium_valproate med_sodium_valproate on e.encounter_id = med_sodium_valproate.encounter_id
-left join temp_med_trifluoperazine med_trifluoperazine on e.encounter_id = med_trifluoperazine.encounter_id
-left join temp_med_amitriptyline med_amitriptyline on e.encounter_id = med_amitriptyline.encounter_id
-left join temp_able_to_perform_daily_activities able_to_perform_daily_activities on e.encounter_id = able_to_perform_daily_activities.encounter_id
-left join temp_history_of_alcohol_use history_of_alcohol_use on e.encounter_id = history_of_alcohol_use.encounter_id
-left join temp_mental_health_chief_complaint_absent mental_health_chief_complaint_absent on e.encounter_id = mental_health_chief_complaint_absent.encounter_id
-left join temp_family_planning family_planning on e.encounter_id = family_planning.encounter_id
-left join temp_phq_9_score phq_9_score on e.encounter_id = phq_9_score.encounter_id
-left join temp_stable stable on e.encounter_id = stable.encounter_id
-left join temp_suicide_risk suicide_risk on e.encounter_id = suicide_risk.encounter_id
-left join temp_clinical_impression_comments clinical_impression_comments on e.encounter_id = clinical_impression_comments.encounter_id
-left join temp_height_cm height_cm on e.encounter_id = height_cm.encounter_id
-left join temp_is_patient_pregnant is_patient_pregnant on e.encounter_id = is_patient_pregnant.encounter_id
-left join temp_weight_kg weight_kg on e.encounter_id = weight_kg.encounter_id
-left join temp_group_counselling group_counselling on e.encounter_id = group_counselling.encounter_id
-left join temp_hospitalized_mental_health_since_last_visit hospitalized_for_mental_health_since_last_visit on e.encounter_id = hospitalized_for_mental_health_since_last_visit.encounter_id
-left join temp_does_patient_have_adverse_effects does_patient_have_adverse_effects on e.encounter_id = does_patient_have_adverse_effects.encounter_id
-left join temp_appointment_date appointment_date on e.encounter_id = appointment_date.encounter_id
-left join temp_current_use_marijuana current_use_marijuana on e.encounter_id = current_use_marijuana.encounter_id
-left join temp_current_use_other current_use_other on e.encounter_id = current_use_other.encounter_id
+left join temp_med_values mv on mv.encounter_id = e.encounter_id
+left join temp_single_values sv on sv.encounter_id = e.encounter_id
+left join temp_current_use_marijuana cum on cum.encounter_id = e.encounter_id
+left join temp_current_use_other cuo on cuo.encounter_id = e.encounter_id
 where e.encounter_type in ('MENTAL_HEALTH_FOLLOWUP')
 group by e.patient_id, e.encounter_date, e.location;
+
+drop temporary table if exists temp_mh_followup_obs;
+drop temporary table if exists temp_drug_name_obs;
+drop temporary table if exists temp_drug_detail_obs;
+drop temporary table if exists temp_medications;
+drop temporary table if exists temp_med_values;
+drop temporary table if exists temp_single_values;
+drop temporary table if exists temp_current_use_marijuana;
+drop temporary table if exists temp_current_use_other;

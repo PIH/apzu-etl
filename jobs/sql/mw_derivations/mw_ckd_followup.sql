@@ -162,304 +162,242 @@ group by t.encounter_id, t.obs_group_id, t.drug_name;
 alter table temp_medications add index temp_medications_encounter_idx (encounter_id);
 alter table temp_medications add index temp_medications_drug_idx (drug_name);
 
-drop temporary table if exists temp_med_hctz;
-create temporary table temp_med_hctz as select * from temp_medications where drug_name = 'Hydrochlorothiazide';
-alter table temp_med_hctz add index temp_med_hctz_encounter_idx (encounter_id);
+drop temporary table if exists temp_med_values;
+create temporary table temp_med_values as
+select
+    encounter_id,
+    max(case when drug_name = 'Hydrochlorothiazide' then dose         end) as diuretic_hctz_dose,
+    max(case when drug_name = 'Hydrochlorothiazide' then dosing_unit  end) as diuretic_hctz_dosing_unit,
+    max(case when drug_name = 'Hydrochlorothiazide' then route        end) as diuretic_hctz_route,
+    max(case when drug_name = 'Hydrochlorothiazide' then frequency    end) as diuretic_hctz_frequency,
+    max(case when drug_name = 'Hydrochlorothiazide' then duration     end) as diuretic_hctz_duration,
+    max(case when drug_name = 'Hydrochlorothiazide' then duration_units end) as diuretic_hctz_duration_units,
+    max(case when drug_name = 'Furosemide'          then dose         end) as diuretic_furp_dose,
+    max(case when drug_name = 'Furosemide'          then dosing_unit  end) as diuretic_furp_dosing_unit,
+    max(case when drug_name = 'Furosemide'          then route        end) as diuretic_furp_route,
+    max(case when drug_name = 'Furosemide'          then frequency    end) as diuretic_furp_frequency,
+    max(case when drug_name = 'Furosemide'          then duration     end) as diuretic_furp_duration,
+    max(case when drug_name = 'Furosemide'          then duration_units end) as diuretic_furp_duration_units,
+    max(case when drug_name = 'Spironolactone'      then dose         end) as diuretic_spiro_dose,
+    max(case when drug_name = 'Spironolactone'      then dosing_unit  end) as diuretic_spiro_dosing_unit,
+    max(case when drug_name = 'Spironolactone'      then route        end) as diuretic_spiro_route,
+    max(case when drug_name = 'Spironolactone'      then frequency    end) as diuretic_spiro_frequency,
+    max(case when drug_name = 'Spironolactone'      then duration     end) as diuretic_spiro_duration,
+    max(case when drug_name = 'Spironolactone'      then duration_units end) as diuretic_spiro_duration_units,
+    max(case when drug_name = 'Enalapril'           then dose         end) as ace_i_enal_dose,
+    max(case when drug_name = 'Enalapril'           then dosing_unit  end) as ace_i_enal_dosing_unit,
+    max(case when drug_name = 'Enalapril'           then route        end) as ace_i_enal_route,
+    max(case when drug_name = 'Enalapril'           then frequency    end) as ace_i_enal_frequency,
+    max(case when drug_name = 'Enalapril'           then duration     end) as ace_i_enal_duration,
+    max(case when drug_name = 'Enalapril'           then duration_units end) as ace_i_enal_duration_units,
+    max(case when drug_name = 'Captopril'           then dose         end) as ace_i_capt_dose,
+    max(case when drug_name = 'Captopril'           then dosing_unit  end) as ace_i_capt_dosing_unit,
+    max(case when drug_name = 'Captopril'           then route        end) as ace_i_capt_route,
+    max(case when drug_name = 'Captopril'           then frequency    end) as ace_i_capt_frequency,
+    max(case when drug_name = 'Captopril'           then duration     end) as ace_i_capt_duration,
+    max(case when drug_name = 'Captopril'           then duration_units end) as ace_i_capt_duration_units,
+    max(case when drug_name = 'Lisinopril'          then dose         end) as ace_i_lisin_dose,
+    max(case when drug_name = 'Lisinopril'          then dosing_unit  end) as ace_i_lisin_dosing_unit,
+    max(case when drug_name = 'Lisinopril'          then route        end) as ace_i_lisin_route,
+    max(case when drug_name = 'Lisinopril'          then frequency    end) as ace_i_lisin_frequency,
+    max(case when drug_name = 'Lisinopril'          then duration     end) as ace_i_lisin_duration,
+    max(case when drug_name = 'Lisinopril'          then duration_units end) as ace_i_lisin_duration_units,
+    max(case when drug_name = 'Atenolol'            then dose         end) as bb_aten_dose,
+    max(case when drug_name = 'Atenolol'            then dosing_unit  end) as bb_aten_dosing_unit,
+    max(case when drug_name = 'Atenolol'            then route        end) as bb_aten_route,
+    max(case when drug_name = 'Atenolol'            then frequency    end) as bb_aten_frequency,
+    max(case when drug_name = 'Atenolol'            then duration     end) as bb_aten_duration,
+    max(case when drug_name = 'Atenolol'            then duration_units end) as bb_aten_duration_units,
+    max(case when drug_name = 'Bisoprolol'          then dose         end) as bb_bis_dose,
+    max(case when drug_name = 'Bisoprolol'          then dosing_unit  end) as bb_bis_dosing_unit,
+    max(case when drug_name = 'Bisoprolol'          then route        end) as bb_bis_route,
+    max(case when drug_name = 'Bisoprolol'          then frequency    end) as bb_bis_frequency,
+    max(case when drug_name = 'Bisoprolol'          then duration     end) as bb_bis_duration,
+    max(case when drug_name = 'Bisoprolol'          then duration_units end) as bb_bis_duration_units,
+    max(case when drug_name = 'Propranolol'         then dose         end) as bb_prop_dose,
+    max(case when drug_name = 'Propranolol'         then dosing_unit  end) as bb_prop_dosing_unit,
+    max(case when drug_name = 'Propranolol'         then route        end) as bb_prop_route,
+    max(case when drug_name = 'Propranolol'         then frequency    end) as bb_prop_frequency,
+    max(case when drug_name = 'Propranolol'         then duration     end) as bb_prop_duration,
+    max(case when drug_name = 'Propranolol'         then duration_units end) as bb_prop_duration_units,
+    max(case when drug_name = 'Amlodipine'          then dose         end) as ccb_aml_dose,
+    max(case when drug_name = 'Amlodipine'          then dosing_unit  end) as ccb_aml_dosing_unit,
+    max(case when drug_name = 'Amlodipine'          then route        end) as ccb_aml_route,
+    max(case when drug_name = 'Amlodipine'          then frequency    end) as ccb_aml_frequency,
+    max(case when drug_name = 'Amlodipine'          then duration     end) as ccb_aml_duration,
+    max(case when drug_name = 'Amlodipine'          then duration_units end) as ccb_aml_duration_units,
+    max(case when drug_name = 'Nifedipine'          then dose         end) as ccb_nif_dose,
+    max(case when drug_name = 'Nifedipine'          then dosing_unit  end) as ccb_nif_dosing_unit,
+    max(case when drug_name = 'Nifedipine'          then route        end) as ccb_nif_route,
+    max(case when drug_name = 'Nifedipine'          then frequency    end) as ccb_nif_frequency,
+    max(case when drug_name = 'Nifedipine'          then duration     end) as ccb_nif_duration,
+    max(case when drug_name = 'Nifedipine'          then duration_units end) as ccb_nif_duration_units
+from temp_medications
+group by encounter_id;
+alter table temp_med_values add index temp_med_values_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_med_furosemide;
-create temporary table temp_med_furosemide as select * from temp_medications where drug_name = 'Furosemide';
-alter table temp_med_furosemide add index temp_med_furosemide_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_spironolactone;
-create temporary table temp_med_spironolactone as select * from temp_medications where drug_name = 'Spironolactone';
-alter table temp_med_spironolactone add index temp_med_spironolactone_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_enalapril;
-create temporary table temp_med_enalapril as select * from temp_medications where drug_name = 'Enalapril';
-alter table temp_med_enalapril add index temp_med_enalapril_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_captopril;
-create temporary table temp_med_captopril as select * from temp_medications where drug_name = 'Captopril';
-alter table temp_med_captopril add index temp_med_captopril_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_lisinopril;
-create temporary table temp_med_lisinopril as select * from temp_medications where drug_name = 'Lisinopril';
-alter table temp_med_lisinopril add index temp_med_lisinopril_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_atenolol;
-create temporary table temp_med_atenolol as select * from temp_medications where drug_name = 'Atenolol';
-alter table temp_med_atenolol add index temp_med_atenolol_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_bisoprolol;
-create temporary table temp_med_bisoprolol as select * from temp_medications where drug_name = 'Bisoprolol';
-alter table temp_med_bisoprolol add index temp_med_bisoprolol_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_propranolol;
-create temporary table temp_med_propranolol as select * from temp_medications where drug_name = 'Propranolol';
-alter table temp_med_propranolol add index temp_med_propranolol_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_amlodipine;
-create temporary table temp_med_amlodipine as select * from temp_medications where drug_name = 'Amlodipine';
-alter table temp_med_amlodipine add index temp_med_amlodipine_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_med_nifedipine;
-create temporary table temp_med_nifedipine as select * from temp_medications where drug_name = 'Nifedipine';
-alter table temp_med_nifedipine add index temp_med_nifedipine_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_current_drugs_used;
-create temporary table temp_current_drugs_used as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Current drugs used';
-alter table temp_current_drugs_used add index temp_current_drugs_used_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_history_of_alcohol_use;
-create temporary table temp_history_of_alcohol_use as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'History of alcohol use';
-alter table temp_history_of_alcohol_use add index temp_history_of_alcohol_use_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_patient_has_anorexia;
-create temporary table temp_patient_has_anorexia as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Patient has anorexia';
-alter table temp_patient_has_anorexia add index temp_patient_has_anorexia_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_patient_has_ascites;
-create temporary table temp_patient_has_ascites as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Patient has ascites';
-alter table temp_patient_has_ascites add index temp_patient_has_ascites_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_diastolic_blood_pressure;
-create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from temp_ckd_followup_obs where concept = 'Diastolic blood pressure';
-alter table temp_diastolic_blood_pressure add index temp_diastolic_blood_pressure_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_systolic_blood_pressure;
-create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from temp_ckd_followup_obs where concept = 'Systolic blood pressure';
-alter table temp_systolic_blood_pressure add index temp_systolic_blood_pressure_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_ckd_stage;
-create temporary table temp_ckd_stage as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'CKD stage';
-alter table temp_ckd_stage add index temp_ckd_stage_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_patient_confused_person_or_time;
-create temporary table temp_patient_confused_person_or_time as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Patient confused (newly disoriented in place, person or time)';
-alter table temp_patient_confused_person_or_time add index temp_patient_confused_person_or_time_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_conjunctiva;
-create temporary table temp_conjunctiva as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Conjunctiva';
-alter table temp_conjunctiva add index temp_conjunctiva_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_creatinine;
-create temporary table temp_creatinine as select encounter_id, value_numeric from temp_ckd_followup_obs where concept = 'Creatinine';
-alter table temp_creatinine add index temp_creatinine_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_diet_recommendations;
-create temporary table temp_diet_recommendations as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Diet recommendations';
-alter table temp_diet_recommendations add index temp_diet_recommendations_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_patient_has_fatigue;
-create temporary table temp_patient_has_fatigue as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Patient has fatigue';
-alter table temp_patient_has_fatigue add index temp_patient_has_fatigue_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_glomerular_filtration_rate;
-create temporary table temp_glomerular_filtration_rate as select encounter_id, value_numeric from temp_ckd_followup_obs where concept = 'Glomerular filtration rate';
-alter table temp_glomerular_filtration_rate add index temp_glomerular_filtration_rate_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_pulse;
-create temporary table temp_pulse as select encounter_id, value_numeric from temp_ckd_followup_obs where concept = 'Pulse';
-alter table temp_pulse add index temp_pulse_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_height_cm;
-create temporary table temp_height_cm as select encounter_id, value_numeric from temp_ckd_followup_obs where concept = 'Height (cm)';
-alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_patient_has_nausea;
-create temporary table temp_patient_has_nausea as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Patient has nausea';
-alter table temp_patient_has_nausea add index temp_patient_has_nausea_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_appointment_date;
-create temporary table temp_appointment_date as select encounter_id, value_date from temp_ckd_followup_obs where concept = 'Appointment date';
-alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_nonsteroidal_anti_inflammatory_drug_use;
-create temporary table temp_nonsteroidal_anti_inflammatory_drug_use as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Nonsteroidal anti-inflammatory drug use';
-alter table temp_nonsteroidal_anti_inflammatory_drug_use add index temp_nonsteroidal_anti_inflammatory_drug_use_2 (encounter_id);
-
-drop temporary table if exists temp_oedema;
-create temporary table temp_oedema as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Oedema';
-alter table temp_oedema add index temp_oedema_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_other_chronic_heart_failure_drugs;
-create temporary table temp_other_chronic_heart_failure_drugs as select encounter_id, value_text from temp_ckd_followup_obs where concept = 'Other chronic heart failure drugs';
-alter table temp_other_chronic_heart_failure_drugs add index temp_other_chronic_heart_failure_drugs_encounter (encounter_id);
-
-drop temporary table if exists temp_review_of_symptoms_other;
-create temporary table temp_review_of_symptoms_other as select encounter_id, value_text from temp_ckd_followup_obs where concept = 'Review of symptoms other';
-alter table temp_review_of_symptoms_other add index temp_review_of_symptoms_other_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_patient_has_pruritus;
-create temporary table temp_patient_has_pruritus as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Patient has pruritus';
-alter table temp_patient_has_pruritus add index temp_patient_has_pruritus_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_smoking_history;
-create temporary table temp_smoking_history as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Smoking history';
-alter table temp_smoking_history add index temp_smoking_history_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_took_medications_today;
-create temporary table temp_took_medications_today as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Took medications today';
-alter table temp_took_medications_today add index temp_took_medications_today_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_urine_protein;
-create temporary table temp_urine_protein as select encounter_id, value_coded from temp_ckd_followup_obs where concept = 'Urine protein';
-alter table temp_urine_protein add index temp_urine_protein_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_weight_kg;
-create temporary table temp_weight_kg as select encounter_id, value_numeric from temp_ckd_followup_obs where concept = 'Weight (kg)';
-alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_weight_change;
-create temporary table temp_weight_change as select encounter_id, value_text from temp_ckd_followup_obs where concept = 'Weight change';
-alter table temp_weight_change add index temp_weight_change_encounter_idx (encounter_id);
+drop temporary table if exists temp_single_values;
+create temporary table temp_single_values as
+select
+    encounter_id,
+    max(case when concept = 'Current drugs used' and value_coded = 'Captopril'           then value_coded end) as ace_i_capt,
+    max(case when concept = 'Current drugs used' and value_coded = 'Enalapril'           then value_coded end) as ace_i_enal,
+    max(case when concept = 'Current drugs used' and value_coded = 'Lisinopril'          then value_coded end) as ace_i_lisin,
+    max(case when concept = 'History of alcohol use'                                     then value_coded end) as alcohol,
+    max(case when concept = 'Patient has anorexia'                                       then value_coded end) as anorexia,
+    max(case when concept = 'Patient has ascites'                                        then value_coded end) as ascites,
+    max(case when concept = 'Current drugs used' and value_coded = 'Atenolol'            then value_coded end) as bb_aten,
+    max(case when concept = 'Current drugs used' and value_coded = 'Bisoprolol'          then value_coded end) as bb_bis,
+    max(case when concept = 'Current drugs used' and value_coded = 'Propranolol'         then value_coded end) as bb_prop,
+    max(case when concept = 'Diastolic blood pressure'                                   then value_numeric end) as bp_diastolic,
+    max(case when concept = 'Systolic blood pressure'                                    then value_numeric end) as bp_systolic,
+    max(case when concept = 'Current drugs used' and value_coded = 'Amlodipine'          then value_coded end) as ccb_aml,
+    max(case when concept = 'Current drugs used' and value_coded = 'Nifedipine'          then value_coded end) as ccb_nif,
+    max(case when concept = 'CKD stage'                                                  then value_coded end) as ckd_stage,
+    max(case when concept = 'Patient confused (newly disoriented in place, person or time)' then value_coded end) as confusion,
+    max(case when concept = 'Conjunctiva'                                                then value_coded end) as conjunctiva,
+    max(case when concept = 'Creatinine'                                                 then value_numeric end) as creatinine,
+    max(case when concept = 'Diet recommendations'                                       then value_coded end) as diet_recommendations,
+    max(case when concept = 'Current drugs used' and value_coded = 'Furosemide'          then value_coded end) as diuretic_furo,
+    max(case when concept = 'Current drugs used' and value_coded = 'Hydrochlorothiazide' then value_coded end) as diuretic_hctz,
+    max(case when concept = 'Current drugs used' and value_coded = 'Spironolactone'      then value_coded end) as diuretic_spiro,
+    max(case when concept = 'Patient has fatigue'                                        then value_coded end) as fatigue,
+    max(case when concept = 'Glomerular filtration rate'                                 then value_numeric end) as gfr,
+    max(case when concept = 'Pulse'                                                      then value_numeric end) as heart_rate,
+    max(case when concept = 'Height (cm)'                                                then value_numeric end) as height,
+    max(case when concept = 'Patient has nausea'                                         then value_coded end) as nausea,
+    max(case when concept = 'Appointment date'                                           then value_date   end) as next_appointment_date,
+    max(case when concept = 'Nonsteroidal anti-inflammatory drug use'                    then value_coded end) as nsaid_use,
+    max(case when concept = 'Oedema'                                                     then value_coded end) as oedema,
+    max(case when concept = 'Other chronic heart failure drugs'                          then value_text   end) as other_medications,
+    max(case when concept = 'Review of symptoms other'                                   then value_text   end) as other_symptoms,
+    max(case when concept = 'Patient has pruritus'                                       then value_coded end) as pruritus,
+    max(case when concept = 'Smoking history'                                            then value_coded end) as tobacco,
+    max(case when concept = 'Took medications today'                                     then value_coded end) as took_medications_today,
+    max(case when concept = 'Urine protein'                                              then value_coded end) as urine_protein,
+    max(case when concept = 'Weight (kg)'                                                then value_numeric end) as weight,
+    max(case when concept = 'Weight change'                                              then value_text   end) as weight_change
+from temp_ckd_followup_obs
+group by encounter_id;
+alter table temp_single_values add index temp_single_values_encounter_idx (encounter_id);
 
 insert into mw_ckd_followup (patient_id, visit_date, location, ace_i_enal_dose, diuretic_furp_dose, ccb_nif_dose, diuretic_spiro_dose, ccb_aml_dose, ccb_aml_dosing_unit, ccb_aml_duration, ccb_aml_duration_units, ccb_aml_frequency, ccb_aml_route, bb_aten_dose, bb_aten_dosing_unit, bb_aten_duration, bb_aten_duration_units, bb_aten_frequency, bb_aten_route, bb_bis_dose, bb_bis_dosing_unit, bb_bis_duration, bb_bis_duration_units, bb_bis_frequency, bb_bis_route, ace_i_capt_dose, ace_i_capt_dosing_unit, ace_i_capt_duration, ace_i_capt_duration_units, ace_i_capt_frequency, ace_i_capt_route, ace_i_enal_dosing_unit, ace_i_enal_duration, ace_i_enal_duration_units, ace_i_enal_frequency, ace_i_enal_route, diuretic_furp_dosing_unit, diuretic_furp_duration, diuretic_furp_duration_units, diuretic_furp_frequency, diuretic_furp_route, diuretic_hctz_dose, diuretic_hctz_dosing_unit, diuretic_hctz_duration, diuretic_hctz_duration_units, diuretic_hctz_frequency, diuretic_hctz_route, ace_i_lisin_dose, ace_i_lisin_dosing_unit, ace_i_lisin_duration, ace_i_lisin_duration_units, ace_i_lisin_frequency, ace_i_lisin_route, ccb_nif_dosing_unit, ccb_nif_duration, ccb_nif_frequency, ccb_nif_route, ccb_nif_duration_units, bb_prop_dose, bb_prop_dosing_unit, bb_prop_duration, bb_prop_duration_units, bb_prop_frequency, bb_prop_route, diuretic_spiro_dosing_unit, diuretic_spiro_duration, diuretic_spiro_duration_units, diuretic_spiro_frequency, diuretic_spiro_route, ace_i_capt, ace_i_enal, ace_i_lisin, alcohol, anorexia, ascites, bb_aten, bb_bis, bb_prop, bp_diastolic, bp_systolic, ccb_aml, ccb_nif, ckd_stage, confusion, conjunctiva, creatinine, diet_recommendations, diuretic_furo, diuretic_hctz, diuretic_spiro, fatigue, gfr, heart_rate, height, nausea, next_appointment_date, nsaid_use, oedema, other_medications, other_symptoms, pruritus, tobacco, took_medications_today, urine_protein, weight, weight_change)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
     e.location,
-    max(med_enalapril.dose) as ace_i_enal_dose,
-    max(med_furosemide.dose) as diuretic_furp_dose,
-    max(med_nifedipine.dose) as ccb_nif_dose,
-    max(med_spironolactone.dose) as diuretic_spiro_dose,
-    max(med_amlodipine.dose) as ccb_aml_dose,
-    max(med_amlodipine.dosing_unit) as ccb_aml_dosing_unit,
-    max(med_amlodipine.duration) as ccb_aml_duration,
-    max(med_amlodipine.duration_units) as ccb_aml_duration_units,
-    max(med_amlodipine.frequency) as ccb_aml_frequency,
-    max(med_amlodipine.route) as ccb_aml_route,
-    max(med_atenolol.dose) as bb_aten_dose,
-    max(med_atenolol.dosing_unit) as bb_aten_dosing_unit,
-    max(med_atenolol.duration) as bb_aten_duration,
-    max(med_atenolol.duration_units) as bb_aten_duration_units,
-    max(med_atenolol.frequency) as bb_aten_frequency,
-    max(med_atenolol.route) as bb_aten_route,
-    max(med_bisoprolol.dose) as bb_bis_dose,
-    max(med_bisoprolol.dosing_unit) as bb_bis_dosing_unit,
-    max(med_bisoprolol.duration) as bb_bis_duration,
-    max(med_bisoprolol.duration_units) as bb_bis_duration_units,
-    max(med_bisoprolol.frequency) as bb_bis_frequency,
-    max(med_bisoprolol.route) as bb_bis_route,
-    max(med_captopril.dose) as ace_i_capt_dose,
-    max(med_captopril.dosing_unit) as ace_i_capt_dosing_unit,
-    max(med_captopril.duration) as ace_i_capt_duration,
-    max(med_captopril.duration_units) as ace_i_capt_duration_units,
-    max(med_captopril.frequency) as ace_i_capt_frequency,
-    max(med_captopril.route) as ace_i_capt_route,
-    max(med_enalapril.dosing_unit) as ace_i_enal_dosing_unit,
-    max(med_enalapril.duration) as ace_i_enal_duration,
-    max(med_enalapril.duration_units) as ace_i_enal_duration_units,
-    max(med_enalapril.frequency) as ace_i_enal_frequency,
-    max(med_enalapril.route) as ace_i_enal_route,
-    max(med_furosemide.dosing_unit) as diuretic_furp_dosing_unit,
-    max(med_furosemide.duration) as diuretic_furp_duration,
-    max(med_furosemide.duration_units) as diuretic_furp_duration_units,
-    max(med_furosemide.frequency) as diuretic_furp_frequency,
-    max(med_furosemide.route) as diuretic_furp_route,
-    max(med_hctz.dose) as diuretic_hctz_dose,
-    max(med_hctz.dosing_unit) as diuretic_hctz_dosing_unit,
-    max(med_hctz.duration) as diuretic_hctz_duration,
-    max(med_hctz.duration_units) as diuretic_hctz_duration_units,
-    max(med_hctz.frequency) as diuretic_hctz_frequency,
-    max(med_hctz.route) as diuretic_hctz_route,
-    max(med_lisinopril.dose) as ace_i_lisin_dose,
-    max(med_lisinopril.dosing_unit) as ace_i_lisin_dosing_unit,
-    max(med_lisinopril.duration) as ace_i_lisin_duration,
-    max(med_lisinopril.duration_units) as ace_i_lisin_duration_units,
-    max(med_lisinopril.frequency) as ace_i_lisin_frequency,
-    max(med_lisinopril.route) as ace_i_lisin_route,
-    max(med_nifedipine.dosing_unit) as ccb_nif_dosing_unit,
-    max(med_nifedipine.duration) as ccb_nif_duration,
-    max(med_nifedipine.frequency) as ccb_nif_frequency,
-    max(med_nifedipine.route) as ccb_nif_route,
-    max(med_nifedipine.duration_units) as ccb_nif_duration_units,
-    max(med_propranolol.dose) as bb_prop_dose,
-    max(med_propranolol.dosing_unit) as bb_prop_dosing_unit,
-    max(med_propranolol.duration) as bb_prop_duration,
-    max(med_propranolol.duration_units) as bb_prop_duration_units,
-    max(med_propranolol.frequency) as bb_prop_frequency,
-    max(med_propranolol.route) as bb_prop_route,
-    max(med_spironolactone.dosing_unit) as diuretic_spiro_dosing_unit,
-    max(med_spironolactone.duration) as diuretic_spiro_duration,
-    max(med_spironolactone.duration_units) as diuretic_spiro_duration_units,
-    max(med_spironolactone.frequency) as diuretic_spiro_frequency,
-    max(med_spironolactone.route) as diuretic_spiro_route,
-    max(case when current_drugs_used.value_coded = 'Captopril' then current_drugs_used.value_coded end) as ace_i_capt,
-    max(case when current_drugs_used.value_coded = 'Enalapril' then current_drugs_used.value_coded end) as ace_i_enal,
-    max(case when current_drugs_used.value_coded = 'Lisinopril' then current_drugs_used.value_coded end) as ace_i_lisin,
-    max(history_of_alcohol_use.value_coded) as alcohol,
-    max(patient_has_anorexia.value_coded) as anorexia,
-    max(patient_has_ascites.value_coded) as ascites,
-    max(case when current_drugs_used.value_coded = 'Atenolol' then current_drugs_used.value_coded end) as bb_aten,
-    max(case when current_drugs_used.value_coded = 'Bisoprolol' then current_drugs_used.value_coded end) as bb_bis,
-    max(case when current_drugs_used.value_coded = 'Propranolol' then current_drugs_used.value_coded end) as bb_prop,
-    max(diastolic_blood_pressure.value_numeric) as bp_diastolic,
-    max(systolic_blood_pressure.value_numeric) as bp_systolic,
-    max(case when current_drugs_used.value_coded = 'Amlodipine' then current_drugs_used.value_coded end) as ccb_aml,
-    max(case when current_drugs_used.value_coded = 'Nifedipine' then current_drugs_used.value_coded end) as ccb_nif,
-    max(ckd_stage.value_coded) as ckd_stage,
-    max(patient_confused_person_or_time.value_coded) as confusion,
-    max(conjunctiva.value_coded) as conjunctiva,
-    max(creatinine.value_numeric) as creatinine,
-    max(diet_recommendations.value_coded) as diet_recommendations,
-    max(case when current_drugs_used.value_coded = 'Furosemide' then current_drugs_used.value_coded end) as diuretic_furo,
-    max(case when current_drugs_used.value_coded = 'Hydrochlorothiazide' then current_drugs_used.value_coded end) as diuretic_hctz,
-    max(case when current_drugs_used.value_coded = 'Spironolactone' then current_drugs_used.value_coded end) as diuretic_spiro,
-    max(patient_has_fatigue.value_coded) as fatigue,
-    max(glomerular_filtration_rate.value_numeric) as gfr,
-    max(pulse.value_numeric) as heart_rate,
-    max(height_cm.value_numeric) as height,
-    max(patient_has_nausea.value_coded) as nausea,
-    max(appointment_date.value_date) as next_appointment_date,
-    max(nonsteroidal_anti_inflammatory_drug_use.value_coded) as nsaid_use,
-    max(oedema.value_coded) as oedema,
-    max(other_chronic_heart_failure_drugs.value_text) as other_medications,
-    max(review_of_symptoms_other.value_text) as other_symptoms,
-    max(patient_has_pruritus.value_coded) as pruritus,
-    max(smoking_history.value_coded) as tobacco,
-    max(took_medications_today.value_coded) as took_medications_today,
-    max(urine_protein.value_coded) as urine_protein,
-    max(weight_kg.value_numeric) as weight,
-    max(weight_change.value_text) as weight_change
+    mv.ace_i_enal_dose,
+    mv.diuretic_furp_dose,
+    mv.ccb_nif_dose,
+    mv.diuretic_spiro_dose,
+    mv.ccb_aml_dose,
+    mv.ccb_aml_dosing_unit,
+    mv.ccb_aml_duration,
+    mv.ccb_aml_duration_units,
+    mv.ccb_aml_frequency,
+    mv.ccb_aml_route,
+    mv.bb_aten_dose,
+    mv.bb_aten_dosing_unit,
+    mv.bb_aten_duration,
+    mv.bb_aten_duration_units,
+    mv.bb_aten_frequency,
+    mv.bb_aten_route,
+    mv.bb_bis_dose,
+    mv.bb_bis_dosing_unit,
+    mv.bb_bis_duration,
+    mv.bb_bis_duration_units,
+    mv.bb_bis_frequency,
+    mv.bb_bis_route,
+    mv.ace_i_capt_dose,
+    mv.ace_i_capt_dosing_unit,
+    mv.ace_i_capt_duration,
+    mv.ace_i_capt_duration_units,
+    mv.ace_i_capt_frequency,
+    mv.ace_i_capt_route,
+    mv.ace_i_enal_dosing_unit,
+    mv.ace_i_enal_duration,
+    mv.ace_i_enal_duration_units,
+    mv.ace_i_enal_frequency,
+    mv.ace_i_enal_route,
+    mv.diuretic_furp_dosing_unit,
+    mv.diuretic_furp_duration,
+    mv.diuretic_furp_duration_units,
+    mv.diuretic_furp_frequency,
+    mv.diuretic_furp_route,
+    mv.diuretic_hctz_dose,
+    mv.diuretic_hctz_dosing_unit,
+    mv.diuretic_hctz_duration,
+    mv.diuretic_hctz_duration_units,
+    mv.diuretic_hctz_frequency,
+    mv.diuretic_hctz_route,
+    mv.ace_i_lisin_dose,
+    mv.ace_i_lisin_dosing_unit,
+    mv.ace_i_lisin_duration,
+    mv.ace_i_lisin_duration_units,
+    mv.ace_i_lisin_frequency,
+    mv.ace_i_lisin_route,
+    mv.ccb_nif_dosing_unit,
+    mv.ccb_nif_duration,
+    mv.ccb_nif_frequency,
+    mv.ccb_nif_route,
+    mv.ccb_nif_duration_units,
+    mv.bb_prop_dose,
+    mv.bb_prop_dosing_unit,
+    mv.bb_prop_duration,
+    mv.bb_prop_duration_units,
+    mv.bb_prop_frequency,
+    mv.bb_prop_route,
+    mv.diuretic_spiro_dosing_unit,
+    mv.diuretic_spiro_duration,
+    mv.diuretic_spiro_duration_units,
+    mv.diuretic_spiro_frequency,
+    mv.diuretic_spiro_route,
+    sv.ace_i_capt,
+    sv.ace_i_enal,
+    sv.ace_i_lisin,
+    sv.alcohol,
+    sv.anorexia,
+    sv.ascites,
+    sv.bb_aten,
+    sv.bb_bis,
+    sv.bb_prop,
+    sv.bp_diastolic,
+    sv.bp_systolic,
+    sv.ccb_aml,
+    sv.ccb_nif,
+    sv.ckd_stage,
+    sv.confusion,
+    sv.conjunctiva,
+    sv.creatinine,
+    sv.diet_recommendations,
+    sv.diuretic_furo,
+    sv.diuretic_hctz,
+    sv.diuretic_spiro,
+    sv.fatigue,
+    sv.gfr,
+    sv.heart_rate,
+    sv.height,
+    sv.nausea,
+    sv.next_appointment_date,
+    sv.nsaid_use,
+    sv.oedema,
+    sv.other_medications,
+    sv.other_symptoms,
+    sv.pruritus,
+    sv.tobacco,
+    sv.took_medications_today,
+    sv.urine_protein,
+    sv.weight,
+    sv.weight_change
 from omrs_encounter e
-left join temp_med_hctz med_hctz on e.encounter_id = med_hctz.encounter_id
-left join temp_med_furosemide med_furosemide on e.encounter_id = med_furosemide.encounter_id
-left join temp_med_spironolactone med_spironolactone on e.encounter_id = med_spironolactone.encounter_id
-left join temp_med_enalapril med_enalapril on e.encounter_id = med_enalapril.encounter_id
-left join temp_med_captopril med_captopril on e.encounter_id = med_captopril.encounter_id
-left join temp_med_lisinopril med_lisinopril on e.encounter_id = med_lisinopril.encounter_id
-left join temp_med_atenolol med_atenolol on e.encounter_id = med_atenolol.encounter_id
-left join temp_med_bisoprolol med_bisoprolol on e.encounter_id = med_bisoprolol.encounter_id
-left join temp_med_propranolol med_propranolol on e.encounter_id = med_propranolol.encounter_id
-left join temp_med_amlodipine med_amlodipine on e.encounter_id = med_amlodipine.encounter_id
-left join temp_med_nifedipine med_nifedipine on e.encounter_id = med_nifedipine.encounter_id
-left join temp_current_drugs_used current_drugs_used on e.encounter_id = current_drugs_used.encounter_id
-left join temp_history_of_alcohol_use history_of_alcohol_use on e.encounter_id = history_of_alcohol_use.encounter_id
-left join temp_patient_has_anorexia patient_has_anorexia on e.encounter_id = patient_has_anorexia.encounter_id
-left join temp_patient_has_ascites patient_has_ascites on e.encounter_id = patient_has_ascites.encounter_id
-left join temp_diastolic_blood_pressure diastolic_blood_pressure on e.encounter_id = diastolic_blood_pressure.encounter_id
-left join temp_systolic_blood_pressure systolic_blood_pressure on e.encounter_id = systolic_blood_pressure.encounter_id
-left join temp_ckd_stage ckd_stage on e.encounter_id = ckd_stage.encounter_id
-left join temp_patient_confused_person_or_time patient_confused_person_or_time on e.encounter_id = patient_confused_person_or_time.encounter_id
-left join temp_conjunctiva conjunctiva on e.encounter_id = conjunctiva.encounter_id
-left join temp_creatinine creatinine on e.encounter_id = creatinine.encounter_id
-left join temp_diet_recommendations diet_recommendations on e.encounter_id = diet_recommendations.encounter_id
-left join temp_patient_has_fatigue patient_has_fatigue on e.encounter_id = patient_has_fatigue.encounter_id
-left join temp_glomerular_filtration_rate glomerular_filtration_rate on e.encounter_id = glomerular_filtration_rate.encounter_id
-left join temp_pulse pulse on e.encounter_id = pulse.encounter_id
-left join temp_height_cm height_cm on e.encounter_id = height_cm.encounter_id
-left join temp_patient_has_nausea patient_has_nausea on e.encounter_id = patient_has_nausea.encounter_id
-left join temp_appointment_date appointment_date on e.encounter_id = appointment_date.encounter_id
-left join temp_nonsteroidal_anti_inflammatory_drug_use nonsteroidal_anti_inflammatory_drug_use on e.encounter_id = nonsteroidal_anti_inflammatory_drug_use.encounter_id
-left join temp_oedema oedema on e.encounter_id = oedema.encounter_id
-left join temp_other_chronic_heart_failure_drugs other_chronic_heart_failure_drugs on e.encounter_id = other_chronic_heart_failure_drugs.encounter_id
-left join temp_review_of_symptoms_other review_of_symptoms_other on e.encounter_id = review_of_symptoms_other.encounter_id
-left join temp_patient_has_pruritus patient_has_pruritus on e.encounter_id = patient_has_pruritus.encounter_id
-left join temp_smoking_history smoking_history on e.encounter_id = smoking_history.encounter_id
-left join temp_took_medications_today took_medications_today on e.encounter_id = took_medications_today.encounter_id
-left join temp_urine_protein urine_protein on e.encounter_id = urine_protein.encounter_id
-left join temp_weight_kg weight_kg on e.encounter_id = weight_kg.encounter_id
-left join temp_weight_change weight_change on e.encounter_id = weight_change.encounter_id
+left join temp_med_values mv on mv.encounter_id = e.encounter_id
+left join temp_single_values sv on sv.encounter_id = e.encounter_id
 where e.encounter_type in ('CKD_FOLLOWUP')
 group by e.patient_id, e.encounter_date, e.location;
+
+drop temporary table if exists temp_ckd_followup_obs;
+drop temporary table if exists temp_drug_name_obs;
+drop temporary table if exists temp_drug_detail_obs;
+drop temporary table if exists temp_medications;
+drop temporary table if exists temp_med_values;
+drop temporary table if exists temp_single_values;
