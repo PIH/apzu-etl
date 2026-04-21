@@ -85,140 +85,149 @@ create table mw_pdc_initial
     primary key (pdc_initial_visit_id)
 );
 
+drop temporary table if exists temp_pdc_initial_obs;
+create temporary table temp_pdc_initial_obs as
+select encounter_id, obs_group_id, concept, value_coded, value_numeric, value_date, value_text
+from omrs_obs
+where encounter_type = 'PDC_INITIAL';
+alter table temp_pdc_initial_obs add index temp_pdc_initial_obs_concept_idx (concept);
+alter table temp_pdc_initial_obs add index temp_pdc_initial_obs_encounter_idx (encounter_id);
+alter table temp_pdc_initial_obs add index temp_pdc_initial_obs_group_idx (obs_group_id);
+
 drop temporary table if exists temp_care_linked_type;
-create temporary table temp_care_linked_type as select encounter_id, value_coded from omrs_obs where concept = 'Care Linked Type';
+create temporary table temp_care_linked_type as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Care Linked Type';
 alter table temp_care_linked_type add index temp_care_linked_type_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_follow_up_agreement;
-create temporary table temp_follow_up_agreement as select encounter_id, value_coded from omrs_obs where concept = 'Follow up agreement';
+create temporary table temp_follow_up_agreement as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Follow up agreement';
 alter table temp_follow_up_agreement add index temp_follow_up_agreement_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_or_last_week_taking_antibiotics;
-create temporary table temp_or_last_week_taking_antibiotics as select encounter_id, value_coded from omrs_obs where concept = 'Currently (or in the last week) taking antibiotics';
+create temporary table temp_or_last_week_taking_antibiotics as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Currently (or in the last week) taking antibiotics';
 alter table temp_or_last_week_taking_antibiotics add index temp_or_last_week_taking_antibiotics_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_duration_coded;
-create temporary table temp_duration_coded as select encounter_id, value_coded from omrs_obs where concept = 'Duration (coded)';
+create temporary table temp_duration_coded as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Duration (coded)';
 alter table temp_duration_coded add index temp_duration_coded_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_method_of_delivery;
-create temporary table temp_method_of_delivery as select encounter_id, value_coded from omrs_obs where concept = 'Method of delivery';
+create temporary table temp_method_of_delivery as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Method of delivery';
 alter table temp_method_of_delivery add index temp_method_of_delivery_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_birth_location_type;
-create temporary table temp_birth_location_type as select encounter_id, value_coded from omrs_obs where concept = 'Birth location type';
+create temporary table temp_birth_location_type as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Birth location type';
 alter table temp_birth_location_type add index temp_birth_location_type_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diagnosis;
-create temporary table temp_diagnosis as select encounter_id, value_coded from omrs_obs where concept = 'Diagnosis';
+create temporary table temp_diagnosis as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Diagnosis';
 alter table temp_diagnosis add index temp_diagnosis_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_care_linked;
-create temporary table temp_care_linked as select encounter_id, value_coded from omrs_obs where concept = 'Care Linked';
+create temporary table temp_care_linked as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Care Linked';
 alter table temp_care_linked add index temp_care_linked_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_hiv_status;
-create temporary table temp_hiv_status as select encounter_id, value_coded from omrs_obs where concept = 'HIV status';
+create temporary table temp_hiv_status as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'HIV status';
 alter table temp_hiv_status add index temp_hiv_status_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_childs_current_hiv_status;
-create temporary table temp_childs_current_hiv_status as select encounter_id, value_coded from omrs_obs where concept = 'Childs current HIV status';
+create temporary table temp_childs_current_hiv_status as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Childs current HIV status';
 alter table temp_childs_current_hiv_status add index temp_childs_current_hiv_status_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_drugs;
-create temporary table temp_drugs as select encounter_id, value_text from omrs_obs where concept = 'drugs';
+create temporary table temp_drugs as select encounter_id, value_text from temp_pdc_initial_obs where concept = 'drugs';
 alter table temp_drugs add index temp_drugs_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_current_drugs_used;
-create temporary table temp_current_drugs_used as select encounter_id, value_coded from omrs_obs where concept = 'Current drugs used';
+create temporary table temp_current_drugs_used as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Current drugs used';
 alter table temp_current_drugs_used add index temp_current_drugs_used_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_poser_support;
-create temporary table temp_poser_support as select encounter_id, value_coded from omrs_obs where concept = 'Poser Support';
+create temporary table temp_poser_support as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Poser Support';
 alter table temp_poser_support add index temp_poser_support_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_enrolled_in_pdc;
-create temporary table temp_enrolled_in_pdc as select encounter_id, value_coded from omrs_obs where concept = 'Enrolled in PDC';
+create temporary table temp_enrolled_in_pdc as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Enrolled in PDC';
 alter table temp_enrolled_in_pdc add index temp_enrolled_in_pdc_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_infant_feeding_method;
-create temporary table temp_infant_feeding_method as select encounter_id, value_coded from omrs_obs where concept = 'Infant feeding method';
+create temporary table temp_infant_feeding_method as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Infant feeding method';
 alter table temp_infant_feeding_method add index temp_infant_feeding_method_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_other_non_coded_text;
-create temporary table temp_other_non_coded_text as select encounter_id, value_text from omrs_obs where concept = 'Other non-coded (text)';
+create temporary table temp_other_non_coded_text as select encounter_id, value_text from temp_pdc_initial_obs where concept = 'Other non-coded (text)';
 alter table temp_other_non_coded_text add index temp_other_non_coded_text_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_age_of_guardian;
-create temporary table temp_age_of_guardian as select encounter_id, value_numeric from omrs_obs where concept = 'Age of guardian';
+create temporary table temp_age_of_guardian as select encounter_id, value_numeric from temp_pdc_initial_obs where concept = 'Age of guardian';
 alter table temp_age_of_guardian add index temp_age_of_guardian_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_guardian_name_and_first_names;
-create temporary table temp_guardian_name_and_first_names as select encounter_id, value_text from omrs_obs where concept = 'Guardian; name and first names';
+create temporary table temp_guardian_name_and_first_names as select encounter_id, value_text from temp_pdc_initial_obs where concept = 'Guardian; name and first names';
 alter table temp_guardian_name_and_first_names add index temp_guardian_name_and_first_names_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_next_of_kin_telephone;
-create temporary table temp_next_of_kin_telephone as select encounter_id, value_text from omrs_obs where concept = 'Next of kin telephone';
+create temporary table temp_next_of_kin_telephone as select encounter_id, value_text from temp_pdc_initial_obs where concept = 'Next of kin telephone';
 alter table temp_next_of_kin_telephone add index temp_next_of_kin_telephone_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_income_source;
-create temporary table temp_income_source as select encounter_id, value_text from omrs_obs where concept = 'Income Source';
+create temporary table temp_income_source as select encounter_id, value_text from temp_pdc_initial_obs where concept = 'Income Source';
 alter table temp_income_source add index temp_income_source_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_highest_level_of_school_completed;
-create temporary table temp_highest_level_of_school_completed as select encounter_id, value_coded from omrs_obs where concept = 'Highest level of school completed';
+create temporary table temp_highest_level_of_school_completed as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Highest level of school completed';
 alter table temp_highest_level_of_school_completed add index temp_highest_level_school_completed_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_civil_status;
-create temporary table temp_civil_status as select encounter_id, value_coded from omrs_obs where concept = 'Civil status';
+create temporary table temp_civil_status as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Civil status';
 alter table temp_civil_status add index temp_civil_status_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_mother_hiv_status;
-create temporary table temp_mother_hiv_status as select encounter_id, value_coded from omrs_obs where concept = 'Mother HIV Status';
+create temporary table temp_mother_hiv_status as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Mother HIV Status';
 alter table temp_mother_hiv_status add index temp_mother_hiv_status_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_clinical_impression_comments;
-create temporary table temp_clinical_impression_comments as select encounter_id, value_text from omrs_obs where concept = 'Clinical impression comments';
+create temporary table temp_clinical_impression_comments as select encounter_id, value_text from temp_pdc_initial_obs where concept = 'Clinical impression comments';
 alter table temp_clinical_impression_comments add index temp_clinical_impression_comments_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_number_of_children;
-create temporary table temp_number_of_children as select encounter_id, value_numeric from omrs_obs where concept = 'Number of children';
+create temporary table temp_number_of_children as select encounter_id, value_numeric from temp_pdc_initial_obs where concept = 'Number of children';
 alter table temp_number_of_children add index temp_number_of_children_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_type_of_support;
-create temporary table temp_type_of_support as select encounter_id, value_text from omrs_obs where concept = 'Type of support';
+create temporary table temp_type_of_support as select encounter_id, value_text from temp_pdc_initial_obs where concept = 'Type of support';
 alter table temp_type_of_support add index temp_type_of_support_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_perinatal_infection;
-create temporary table temp_perinatal_infection as select encounter_id, value_coded from omrs_obs where concept = 'Perinatal infection';
+create temporary table temp_perinatal_infection as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Perinatal infection';
 alter table temp_perinatal_infection add index temp_perinatal_infection_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_telephone_number;
-create temporary table temp_telephone_number as select encounter_id, value_numeric from omrs_obs where concept = 'Telephone number';
+create temporary table temp_telephone_number as select encounter_id, value_numeric from temp_pdc_initial_obs where concept = 'Telephone number';
 alter table temp_telephone_number add index temp_telephone_number_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_pdc_reasons_for_referral;
-create temporary table temp_pdc_reasons_for_referral as select encounter_id, value_coded from omrs_obs where concept = 'PDC Reasons for referral';
+create temporary table temp_pdc_reasons_for_referral as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'PDC Reasons for referral';
 alter table temp_pdc_reasons_for_referral add index temp_pdc_reasons_for_referral_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_referral_form_filled;
-create temporary table temp_referral_form_filled as select encounter_id, value_coded from omrs_obs where concept = 'Referral Form Filled';
+create temporary table temp_referral_form_filled as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Referral Form Filled';
 alter table temp_referral_form_filled add index temp_referral_form_filled_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_relationships_of_contact;
-create temporary table temp_relationships_of_contact as select encounter_id, value_text from omrs_obs where concept = 'Relationships of contact';
+create temporary table temp_relationships_of_contact as select encounter_id, value_text from temp_pdc_initial_obs where concept = 'Relationships of contact';
 alter table temp_relationships_of_contact add index temp_relationships_of_contact_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_referral_source;
-create temporary table temp_referral_source as select encounter_id, value_coded from omrs_obs where concept = 'Referral Source';
+create temporary table temp_referral_source as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Referral Source';
 alter table temp_referral_source add index temp_referral_source_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_transfer_in_date;
-create temporary table temp_transfer_in_date as select encounter_id, value_date from omrs_obs where concept = 'Transfer in date';
+create temporary table temp_transfer_in_date as select encounter_id, value_date from temp_pdc_initial_obs where concept = 'Transfer in date';
 alter table temp_transfer_in_date add index temp_transfer_in_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_type_of_feed;
-create temporary table temp_type_of_feed as select encounter_id, value_coded from omrs_obs where concept = 'Type of Feed';
+create temporary table temp_type_of_feed as select encounter_id, value_coded from temp_pdc_initial_obs where concept = 'Type of Feed';
 alter table temp_type_of_feed add index temp_type_of_feed_encounter_idx (encounter_id);
 
 insert into mw_pdc_initial (patient_id, visit_date, location, advanced_ncd, agrees_to_fup, antibiotics, antibiotics_duration, birth_history_agpar, birth_history_cs, birth_history_svd, birth_site, birth_history_bwt, cns_infection, care_linked, child_hiv_reactive, child_on_art, cleft_lip, cleft_palate, clinical_care, currently_on_medication_specify, currently_on_medication, diagnosis_other, premature_birth, eligible_for_poser, enrolled_in_pdc, epilepsy, feeding_method_bf, feeding_method_cup, feeding_method_ogt, feeding_method_other, guardian_age, guardian_name, guardian_phone, hie, hydrocephalus, ic3, income_source, level_of_education, low_birth_weight, marital_status, mental_health_clinic, mother_hiv_reactive, mother_on_art, nru, notes, number_of_children, other_support, palliative, perinatal_infection, perinatal_infection_specify, phone_number, physiotherapy, reason_for_referral_hie, reason_for_referral_cns_infection, reason_for_referral_cleft_lip, reason_for_referral_cleft_palate, reason_for_referral_epilepsy, reason_for_referral_hydrocephalus, reason_for_referral_low_birth_weight, reason_for_referral_other, reason_for_referral_premature_birth, reason_for_referral_severe_malnutrition, reason_for_referral_trisomy_21, referral_form_filled, relation_to_patient, severe_malnutrition, source_of_referral, transfer_in_date, trisomy_21, type_of_feed_breast_milk, type_of_feed_infant_formula, type_of_feed_solids, type_of_feed_mixed_feeding)

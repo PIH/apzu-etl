@@ -41,72 +41,82 @@ create table mw_art_followup (
      primary key (art_followup_visit_id)
 );
 
+drop temporary table if exists temp_art_followup_obs;
+create temporary table temp_art_followup_obs as
+select encounter_id, obs_group_id, concept, value_coded, value_numeric, value_date, value_text
+from omrs_obs
+where encounter_type = 'ART_FOLLOWUP';
+alter table temp_art_followup_obs add index temp_art_followup_obs_concept_idx (concept);
+alter table temp_art_followup_obs add index temp_art_followup_obs_encounter_idx (encounter_id);
+alter table temp_art_followup_obs add index temp_art_followup_obs_group_idx (obs_group_id);
+
+
 drop temporary table if exists temp_malawi_antiretroviral_drugs_received;
-create temporary table temp_malawi_antiretroviral_drugs_received as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Antiretroviral drugs received';
+create temporary table temp_malawi_antiretroviral_drugs_received as select encounter_id, value_coded from temp_art_followup_obs where concept = 'Malawi Antiretroviral drugs received';
 alter table temp_malawi_antiretroviral_drugs_received add index temp_malawi_arv_drugs_received_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_responsible_person_present;
-create temporary table temp_responsible_person_present as select encounter_id, value_coded from omrs_obs where concept = 'Responsible person present';
+create temporary table temp_responsible_person_present as select encounter_id, value_coded from temp_art_followup_obs where concept = 'Responsible person present';
 alter table temp_responsible_person_present add index temp_responsible_person_present_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_appointment_date;
-create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
+create temporary table temp_appointment_date as select encounter_id, value_date from temp_art_followup_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_hiv_preventive_therapy;
-create temporary table temp_hiv_preventive_therapy as select encounter_id, value_coded from omrs_obs where concept = 'HIV Preventive Therapy';
+create temporary table temp_hiv_preventive_therapy as select encounter_id, value_coded from temp_art_followup_obs where concept = 'HIV Preventive Therapy';
 alter table temp_hiv_preventive_therapy add index temp_hiv_preventive_therapy_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_amount_dispensed;
-create temporary table temp_amount_dispensed as select encounter_id, value_numeric from omrs_obs where concept = 'Amount Dispensed';
+create temporary table temp_amount_dispensed as select encounter_id, value_numeric from temp_art_followup_obs where concept = 'Amount Dispensed';
 alter table temp_amount_dispensed add index temp_amount_dispensed_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_number_of_condoms_dispensed;
-create temporary table temp_number_of_condoms_dispensed as select encounter_id, value_numeric from omrs_obs where concept = 'Number of Condoms dispensed';
+create temporary table temp_number_of_condoms_dispensed as select encounter_id, value_numeric from temp_art_followup_obs where concept = 'Number of Condoms dispensed';
 alter table temp_number_of_condoms_dispensed add index temp_number_of_condoms_dispensed_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_depo_provera_given;
-create temporary table temp_depo_provera_given as select encounter_id, value_coded from omrs_obs where concept = 'Depo-Provera given';
+create temporary table temp_depo_provera_given as select encounter_id, value_coded from temp_art_followup_obs where concept = 'Depo-Provera given';
 alter table temp_depo_provera_given add index temp_depo_provera_given_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diastolic_blood_pressure;
-create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Diastolic blood pressure';
+create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from temp_art_followup_obs where concept = 'Diastolic blood pressure';
 alter table temp_diastolic_blood_pressure add index temp_diastolic_blood_pressure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_number_of_hiv_drug_doses_missed;
-create temporary table temp_number_of_hiv_drug_doses_missed as select encounter_id, value_numeric from omrs_obs where concept = 'Number of HIV drug doses missed';
+create temporary table temp_number_of_hiv_drug_doses_missed as select encounter_id, value_numeric from temp_art_followup_obs where concept = 'Number of HIV drug doses missed';
 alter table temp_number_of_hiv_drug_doses_missed add index temp_number_of_hiv_drug_doses_missed_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_height_cm;
-create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
+create temporary table temp_height_cm as select encounter_id, value_numeric from temp_art_followup_obs where concept = 'Height (cm)';
 alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_number_of_antiretrovirals_given;
-create temporary table temp_number_of_antiretrovirals_given as select encounter_id, value_numeric from omrs_obs where concept = 'Number of antiretrovirals given';
+create temporary table temp_number_of_antiretrovirals_given as select encounter_id, value_numeric from temp_art_followup_obs where concept = 'Number of antiretrovirals given';
 alter table temp_number_of_antiretrovirals_given add index temp_number_of_antiretrovirals_given_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_amount_of_drug_brought_to_clinic;
-create temporary table temp_amount_of_drug_brought_to_clinic as select encounter_id, value_numeric from omrs_obs where concept = 'Amount of drug brought to clinic';
+create temporary table temp_amount_of_drug_brought_to_clinic as select encounter_id, value_numeric from temp_art_followup_obs where concept = 'Amount of drug brought to clinic';
 alter table temp_amount_of_drug_brought_to_clinic add index temp_amount_drug_brought_clinic_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_pregnant_lactating;
-create temporary table temp_pregnant_lactating as select encounter_id, value_coded from omrs_obs where concept = 'Pregnant/Lactating';
+create temporary table temp_pregnant_lactating as select encounter_id, value_coded from temp_art_followup_obs where concept = 'Pregnant/Lactating';
 alter table temp_pregnant_lactating add index temp_pregnant_lactating_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_malawi_art_side_effects;
-create temporary table temp_malawi_art_side_effects as select encounter_id, value_coded from omrs_obs where concept = 'Malawi ART side effects';
+create temporary table temp_malawi_art_side_effects as select encounter_id, value_coded from temp_art_followup_obs where concept = 'Malawi ART side effects';
 alter table temp_malawi_art_side_effects add index temp_malawi_art_side_effects_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_systolic_blood_pressure;
-create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Systolic blood pressure';
+create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from temp_art_followup_obs where concept = 'Systolic blood pressure';
 alter table temp_systolic_blood_pressure add index temp_systolic_blood_pressure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_tb_status;
-create temporary table temp_tb_status as select encounter_id, value_coded from omrs_obs where concept = 'TB status';
+create temporary table temp_tb_status as select encounter_id, value_coded from temp_art_followup_obs where concept = 'TB status';
 alter table temp_tb_status add index temp_tb_status_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_weight_kg;
-create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
+create temporary table temp_weight_kg as select encounter_id, value_numeric from temp_art_followup_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
 insert into mw_art_followup (patient_id, visit_date, location, art_regimen, arvs_given_to, next_appointment_date, ctx_960, ctx_960_pills, condoms_given, depo_given, diastolic_bp, doses_missed, height, inh_300, inh_300_pills, art_drugs_received, arvs_given, pill_count, pregnant_or_lactating, pyridoxine, pyridoxine_pills, rfp_150, rfp_150_pills, rfp_inh, rfp_inh_pills, no_side_effect, peripheral_neuropathy_side_effect, hepatitis_side_effect, skin_rash_side_effect, lipodystrophy_side_effect, other_side_effect, systolic_bp, tb_status, weight)

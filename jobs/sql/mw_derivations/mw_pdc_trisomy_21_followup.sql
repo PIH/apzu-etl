@@ -38,104 +38,114 @@ create table mw_pdc_trisomy_21_followup (
   primary key (pdc_trisomy_21_visit_id )
 ) ;
 
+drop temporary table if exists temp_pdc_trisomy_obs;
+create temporary table temp_pdc_trisomy_obs as
+select encounter_id, obs_group_id, concept, value_coded, value_numeric, value_date, value_text
+from omrs_obs
+where encounter_type = 'PDC_TRISOMY21_FOLLOWUP';
+alter table temp_pdc_trisomy_obs add index temp_pdc_trisomy_obs_concept_idx (concept);
+alter table temp_pdc_trisomy_obs add index temp_pdc_trisomy_obs_encounter_idx (encounter_id);
+alter table temp_pdc_trisomy_obs add index temp_pdc_trisomy_obs_group_idx (obs_group_id);
+
+
 drop temporary table if exists temp_adjust_dose;
-create temporary table temp_adjust_dose as select encounter_id, value_coded from omrs_obs where concept = 'Adjust dose';
+create temporary table temp_adjust_dose as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Adjust dose';
 alter table temp_adjust_dose add index temp_adjust_dose_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_anticonvulsant;
-create temporary table temp_anticonvulsant as select encounter_id, value_coded from omrs_obs where concept = 'Anticonvulsant';
+create temporary table temp_anticonvulsant as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Anticonvulsant';
 alter table temp_anticonvulsant add index temp_anticonvulsant_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_continue_followup;
-create temporary table temp_continue_followup as select encounter_id, value_coded from omrs_obs where concept = 'Continue followup';
+create temporary table temp_continue_followup as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Continue followup';
 alter table temp_continue_followup add index temp_continue_followup_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diarrhea_persistent;
-create temporary table temp_diarrhea_persistent as select encounter_id, value_coded from omrs_obs where concept = 'Diarrhea Persistent';
+create temporary table temp_diarrhea_persistent as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Diarrhea Persistent';
 alter table temp_diarrhea_persistent add index temp_diarrhea_persistent_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_medications_dispensed;
-create temporary table temp_medications_dispensed as select encounter_id, value_text from omrs_obs where concept = 'Medications dispensed';
+create temporary table temp_medications_dispensed as select encounter_id, value_text from temp_pdc_trisomy_obs where concept = 'Medications dispensed';
 alter table temp_medications_dispensed add index temp_medications_dispensed_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_discharge;
-create temporary table temp_discharge as select encounter_id, value_coded from omrs_obs where concept = 'Discharge';
+create temporary table temp_discharge as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Discharge';
 alter table temp_discharge add index temp_discharge_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_pain;
-create temporary table temp_pain as select encounter_id, value_coded from omrs_obs where concept = 'Pain';
+create temporary table temp_pain as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Pain';
 alter table temp_pain add index temp_pain_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_weak;
-create temporary table temp_weak as select encounter_id, value_coded from omrs_obs where concept = 'Weak';
+create temporary table temp_weak as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Weak';
 alter table temp_weak add index temp_weak_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_food_supplement;
-create temporary table temp_food_supplement as select encounter_id, value_coded from omrs_obs where concept = 'Food supplement';
+create temporary table temp_food_supplement as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Food supplement';
 alter table temp_food_supplement add index temp_food_supplement_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_play_therapy;
-create temporary table temp_play_therapy as select encounter_id, value_coded from omrs_obs where concept = 'Play therapy';
+create temporary table temp_play_therapy as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Play therapy';
 alter table temp_play_therapy add index temp_play_therapy_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_height_cm;
-create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
+create temporary table temp_height_cm as select encounter_id, value_numeric from temp_pdc_trisomy_obs where concept = 'Height (cm)';
 alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_referred_out;
-create temporary table temp_referred_out as select encounter_id, value_coded from omrs_obs where concept = 'Referred out';
+create temporary table temp_referred_out as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Referred out';
 alter table temp_referred_out add index temp_referred_out_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_other_non_coded_text;
-create temporary table temp_other_non_coded_text as select encounter_id, value_text from omrs_obs where concept = 'Other non-coded (text)';
+create temporary table temp_other_non_coded_text as select encounter_id, value_text from temp_pdc_trisomy_obs where concept = 'Other non-coded (text)';
 alter table temp_other_non_coded_text add index temp_other_non_coded_text_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_counseling;
-create temporary table temp_counseling as select encounter_id, value_coded from omrs_obs where concept = 'Counseling';
+create temporary table temp_counseling as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Counseling';
 alter table temp_counseling add index temp_counseling_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_middle_upper_arm_circumference_cm;
-create temporary table temp_middle_upper_arm_circumference_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Middle upper arm circumference (cm)';
+create temporary table temp_middle_upper_arm_circumference_cm as select encounter_id, value_numeric from temp_pdc_trisomy_obs where concept = 'Middle upper arm circumference (cm)';
 alter table temp_middle_upper_arm_circumference_cm add index temp_middle_upper_arm_circumference_cm_encounter (encounter_id);
 
 drop temporary table if exists temp_malawi_developmental_assessment_tool_summary;
-create temporary table temp_malawi_developmental_assessment_tool_summary as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Developmental Assessment Tool Summary (Normal)-(Coded)';
+create temporary table temp_malawi_developmental_assessment_tool_summary as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Malawi Developmental Assessment Tool Summary (Normal)-(Coded)';
 alter table temp_malawi_developmental_assessment_tool_summary add index temp_malawi_dev_assessment_tool_summary (encounter_id);
 
 drop temporary table if exists temp_wasting_malnutrition;
-create temporary table temp_wasting_malnutrition as select encounter_id, value_coded from omrs_obs where concept = 'Wasting/malnutrition';
+create temporary table temp_wasting_malnutrition as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Wasting/malnutrition';
 alter table temp_wasting_malnutrition add index temp_wasting_malnutrition_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_appointment_date;
-create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
+create temporary table temp_appointment_date as select encounter_id, value_date from temp_pdc_trisomy_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_normal_generic;
-create temporary table temp_normal_generic as select encounter_id, value_coded from omrs_obs where concept = 'Normal(Generic)';
+create temporary table temp_normal_generic as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Normal(Generic)';
 alter table temp_normal_generic add index temp_normal_generic_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_physiotherapy;
-create temporary table temp_physiotherapy as select encounter_id, value_coded from omrs_obs where concept = 'Physiotherapy';
+create temporary table temp_physiotherapy as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Physiotherapy';
 alter table temp_physiotherapy add index temp_physiotherapy_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_poor_growth;
-create temporary table temp_poor_growth as select encounter_id, value_coded from omrs_obs where concept = 'Poor Growth';
+create temporary table temp_poor_growth as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Poor Growth';
 alter table temp_poor_growth add index temp_poor_growth_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_apnea;
-create temporary table temp_apnea as select encounter_id, value_coded from omrs_obs where concept = 'Apnea';
+create temporary table temp_apnea as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Apnea';
 alter table temp_apnea add index temp_apnea_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_choking;
-create temporary table temp_choking as select encounter_id, value_coded from omrs_obs where concept = 'Choking';
+create temporary table temp_choking as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Choking';
 alter table temp_choking add index temp_choking_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_patient_vomiting;
-create temporary table temp_patient_vomiting as select encounter_id, value_coded from omrs_obs where concept = 'Patient Vomiting';
+create temporary table temp_patient_vomiting as select encounter_id, value_coded from temp_pdc_trisomy_obs where concept = 'Patient Vomiting';
 alter table temp_patient_vomiting add index temp_patient_vomiting_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_weight_kg;
-create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
+create temporary table temp_weight_kg as select encounter_id, value_numeric from temp_pdc_trisomy_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
 insert into mw_pdc_trisomy_21_followup (patient_id, visit_date, location, adjust_dose, anticonvulsant, continue_followup, diarrhea_persistent, drug_and_dose, ear_discharge, ear_pain, extremities_pain, extremities_weakness, feeding_counselling, group_counselling_and_play_therapy, height, if_referred_out, if_referred_out_specify, individual_counselling, muac, mdat, malnutrition, next_appointment_date, passage_normal, physiotherapy, referred_out, referred_out_specify, referred_to_poser, sleep_apnea, sleep_chocking, vomiting, weight)

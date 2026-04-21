@@ -32,96 +32,106 @@ create table mw_sickle_cell_disease_followup (
   next_appointment_date			date,
   primary key (sickle_cell_disease_followup_visit_id));
 
+drop temporary table if exists temp_sickle_cell_followup_obs;
+create temporary table temp_sickle_cell_followup_obs as
+select encounter_id, obs_group_id, concept, value_coded, value_numeric, value_date, value_text
+from omrs_obs
+where encounter_type = 'SICKLE_CELL_DISEASE_FOLLOWUP';
+alter table temp_sickle_cell_followup_obs add index temp_sickle_cell_followup_obs_concept_idx (concept);
+alter table temp_sickle_cell_followup_obs add index temp_sickle_cell_followup_obs_encounter_idx (encounter_id);
+alter table temp_sickle_cell_followup_obs add index temp_sickle_cell_followup_obs_group_idx (obs_group_id);
+
+
 drop temporary table if exists temp_lung_exam_findings;
-create temporary table temp_lung_exam_findings as select encounter_id, value_coded from omrs_obs where concept = 'Lung exam findings';
+create temporary table temp_lung_exam_findings as select encounter_id, value_coded from temp_sickle_cell_followup_obs where concept = 'Lung exam findings';
 alter table temp_lung_exam_findings add index temp_lung_exam_findings_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_attended_school_ever;
-create temporary table temp_attended_school_ever as select encounter_id, value_coded from omrs_obs where concept = 'Attended school ever';
+create temporary table temp_attended_school_ever as select encounter_id, value_coded from temp_sickle_cell_followup_obs where concept = 'Attended school ever';
 alter table temp_attended_school_ever add index temp_attended_school_ever_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_or_last_week_taking_antibiotics;
-create temporary table temp_or_last_week_taking_antibiotics as select encounter_id, value_coded from omrs_obs where concept = 'Currently (or in the last week) taking antibiotics';
+create temporary table temp_or_last_week_taking_antibiotics as select encounter_id, value_coded from temp_sickle_cell_followup_obs where concept = 'Currently (or in the last week) taking antibiotics';
 alter table temp_or_last_week_taking_antibiotics add index temp_or_last_week_taking_antibiotics_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_ascites;
-create temporary table temp_ascites as select encounter_id, value_coded from omrs_obs where concept = 'Ascites';
+create temporary table temp_ascites as select encounter_id, value_coded from temp_sickle_cell_followup_obs where concept = 'Ascites';
 alter table temp_ascites add index temp_ascites_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_body_mass_index_measured;
-create temporary table temp_body_mass_index_measured as select encounter_id, value_numeric from omrs_obs where concept = 'Body mass index, measured';
+create temporary table temp_body_mass_index_measured as select encounter_id, value_numeric from temp_sickle_cell_followup_obs where concept = 'Body mass index, measured';
 alter table temp_body_mass_index_measured add index temp_body_mass_index_measured_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diastolic_blood_pressure;
-create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Diastolic blood pressure';
+create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from temp_sickle_cell_followup_obs where concept = 'Diastolic blood pressure';
 alter table temp_diastolic_blood_pressure add index temp_diastolic_blood_pressure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_systolic_blood_pressure;
-create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Systolic blood pressure';
+create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from temp_sickle_cell_followup_obs where concept = 'Systolic blood pressure';
 alter table temp_systolic_blood_pressure add index temp_systolic_blood_pressure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_enlarged_liver;
-create temporary table temp_enlarged_liver as select encounter_id, value_coded from omrs_obs where concept = 'Enlarged Liver';
+create temporary table temp_enlarged_liver as select encounter_id, value_coded from temp_sickle_cell_followup_obs where concept = 'Enlarged Liver';
 alter table temp_enlarged_liver add index temp_enlarged_liver_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_complications_since_last_visit;
-create temporary table temp_complications_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Complications since last visit';
+create temporary table temp_complications_since_last_visit as select encounter_id, value_coded from temp_sickle_cell_followup_obs where concept = 'Complications since last visit';
 alter table temp_complications_since_last_visit add index temp_complications_since_last_visit_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_patient_experiences_fevers_chills_night;
-create temporary table temp_patient_experiences_fevers_chills_night as select encounter_id, value_coded from omrs_obs where concept = 'Patient experiences fevers, chills, night sweats, or productive cough';
+create temporary table temp_patient_experiences_fevers_chills_night as select encounter_id, value_coded from temp_sickle_cell_followup_obs where concept = 'Patient experiences fevers, chills, night sweats, or productive cough';
 alter table temp_patient_experiences_fevers_chills_night add index temp_patient_experiences_fevers_chills_night_2 (encounter_id);
 
 drop temporary table if exists temp_pulse;
-create temporary table temp_pulse as select encounter_id, value_numeric from omrs_obs where concept = 'Pulse';
+create temporary table temp_pulse as select encounter_id, value_numeric from temp_sickle_cell_followup_obs where concept = 'Pulse';
 alter table temp_pulse add index temp_pulse_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_height_cm;
-create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
+create temporary table temp_height_cm as select encounter_id, value_numeric from temp_sickle_cell_followup_obs where concept = 'Height (cm)';
 alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_patient_hospitalized_since_last_visit;
-create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Patient hospitalized since last visit';
+create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from temp_sickle_cell_followup_obs where concept = 'Patient hospitalized since last visit';
 alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_2 (encounter_id);
 
 drop temporary table if exists temp_diagnosis_resolved;
-create temporary table temp_diagnosis_resolved as select encounter_id, value_coded from omrs_obs where concept = 'Diagnosis resolved';
+create temporary table temp_diagnosis_resolved as select encounter_id, value_coded from temp_sickle_cell_followup_obs where concept = 'Diagnosis resolved';
 alter table temp_diagnosis_resolved add index temp_diagnosis_resolved_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_extremity_exam_findings;
-create temporary table temp_extremity_exam_findings as select encounter_id, value_coded from omrs_obs where concept = 'Extremity exam findings';
+create temporary table temp_extremity_exam_findings as select encounter_id, value_coded from temp_sickle_cell_followup_obs where concept = 'Extremity exam findings';
 alter table temp_extremity_exam_findings add index temp_extremity_exam_findings_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_malaria;
-create temporary table temp_malaria as select encounter_id, value_coded from omrs_obs where concept = 'Malaria';
+create temporary table temp_malaria as select encounter_id, value_coded from temp_sickle_cell_followup_obs where concept = 'Malaria';
 alter table temp_malaria add index temp_malaria_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_medication_side_effects;
-create temporary table temp_medication_side_effects as select encounter_id, value_coded from omrs_obs where concept = 'Medication Side Effects';
+create temporary table temp_medication_side_effects as select encounter_id, value_coded from temp_sickle_cell_followup_obs where concept = 'Medication Side Effects';
 alter table temp_medication_side_effects add index temp_medication_side_effects_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_pain;
-create temporary table temp_pain as select encounter_id, value_coded from omrs_obs where concept = 'Pain';
+create temporary table temp_pain as select encounter_id, value_coded from temp_sickle_cell_followup_obs where concept = 'Pain';
 alter table temp_pain add index temp_pain_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_blood_oxygen_saturation;
-create temporary table temp_blood_oxygen_saturation as select encounter_id, value_numeric from omrs_obs where concept = 'Blood oxygen saturation';
+create temporary table temp_blood_oxygen_saturation as select encounter_id, value_numeric from temp_sickle_cell_followup_obs where concept = 'Blood oxygen saturation';
 alter table temp_blood_oxygen_saturation add index temp_blood_oxygen_saturation_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_temperature_c;
-create temporary table temp_temperature_c as select encounter_id, value_numeric from omrs_obs where concept = 'Temperature (c)';
+create temporary table temp_temperature_c as select encounter_id, value_numeric from temp_sickle_cell_followup_obs where concept = 'Temperature (c)';
 alter table temp_temperature_c add index temp_temperature_c_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_weight_kg;
-create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
+create temporary table temp_weight_kg as select encounter_id, value_numeric from temp_sickle_cell_followup_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_appointment_date;
-create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
+create temporary table temp_appointment_date as select encounter_id, value_date from temp_sickle_cell_followup_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_haemoglobin;
-create temporary table temp_haemoglobin as select encounter_id, value_numeric from omrs_obs where concept = 'Haemoglobin';
+create temporary table temp_haemoglobin as select encounter_id, value_numeric from temp_sickle_cell_followup_obs where concept = 'Haemoglobin';
 alter table temp_haemoglobin add index temp_haemoglobin_encounter_idx (encounter_id);
 
 insert into mw_sickle_cell_disease_followup (patient_id, visit_date, location, abnormal_lungs_exam, absence_from_school, antibiotics_rx, ascites, bmi_muac, bp_diastolic, bp_systolic, enlarged_liver, enlarged_spleen, fever, hr, height, hospitalized_since_last_visit, irregular_conjunctiva, jaundice, medication_rx, medication_side_effects, pain, spo2, temperature, weight, next_appointment_date, hb)

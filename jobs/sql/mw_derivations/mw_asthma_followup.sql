@@ -58,80 +58,89 @@ create table mw_asthma_followup
     primary key (asthma_followup_visit_id)
 );
 
+drop temporary table if exists temp_asthma_followup_obs;
+create temporary table temp_asthma_followup_obs as
+select encounter_id, obs_group_id, concept, value_coded, value_numeric, value_date, value_text
+from omrs_obs
+where encounter_type = 'ASTHMA_FOLLOWUP';
+alter table temp_asthma_followup_obs add index temp_asthma_followup_obs_concept_idx (concept);
+alter table temp_asthma_followup_obs add index temp_asthma_followup_obs_encounter_idx (encounter_id);
+alter table temp_asthma_followup_obs add index temp_asthma_followup_obs_group_idx (obs_group_id);
+
 drop temporary table if exists temp_asthma_classification;
-create temporary table temp_asthma_classification as select encounter_id, value_coded from omrs_obs where concept = 'Asthma classification';
+create temporary table temp_asthma_classification as select encounter_id, value_coded from temp_asthma_followup_obs where concept = 'Asthma classification';
 alter table temp_asthma_classification add index temp_asthma_classification_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_location_of_cooking;
-create temporary table temp_location_of_cooking as select encounter_id, value_coded from omrs_obs where concept = 'Location of cooking';
+create temporary table temp_location_of_cooking as select encounter_id, value_coded from temp_asthma_followup_obs where concept = 'Location of cooking';
 alter table temp_location_of_cooking add index temp_location_of_cooking_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_chronic_care_diagnosis;
-create temporary table temp_chronic_care_diagnosis as select encounter_id, value_coded from omrs_obs where concept = 'Chronic care diagnosis';
+create temporary table temp_chronic_care_diagnosis as select encounter_id, value_coded from temp_asthma_followup_obs where concept = 'Chronic care diagnosis';
 alter table temp_chronic_care_diagnosis add index temp_chronic_care_diagnosis_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_daytime_symptom_frequency;
-create temporary table temp_daytime_symptom_frequency as select encounter_id, value_numeric from omrs_obs where concept = 'Daytime symptom frequency';
+create temporary table temp_daytime_symptom_frequency as select encounter_id, value_numeric from temp_asthma_followup_obs where concept = 'Daytime symptom frequency';
 alter table temp_daytime_symptom_frequency add index temp_daytime_symptom_frequency_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_asthma_exacerbation_today;
-create temporary table temp_asthma_exacerbation_today as select encounter_id, value_coded from omrs_obs where concept = 'Asthma exacerbation today';
+create temporary table temp_asthma_exacerbation_today as select encounter_id, value_coded from temp_asthma_followup_obs where concept = 'Asthma exacerbation today';
 alter table temp_asthma_exacerbation_today add index temp_asthma_exacerbation_today_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_height_cm;
-create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
+create temporary table temp_height_cm as select encounter_id, value_numeric from temp_asthma_followup_obs where concept = 'Height (cm)';
 alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_inhaler_use_per_day;
-create temporary table temp_inhaler_use_per_day as select encounter_id, value_numeric from omrs_obs where concept = 'Inhaler use per day';
+create temporary table temp_inhaler_use_per_day as select encounter_id, value_numeric from temp_asthma_followup_obs where concept = 'Inhaler use per day';
 alter table temp_inhaler_use_per_day add index temp_inhaler_use_per_day_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_inhaler_use_per_month;
-create temporary table temp_inhaler_use_per_month as select encounter_id, value_numeric from omrs_obs where concept = 'Inhaler use per month';
+create temporary table temp_inhaler_use_per_month as select encounter_id, value_numeric from temp_asthma_followup_obs where concept = 'Inhaler use per month';
 alter table temp_inhaler_use_per_month add index temp_inhaler_use_per_month_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_inhaler_use_per_week;
-create temporary table temp_inhaler_use_per_week as select encounter_id, value_numeric from omrs_obs where concept = 'Inhaler use per week';
+create temporary table temp_inhaler_use_per_week as select encounter_id, value_numeric from temp_asthma_followup_obs where concept = 'Inhaler use per week';
 alter table temp_inhaler_use_per_week add index temp_inhaler_use_per_week_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_number_of_times_inhaler_is_used_in_a_year;
-create temporary table temp_number_of_times_inhaler_is_used_in_a_year as select encounter_id, value_numeric from omrs_obs where concept = 'Number of times inhaler is used in a year';
+create temporary table temp_number_of_times_inhaler_is_used_in_a_year as select encounter_id, value_numeric from temp_asthma_followup_obs where concept = 'Number of times inhaler is used in a year';
 alter table temp_number_of_times_inhaler_is_used_in_a_year add index temp_number_times_inhaler_used_year_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_nighttime_symptom_frequency;
-create temporary table temp_nighttime_symptom_frequency as select encounter_id, value_numeric from omrs_obs where concept = 'Nighttime symptom frequency';
+create temporary table temp_nighttime_symptom_frequency as select encounter_id, value_numeric from temp_asthma_followup_obs where concept = 'Nighttime symptom frequency';
 alter table temp_nighttime_symptom_frequency add index temp_nighttime_symptom_frequency_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_number_of_cigarettes_smoked_per_day;
-create temporary table temp_number_of_cigarettes_smoked_per_day as select encounter_id, value_numeric from omrs_obs where concept = 'Number of cigarettes smoked per day';
+create temporary table temp_number_of_cigarettes_smoked_per_day as select encounter_id, value_numeric from temp_asthma_followup_obs where concept = 'Number of cigarettes smoked per day';
 alter table temp_number_of_cigarettes_smoked_per_day add index temp_number_cigarettes_smoked_per_day_encounter (encounter_id);
 
 drop temporary table if exists temp_other_diagnosis;
-create temporary table temp_other_diagnosis as select encounter_id, value_text from omrs_obs where concept = 'Other diagnosis';
+create temporary table temp_other_diagnosis as select encounter_id, value_text from temp_asthma_followup_obs where concept = 'Other diagnosis';
 alter table temp_other_diagnosis add index temp_other_diagnosis_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_exposed_to_second_hand_smoke;
-create temporary table temp_exposed_to_second_hand_smoke as select encounter_id, value_coded from omrs_obs where concept = 'Exposed to second hand smoke?';
+create temporary table temp_exposed_to_second_hand_smoke as select encounter_id, value_coded from temp_asthma_followup_obs where concept = 'Exposed to second hand smoke?';
 alter table temp_exposed_to_second_hand_smoke add index temp_exposed_to_second_hand_smoke_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_scheduled_visit;
-create temporary table temp_scheduled_visit as select encounter_id, value_coded from omrs_obs where concept = 'Scheduled visit';
+create temporary table temp_scheduled_visit as select encounter_id, value_coded from temp_asthma_followup_obs where concept = 'Scheduled visit';
 alter table temp_scheduled_visit add index temp_scheduled_visit_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_daily_inhaled_steroid_use;
-create temporary table temp_daily_inhaled_steroid_use as select encounter_id, value_coded from omrs_obs where concept = 'Daily inhaled steroid use';
+create temporary table temp_daily_inhaled_steroid_use as select encounter_id, value_coded from temp_asthma_followup_obs where concept = 'Daily inhaled steroid use';
 alter table temp_daily_inhaled_steroid_use add index temp_daily_inhaled_steroid_use_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_weight_kg;
-create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
+create temporary table temp_weight_kg as select encounter_id, value_numeric from temp_asthma_followup_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_clinical_impression_comments;
-create temporary table temp_clinical_impression_comments as select encounter_id, value_text from omrs_obs where concept = 'Clinical impression comments';
+create temporary table temp_clinical_impression_comments as select encounter_id, value_text from temp_asthma_followup_obs where concept = 'Clinical impression comments';
 alter table temp_clinical_impression_comments add index temp_clinical_impression_comments_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_appointment_date;
-create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
+create temporary table temp_appointment_date as select encounter_id, value_date from temp_asthma_followup_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
 -- Build temp_medications in three steps to avoid a full scan of the ~20M-row omrs_obs table.
@@ -141,16 +150,15 @@ alter table temp_appointment_date add index temp_appointment_date_encounter_idx 
 drop temporary table if exists temp_drug_name_obs;
 create temporary table temp_drug_name_obs as
 select obs_id, encounter_id, obs_group_id, value_coded as treatment_name
-from omrs_obs
-where concept = 'Chronic lung disease treatment'
-  and encounter_type = 'ASTHMA_FOLLOWUP';
+from temp_asthma_followup_obs
+where concept = 'Chronic lung disease treatment';
 alter table temp_drug_name_obs add index temp_drug_name_obs_group_idx (obs_group_id);
 alter table temp_drug_name_obs add index temp_drug_name_obs_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_drug_detail_obs;
 create temporary table temp_drug_detail_obs as
 select obs_group_id, concept, value_coded, value_numeric
-from omrs_obs
+from temp_asthma_followup_obs
 where obs_group_id in (select obs_group_id from temp_drug_name_obs)
   and concept in ('Drug frequency coded', 'Quantity of medication prescribed per dose',
                   'Dosing unit', 'Routes of administration (coded)',

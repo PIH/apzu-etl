@@ -129,6 +129,15 @@ create table mw_chf_followup (
   primary key (chf_followup_visit_id)
 ) ;
 
+drop temporary table if exists temp_chf_followup_obs;
+create temporary table temp_chf_followup_obs as
+select encounter_id, obs_group_id, concept, value_coded, value_numeric, value_date, value_text
+from omrs_obs
+where encounter_type = 'CHF_FOLLOWUP';
+alter table temp_chf_followup_obs add index temp_chf_followup_obs_concept_idx (concept);
+alter table temp_chf_followup_obs add index temp_chf_followup_obs_encounter_idx (encounter_id);
+alter table temp_chf_followup_obs add index temp_chf_followup_obs_group_idx (obs_group_id);
+
 -- Build temp_medications in three steps to avoid a full scan of the ~20M-row omrs_obs table.
 -- Step 1: pull only the drug-name obs for this encounter type (~20M rows → small set).
 -- Step 2: pull only the detail obs whose obs_group_id appears in step 1 (indexed lookup).
@@ -136,16 +145,15 @@ create table mw_chf_followup (
 drop temporary table if exists temp_drug_name_obs;
 create temporary table temp_drug_name_obs as
 select obs_id, encounter_id, obs_group_id, value_coded as drug_name
-from omrs_obs
-where concept = 'Current drugs used'
-  and encounter_type = 'CHF_FOLLOWUP';
+from temp_chf_followup_obs
+where concept = 'Current drugs used';
 alter table temp_drug_name_obs add index temp_drug_name_obs_group_idx (obs_group_id);
 alter table temp_drug_name_obs add index temp_drug_name_obs_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_drug_detail_obs;
 create temporary table temp_drug_detail_obs as
 select obs_group_id, concept, value_coded, value_numeric
-from omrs_obs
+from temp_chf_followup_obs
 where obs_group_id in (select obs_group_id from temp_drug_name_obs)
   and concept in ('Drug frequency coded', 'Quantity of medication prescribed per dose',
                   'Dosing unit', 'Routes of administration (coded)',
@@ -222,119 +230,119 @@ create temporary table temp_med_benzathine as select * from temp_medications whe
 alter table temp_med_benzathine add index temp_med_benzathine_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_current_drugs_used;
-create temporary table temp_current_drugs_used as select encounter_id, value_coded from omrs_obs where concept = 'Current drugs used';
+create temporary table temp_current_drugs_used as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Current drugs used';
 alter table temp_current_drugs_used add index temp_current_drugs_used_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_history_of_alcohol_use;
-create temporary table temp_history_of_alcohol_use as select encounter_id, value_coded from omrs_obs where concept = 'History of alcohol use';
+create temporary table temp_history_of_alcohol_use as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'History of alcohol use';
 alter table temp_history_of_alcohol_use add index temp_history_of_alcohol_use_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_bibasilar_crackles;
-create temporary table temp_bibasilar_crackles as select encounter_id, value_coded from omrs_obs where concept = 'Bibasilar crackles';
+create temporary table temp_bibasilar_crackles as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Bibasilar crackles';
 alter table temp_bibasilar_crackles add index temp_bibasilar_crackles_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diastolic_blood_pressure;
-create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Diastolic blood pressure';
+create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from temp_chf_followup_obs where concept = 'Diastolic blood pressure';
 alter table temp_diastolic_blood_pressure add index temp_diastolic_blood_pressure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_systolic_blood_pressure;
-create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Systolic blood pressure';
+create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from temp_chf_followup_obs where concept = 'Systolic blood pressure';
 alter table temp_systolic_blood_pressure add index temp_systolic_blood_pressure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_concern_for_depression_or_anxiety;
-create temporary table temp_concern_for_depression_or_anxiety as select encounter_id, value_coded from omrs_obs where concept = 'Concern for depression or anxiety';
+create temporary table temp_concern_for_depression_or_anxiety as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Concern for depression or anxiety';
 alter table temp_concern_for_depression_or_anxiety add index temp_concern_depression_or_anxiety_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_low_salt_diet_recommended;
-create temporary table temp_low_salt_diet_recommended as select encounter_id, value_coded from omrs_obs where concept = 'Low salt diet recommended';
+create temporary table temp_low_salt_diet_recommended as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Low salt diet recommended';
 alter table temp_low_salt_diet_recommended add index temp_low_salt_diet_recommended_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_level_of_dry_cough;
-create temporary table temp_level_of_dry_cough as select encounter_id, value_coded from omrs_obs where concept = 'Level of dry cough';
+create temporary table temp_level_of_dry_cough as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Level of dry cough';
 alter table temp_level_of_dry_cough add index temp_level_of_dry_cough_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_dyspnea_on_extertion;
-create temporary table temp_dyspnea_on_extertion as select encounter_id, value_coded from omrs_obs where concept = 'Dyspnea on extertion';
+create temporary table temp_dyspnea_on_extertion as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Dyspnea on extertion';
 alter table temp_dyspnea_on_extertion add index temp_dyspnea_on_extertion_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_level_of_fatigue;
-create temporary table temp_level_of_fatigue as select encounter_id, value_coded from omrs_obs where concept = 'Level of fatigue';
+create temporary table temp_level_of_fatigue as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Level of fatigue';
 alter table temp_level_of_fatigue add index temp_level_of_fatigue_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_pulse;
-create temporary table temp_pulse as select encounter_id, value_numeric from omrs_obs where concept = 'Pulse';
+create temporary table temp_pulse as select encounter_id, value_numeric from temp_chf_followup_obs where concept = 'Pulse';
 alter table temp_pulse add index temp_pulse_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_height_cm;
-create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
+create temporary table temp_height_cm as select encounter_id, value_numeric from temp_chf_followup_obs where concept = 'Height (cm)';
 alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_hospitalized_non_communicable_disease_since;
-create temporary table temp_hospitalized_non_communicable_disease_since as select encounter_id, value_coded from omrs_obs where concept = 'Hospitalized for non-communicable disease since last visit';
+create temporary table temp_hospitalized_non_communicable_disease_since as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Hospitalized for non-communicable disease since last visit';
 alter table temp_hospitalized_non_communicable_disease_since add index temp_hospitalized_ncd_since_last_visit_encounter (encounter_id);
 
 drop temporary table if exists temp_jugular_venous_pressure_elevated;
-create temporary table temp_jugular_venous_pressure_elevated as select encounter_id, value_coded from omrs_obs where concept = 'Jugular venous pressure elevated';
+create temporary table temp_jugular_venous_pressure_elevated as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Jugular venous pressure elevated';
 alter table temp_jugular_venous_pressure_elevated add index temp_jugular_venous_pressure_elevated_encounter (encounter_id);
 
 drop temporary table if exists temp_mental_health_referral;
-create temporary table temp_mental_health_referral as select encounter_id, value_coded from omrs_obs where concept = 'Mental health referral';
+create temporary table temp_mental_health_referral as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Mental health referral';
 alter table temp_mental_health_referral add index temp_mental_health_referral_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_appointment_date;
-create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
+create temporary table temp_appointment_date as select encounter_id, value_date from temp_chf_followup_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_nyha_class;
-create temporary table temp_nyha_class as select encounter_id, value_coded from omrs_obs where concept = 'Nyha class';
+create temporary table temp_nyha_class as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Nyha class';
 alter table temp_nyha_class add index temp_nyha_class_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_oedema;
-create temporary table temp_oedema as select encounter_id, value_coded from omrs_obs where concept = 'Oedema';
+create temporary table temp_oedema as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Oedema';
 alter table temp_oedema add index temp_oedema_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_level_of_orthopnea;
-create temporary table temp_level_of_orthopnea as select encounter_id, value_coded from omrs_obs where concept = 'Level of orthopnea';
+create temporary table temp_level_of_orthopnea as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Level of orthopnea';
 alter table temp_level_of_orthopnea add index temp_level_of_orthopnea_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_other_chronic_heart_failure_drugs;
-create temporary table temp_other_chronic_heart_failure_drugs as select encounter_id, value_text from omrs_obs where concept = 'Other chronic heart failure drugs';
+create temporary table temp_other_chronic_heart_failure_drugs as select encounter_id, value_text from temp_chf_followup_obs where concept = 'Other chronic heart failure drugs';
 alter table temp_other_chronic_heart_failure_drugs add index temp_other_chronic_heart_failure_drugs_encounter (encounter_id);
 
 drop temporary table if exists temp_palliative_care_referral;
-create temporary table temp_palliative_care_referral as select encounter_id, value_coded from omrs_obs where concept = 'Palliative care referral';
+create temporary table temp_palliative_care_referral as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Palliative care referral';
 alter table temp_palliative_care_referral add index temp_palliative_care_referral_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_follow_up_agreement;
-create temporary table temp_follow_up_agreement as select encounter_id, value_coded from omrs_obs where concept = 'Follow up agreement';
+create temporary table temp_follow_up_agreement as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Follow up agreement';
 alter table temp_follow_up_agreement add index temp_follow_up_agreement_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_salt_or_fluid_restricted;
-create temporary table temp_salt_or_fluid_restricted as select encounter_id, value_coded from omrs_obs where concept = 'Salt or fluid restricted';
+create temporary table temp_salt_or_fluid_restricted as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Salt or fluid restricted';
 alter table temp_salt_or_fluid_restricted add index temp_salt_or_fluid_restricted_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_blood_oxygen_saturation;
-create temporary table temp_blood_oxygen_saturation as select encounter_id, value_numeric from omrs_obs where concept = 'Blood oxygen saturation';
+create temporary table temp_blood_oxygen_saturation as select encounter_id, value_numeric from temp_chf_followup_obs where concept = 'Blood oxygen saturation';
 alter table temp_blood_oxygen_saturation add index temp_blood_oxygen_saturation_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_smoking_history;
-create temporary table temp_smoking_history as select encounter_id, value_coded from omrs_obs where concept = 'Smoking history';
+create temporary table temp_smoking_history as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Smoking history';
 alter table temp_smoking_history add index temp_smoking_history_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_took_medications_today;
-create temporary table temp_took_medications_today as select encounter_id, value_coded from omrs_obs where concept = 'Took medications today';
+create temporary table temp_took_medications_today as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Took medications today';
 alter table temp_took_medications_today add index temp_took_medications_today_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_patients_fluid_management;
-create temporary table temp_patients_fluid_management as select encounter_id, value_coded from omrs_obs where concept = 'Patients fluid management';
+create temporary table temp_patients_fluid_management as select encounter_id, value_coded from temp_chf_followup_obs where concept = 'Patients fluid management';
 alter table temp_patients_fluid_management add index temp_patients_fluid_management_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_weight_kg;
-create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
+create temporary table temp_weight_kg as select encounter_id, value_numeric from temp_chf_followup_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_weight_change;
-create temporary table temp_weight_change as select encounter_id, value_text from omrs_obs where concept = 'Weight change';
+create temporary table temp_weight_change as select encounter_id, value_text from temp_chf_followup_obs where concept = 'Weight change';
 alter table temp_weight_change add index temp_weight_change_encounter_idx (encounter_id);
 
 insert into mw_chf_followup (patient_id, visit_date, location, benzathine_dose, ace_i_enal_dose, diuretic_furp_dose, ccb_nif_dose, diuretic_spiro_dose, ccb_aml_dose, ccb_aml_dosing_unit, ccb_aml_duration, ccb_aml_duration_units, ccb_aml_frequency, ccb_aml_route, asprin_asa_dose, asprin_asa_dosing_unit, asprin_asa_duration, asprin_asa_duration_units, asprin_asa_frequency, asprin_asa_route, bb_aten_dose, bb_aten_dosing_unit, bb_aten_duration, bb_aten_duration_units, bb_aten_frequency, bb_aten_route, benzathine_dosing_unit, benzathine_duration, benzathine_duration_units, benzathine_frequency, benzathine_route, bb_bis_dose, bb_bis_dosing_unit, bb_bis_duration, bb_bis_duration_units, bb_bis_frequency, bb_bis_route, ace_i_capt_dose, ace_i_capt_dosing_unit, ace_i_capt_duration, ace_i_capt_duration_units, ace_i_capt_frequency, ace_i_capt_route, ace_i_enal_dosing_unit, ace_i_enal_duration, ace_i_enal_duration_units, ace_i_enal_frequency, ace_i_enal_route, diuretic_furp_dosing_unit, diuretic_furp_duration, diuretic_furp_duration_units, diuretic_furp_frequency, diuretic_furp_route, diuretic_hctz_dose, diuretic_hctz_dosing_unit, diuretic_hctz_duration, diuretic_hctz_duration_units, diuretic_hctz_frequency, diuretic_hctz_route, ace_i_lisin_dose, ace_i_lisin_dosing_unit, ace_i_lisin_duration, ace_i_lisin_duration_units, ace_i_lisin_frequency, ace_i_lisin_route, ccb_nif_dosing_unit, ccb_nif_duration, ccb_nif_frequency, ccb_nif_route, ccb_nif_duration_units, bb_prop_dose, bb_prop_dosing_unit, bb_prop_duration, bb_prop_duration_units, bb_prop_frequency, bb_prop_route, diuretic_spiro_dosing_unit, diuretic_spiro_duration, diuretic_spiro_duration_units, diuretic_spiro_frequency, diuretic_spiro_route, ace_i_capt, ace_i_enal, ace_i_lisin, alcohol, aspirin, bb_aten, bb_bis, bb_prop, benzathine, bibasilar_crackles, bp_diastolic, bp_systolic, ccb_aml, ccb_nif, concern_for_depression_or_anxiety, diet_salt_or_fluid, diuretic_furo, diuretic_hctz, diuretic_spiro, dry_cough, dyspnea_on_exertion, fatigue, heart_rate, height, hospitalized_since_last_visit_for_ncd, jvp_elevated, mental_health_referral, next_appointment_date, nyha_stage, oedema, orthopnea, other_medications, palliative_referral, request_chw_f_u, salt_or_fluid_restricted, spo2, tobacco, took_medications_today, volume_status, weight, weight_change)

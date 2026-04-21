@@ -52,168 +52,177 @@ create table mw_diabetes_hypertension_followup
     primary key (followup_visit_id)
 );
 
+drop temporary table if exists temp_dh_followup_obs;
+create temporary table temp_dh_followup_obs as
+select encounter_id, obs_group_id, concept, value_coded, value_numeric, value_date, value_text
+from omrs_obs
+where encounter_type = 'DIABETES HYPERTENSION FOLLOWUP';
+alter table temp_dh_followup_obs add index temp_dh_followup_obs_concept_idx (concept);
+alter table temp_dh_followup_obs add index temp_dh_followup_obs_encounter_idx (encounter_id);
+alter table temp_dh_followup_obs add index temp_dh_followup_obs_group_idx (obs_group_id);
+
 drop temporary table if exists temp_history_of_alcohol_use;
-create temporary table temp_history_of_alcohol_use as select encounter_id, value_coded from omrs_obs where concept = 'History of alcohol use';
+create temporary table temp_history_of_alcohol_use as select encounter_id, value_coded from temp_dh_followup_obs where concept = 'History of alcohol use';
 alter table temp_history_of_alcohol_use add index temp_history_of_alcohol_use_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_systolic_blood_pressure;
-create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Systolic blood pressure';
+create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from temp_dh_followup_obs where concept = 'Systolic blood pressure';
 alter table temp_systolic_blood_pressure add index temp_systolic_blood_pressure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_blood_sugar_test_type;
-create temporary table temp_blood_sugar_test_type as select encounter_id, value_coded from omrs_obs where concept = 'Blood sugar test type';
+create temporary table temp_blood_sugar_test_type as select encounter_id, value_coded from temp_dh_followup_obs where concept = 'Blood sugar test type';
 alter table temp_blood_sugar_test_type add index temp_blood_sugar_test_type_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_body_mass_index_coded;
-create temporary table temp_body_mass_index_coded as select encounter_id, value_coded from omrs_obs where concept = 'Body Mass Index, coded';
+create temporary table temp_body_mass_index_coded as select encounter_id, value_coded from temp_dh_followup_obs where concept = 'Body Mass Index, coded';
 alter table temp_body_mass_index_coded add index temp_body_mass_index_coded_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_cardiovascular_risk_score;
-create temporary table temp_cardiovascular_risk_score as select encounter_id, value_numeric from omrs_obs where concept = 'Cardiovascular risk score';
+create temporary table temp_cardiovascular_risk_score as select encounter_id, value_numeric from temp_dh_followup_obs where concept = 'Cardiovascular risk score';
 alter table temp_cardiovascular_risk_score add index temp_cardiovascular_risk_score_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_days_per_week_of_moderate_exercise;
-create temporary table temp_days_per_week_of_moderate_exercise as select encounter_id, value_numeric from omrs_obs where concept = 'Days per week of moderate exercise';
+create temporary table temp_days_per_week_of_moderate_exercise as select encounter_id, value_numeric from temp_dh_followup_obs where concept = 'Days per week of moderate exercise';
 alter table temp_days_per_week_of_moderate_exercise add index temp_days_per_week_moderate_exercise_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_deformity_of_foot;
-create temporary table temp_deformity_of_foot as select encounter_id, value_coded from omrs_obs where concept = 'Deformity of foot';
+create temporary table temp_deformity_of_foot as select encounter_id, value_coded from temp_dh_followup_obs where concept = 'Deformity of foot';
 alter table temp_deformity_of_foot add index temp_deformity_of_foot_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diastolic_blood_pressure;
-create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Diastolic blood pressure';
+create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from temp_dh_followup_obs where concept = 'Diastolic blood pressure';
 alter table temp_diastolic_blood_pressure add index temp_diastolic_blood_pressure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_serum_glucose;
-create temporary table temp_serum_glucose as select encounter_id, value_numeric from omrs_obs where concept = 'Serum glucose';
+create temporary table temp_serum_glucose as select encounter_id, value_numeric from temp_dh_followup_obs where concept = 'Serum glucose';
 alter table temp_serum_glucose add index temp_serum_glucose_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_glycated_hemoglobin;
-create temporary table temp_glycated_hemoglobin as select encounter_id, value_numeric from omrs_obs where concept = 'Glycated hemoglobin';
+create temporary table temp_glycated_hemoglobin as select encounter_id, value_numeric from temp_dh_followup_obs where concept = 'Glycated hemoglobin';
 alter table temp_glycated_hemoglobin add index temp_glycated_hemoglobin_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_height_cm;
-create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
+create temporary table temp_height_cm as select encounter_id, value_numeric from temp_dh_followup_obs where concept = 'Height (cm)';
 alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_neuropathy_and_peripheral_vascular_disease;
-create temporary table temp_neuropathy_and_peripheral_vascular_disease as select encounter_id, value_coded from omrs_obs where concept = 'Neuropathy and Peripheral Vascular Disease';
+create temporary table temp_neuropathy_and_peripheral_vascular_disease as select encounter_id, value_coded from temp_dh_followup_obs where concept = 'Neuropathy and Peripheral Vascular Disease';
 alter table temp_neuropathy_and_peripheral_vascular_disease add index temp_neuropathy_and_peripheral_vascular_disease_2 (encounter_id);
 
 drop temporary table if exists temp_appointment_date;
-create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
+create temporary table temp_appointment_date as select encounter_id, value_date from temp_dh_followup_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_number_servings_fruits_and_vegetables;
-create temporary table temp_number_servings_fruits_and_vegetables as select encounter_id, value_numeric from omrs_obs where concept = 'Number of servings of fruits and vegetables consumed per day';
+create temporary table temp_number_servings_fruits_and_vegetables as select encounter_id, value_numeric from temp_dh_followup_obs where concept = 'Number of servings of fruits and vegetables consumed per day';
 alter table temp_number_servings_fruits_and_vegetables add index temp_number_servings_fruits_and_vegetables_2 (encounter_id);
 
 drop temporary table if exists temp_patient_hospitalized_since_last_visit;
-create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Patient hospitalized since last visit';
+create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from temp_dh_followup_obs where concept = 'Patient hospitalized since last visit';
 alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_2 (encounter_id);
 
 drop temporary table if exists temp_pulse;
-create temporary table temp_pulse as select encounter_id, value_numeric from omrs_obs where concept = 'Pulse';
+create temporary table temp_pulse as select encounter_id, value_numeric from temp_dh_followup_obs where concept = 'Pulse';
 alter table temp_pulse add index temp_pulse_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_smoking_history;
-create temporary table temp_smoking_history as select encounter_id, value_coded from omrs_obs where concept = 'Smoking history';
+create temporary table temp_smoking_history as select encounter_id, value_coded from temp_dh_followup_obs where concept = 'Smoking history';
 alter table temp_smoking_history add index temp_smoking_history_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_foot_ulcer_or_infection;
-create temporary table temp_foot_ulcer_or_infection as select encounter_id, value_coded from omrs_obs where concept = 'Foot ulcer or infection';
+create temporary table temp_foot_ulcer_or_infection as select encounter_id, value_coded from temp_dh_followup_obs where concept = 'Foot ulcer or infection';
 alter table temp_foot_ulcer_or_infection add index temp_foot_ulcer_or_infection_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_visual_acuity_text;
-create temporary table temp_visual_acuity_text as select encounter_id, value_text from omrs_obs where concept = 'Visual acuity (text)';
+create temporary table temp_visual_acuity_text as select encounter_id, value_text from temp_dh_followup_obs where concept = 'Visual acuity (text)';
 alter table temp_visual_acuity_text add index temp_visual_acuity_text_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_weight_kg;
-create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
+create temporary table temp_weight_kg as select encounter_id, value_numeric from temp_dh_followup_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_ccb_aml;
-create temporary table temp_ccb_aml as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Amlodipine';
+create temporary table temp_ccb_aml as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Amlodipine';
 alter table temp_ccb_aml add index temp_ccb_aml_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_asprin_asa;
-create temporary table temp_asprin_asa as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Aspirin';
+create temporary table temp_asprin_asa as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Aspirin';
 alter table temp_asprin_asa add index temp_asprin_asa_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_bb_aten;
-create temporary table temp_bb_aten as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Atenolol';
+create temporary table temp_bb_aten as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Atenolol';
 alter table temp_bb_aten add index temp_bb_aten_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_statin_atorva;
-create temporary table temp_statin_atorva as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Atorvastatin';
+create temporary table temp_statin_atorva as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Atorvastatin';
 alter table temp_statin_atorva add index temp_statin_atorva_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_bb_bis;
-create temporary table temp_bb_bis as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Bisoprolol';
+create temporary table temp_bb_bis as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Bisoprolol';
 alter table temp_bb_bis add index temp_bb_bis_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_ace_i_capt;
-create temporary table temp_ace_i_capt as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Captopril';
+create temporary table temp_ace_i_capt as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Captopril';
 alter table temp_ace_i_capt add index temp_ace_i_capt_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_ace_i_enal;
-create temporary table temp_ace_i_enal as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Enalapril';
+create temporary table temp_ace_i_enal as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Enalapril';
 alter table temp_ace_i_enal add index temp_ace_i_enal_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diuretic_furp;
-create temporary table temp_diuretic_furp as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Furosemide';
+create temporary table temp_diuretic_furp as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Furosemide';
 alter table temp_diuretic_furp add index temp_diuretic_furp_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diabetes_med_gilbenclamide;
-create temporary table temp_diabetes_med_gilbenclamide as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Glibenclamide';
+create temporary table temp_diabetes_med_gilbenclamide as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Glibenclamide';
 alter table temp_diabetes_med_gilbenclamide add index temp_diabetes_med_gilbenclamide_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_other_hyd;
-create temporary table temp_other_hyd as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Hydralazine';
+create temporary table temp_other_hyd as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Hydralazine';
 alter table temp_other_hyd add index temp_other_hyd_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diuretic_hctz;
-create temporary table temp_diuretic_hctz as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Hydrochlorothiazide';
+create temporary table temp_diuretic_hctz as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Hydrochlorothiazide';
 alter table temp_diuretic_hctz add index temp_diuretic_hctz_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_other_issmn;
-create temporary table temp_other_issmn as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Isosorbide mononitrate';
+create temporary table temp_other_issmn as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Isosorbide mononitrate';
 alter table temp_other_issmn add index temp_other_issmn_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_ace_i_lisin;
-create temporary table temp_ace_i_lisin as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Lisinopril';
+create temporary table temp_ace_i_lisin as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Lisinopril';
 alter table temp_ace_i_lisin add index temp_ace_i_lisin_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diabetes_med_long_acting;
-create temporary table temp_diabetes_med_long_acting as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Long acting insulin';
+create temporary table temp_diabetes_med_long_acting as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Long acting insulin';
 alter table temp_diabetes_med_long_acting add index temp_diabetes_med_long_acting_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diabetes_med_metformin;
-create temporary table temp_diabetes_med_metformin as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Metformin';
+create temporary table temp_diabetes_med_metformin as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Metformin';
 alter table temp_diabetes_med_metformin add index temp_diabetes_med_metformin_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_ccb_nif;
-create temporary table temp_ccb_nif as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Nifedipine';
+create temporary table temp_ccb_nif as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Nifedipine';
 alter table temp_ccb_nif add index temp_ccb_nif_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_statin_prava;
-create temporary table temp_statin_prava as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Pravastatin';
+create temporary table temp_statin_prava as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Pravastatin';
 alter table temp_statin_prava add index temp_statin_prava_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_bb_prop;
-create temporary table temp_bb_prop as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Propranolol';
+create temporary table temp_bb_prop as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Propranolol';
 alter table temp_bb_prop add index temp_bb_prop_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diabetes_med_short_acting;
-create temporary table temp_diabetes_med_short_acting as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Insulin, soluble';
+create temporary table temp_diabetes_med_short_acting as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Insulin, soluble';
 alter table temp_diabetes_med_short_acting add index temp_diabetes_med_short_acting_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_statin_simva;
-create temporary table temp_statin_simva as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Simvastatin';
+create temporary table temp_statin_simva as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Simvastatin';
 alter table temp_statin_simva add index temp_statin_simva_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diuretic_spiro;
-create temporary table temp_diuretic_spiro as select encounter_id, concept, value_coded from omrs_obs where value_coded = 'Spironolactone';
+create temporary table temp_diuretic_spiro as select encounter_id, concept, value_coded from temp_dh_followup_obs where value_coded = 'Spironolactone';
 alter table temp_diuretic_spiro add index temp_diuretic_spiro_encounter_idx (encounter_id);
 
 insert into mw_diabetes_hypertension_followup (

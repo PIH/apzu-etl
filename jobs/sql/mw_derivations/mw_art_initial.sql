@@ -47,152 +47,161 @@ create table mw_art_initial (
      primary key (art_initial_visit_id)
 );
 
+drop temporary table if exists temp_art_initial_obs;
+create temporary table temp_art_initial_obs as
+select encounter_id, obs_group_id, concept, value_coded, value_numeric, value_date, value_text
+from omrs_obs
+where encounter_type = 'ART_INITIAL';
+alter table temp_art_initial_obs add index temp_art_initial_obs_concept_idx (concept);
+alter table temp_art_initial_obs add index temp_art_initial_obs_encounter_idx (encounter_id);
+alter table temp_art_initial_obs add index temp_art_initial_obs_group_idx (obs_group_id);
+
 drop temporary table if exists temp_date_of_starting_2nd_line_arv_regimen;
-create temporary table temp_date_of_starting_2nd_line_arv_regimen as select encounter_id, value_date from omrs_obs where concept = 'Date of starting 2nd line ARV regimen';
+create temporary table temp_date_of_starting_2nd_line_arv_regimen as select encounter_id, value_date from temp_art_initial_obs where concept = 'Date of starting 2nd line ARV regimen';
 alter table temp_date_of_starting_2nd_line_arv_regimen add index temp_date_starting_2nd_line_arv_regimen_encounter (encounter_id);
 
 drop temporary table if exists temp_date_starting_alternative_1st_line_arv;
-create temporary table temp_date_starting_alternative_1st_line_arv as select encounter_id, value_date from omrs_obs where concept = 'Date of starting alternative 1st line ARV regimen';
+create temporary table temp_date_starting_alternative_1st_line_arv as select encounter_id, value_date from temp_art_initial_obs where concept = 'Date of starting alternative 1st line ARV regimen';
 alter table temp_date_starting_alternative_1st_line_arv add index temp_date_starting_alternative_1st_line_arv_2 (encounter_id);
 
 drop temporary table if exists temp_malawi_antiretroviral_drugs_change_2;
-create temporary table temp_malawi_antiretroviral_drugs_change_2 as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Antiretroviral drugs change 2';
+create temporary table temp_malawi_antiretroviral_drugs_change_2 as select encounter_id, value_coded from temp_art_initial_obs where concept = 'Malawi Antiretroviral drugs change 2';
 alter table temp_malawi_antiretroviral_drugs_change_2 add index temp_malawi_arv_drugs_change_2_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_malawi_antiretroviral_drugs_change_1;
-create temporary table temp_malawi_antiretroviral_drugs_change_1 as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Antiretroviral drugs change 1';
+create temporary table temp_malawi_antiretroviral_drugs_change_1 as select encounter_id, value_coded from temp_art_initial_obs where concept = 'Malawi Antiretroviral drugs change 1';
 alter table temp_malawi_antiretroviral_drugs_change_1 add index temp_malawi_arv_drugs_change_1_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_start_date_1st_line_arv;
-create temporary table temp_start_date_1st_line_arv as select encounter_id, value_date from omrs_obs where concept = 'Start date 1st line ARV';
+create temporary table temp_start_date_1st_line_arv as select encounter_id, value_date from temp_art_initial_obs where concept = 'Start date 1st line ARV';
 alter table temp_start_date_1st_line_arv add index temp_start_date_1st_line_arv_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_malawi_antiretroviral_drugs_change_3;
-create temporary table temp_malawi_antiretroviral_drugs_change_3 as select encounter_id, value_coded from omrs_obs where concept = 'Malawi Antiretroviral drugs change 3';
+create temporary table temp_malawi_antiretroviral_drugs_change_3 as select encounter_id, value_coded from temp_art_initial_obs where concept = 'Malawi Antiretroviral drugs change 3';
 alter table temp_malawi_antiretroviral_drugs_change_3 add index temp_malawi_arv_drugs_change_3_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_art_education_date;
-create temporary table temp_art_education_date as select encounter_id, value_date from omrs_obs where concept = 'ART education date';
+create temporary table temp_art_education_date as select encounter_id, value_date from temp_art_initial_obs where concept = 'ART education date';
 alter table temp_art_education_date add index temp_art_education_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_arv_education_done;
-create temporary table temp_arv_education_done as select encounter_id, value_coded from omrs_obs where concept = 'ARV education done';
+create temporary table temp_arv_education_done as select encounter_id, value_coded from temp_art_initial_obs where concept = 'ARV education done';
 alter table temp_arv_education_done add index temp_arv_education_done_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_age;
-create temporary table temp_age as select encounter_id, value_numeric from omrs_obs where concept = 'Age';
+create temporary table temp_age as select encounter_id, value_numeric from temp_art_initial_obs where concept = 'Age';
 alter table temp_age add index temp_age_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_cd4_count;
-create temporary table temp_cd4_count as select encounter_id, value_numeric from omrs_obs where concept = 'CD4 count';
+create temporary table temp_cd4_count as select encounter_id, value_numeric from temp_art_initial_obs where concept = 'CD4 count';
 alter table temp_cd4_count add index temp_cd4_count_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_date_of_cd4_count;
-create temporary table temp_date_of_cd4_count as select encounter_id, value_date from omrs_obs where concept = 'Date of CD4 count';
+create temporary table temp_date_of_cd4_count as select encounter_id, value_date from temp_art_initial_obs where concept = 'Date of CD4 count';
 alter table temp_date_of_cd4_count add index temp_date_of_cd4_count_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_cd4;
-create temporary table temp_cd4 as select encounter_id, value_numeric from omrs_obs where concept = 'Cd4%';
+create temporary table temp_cd4 as select encounter_id, value_numeric from temp_art_initial_obs where concept = 'Cd4%';
 alter table temp_cd4 add index temp_cd4_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_child_hcc_registration_number;
-create temporary table temp_child_hcc_registration_number as select encounter_id, value_text from omrs_obs where concept = 'Child HCC Registration Number';
+create temporary table temp_child_hcc_registration_number as select encounter_id, value_text from temp_art_initial_obs where concept = 'Child HCC Registration Number';
 alter table temp_child_hcc_registration_number add index temp_child_hcc_registration_number_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_who_stage;
-create temporary table temp_who_stage as select encounter_id, value_coded from omrs_obs where concept = 'WHO stage';
+create temporary table temp_who_stage as select encounter_id, value_coded from temp_art_initial_obs where concept = 'WHO stage';
 alter table temp_who_stage add index temp_who_stage_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_date_of_hiv_diagnosis;
-create temporary table temp_date_of_hiv_diagnosis as select encounter_id, value_date from omrs_obs where concept = 'Date of HIV diagnosis';
+create temporary table temp_date_of_hiv_diagnosis as select encounter_id, value_date from temp_art_initial_obs where concept = 'Date of HIV diagnosis';
 alter table temp_date_of_hiv_diagnosis add index temp_date_of_hiv_diagnosis_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_confirmatory_hiv_test_location;
-create temporary table temp_confirmatory_hiv_test_location as select encounter_id, value_text from omrs_obs where concept = 'Confirmatory HIV test location';
+create temporary table temp_confirmatory_hiv_test_location as select encounter_id, value_text from temp_art_initial_obs where concept = 'Confirmatory HIV test location';
 alter table temp_confirmatory_hiv_test_location add index temp_confirmatory_hiv_test_location_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_first_positive_hiv_test_type;
-create temporary table temp_first_positive_hiv_test_type as select encounter_id, value_coded from omrs_obs where concept = 'First positive HIV test type';
+create temporary table temp_first_positive_hiv_test_type as select encounter_id, value_coded from temp_art_initial_obs where concept = 'First positive HIV test type';
 alter table temp_first_positive_hiv_test_type add index temp_first_positive_hiv_test_type_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_crag_results;
-create temporary table temp_crag_results as select encounter_id, value_coded from omrs_obs where concept = 'CrAg Results';
+create temporary table temp_crag_results as select encounter_id, value_coded from temp_art_initial_obs where concept = 'CrAg Results';
 alter table temp_crag_results add index temp_crag_results_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_date_of_crag_test;
-create temporary table temp_date_of_crag_test as select encounter_id, value_date from omrs_obs where concept = 'Date of CrAg test';
+create temporary table temp_date_of_crag_test as select encounter_id, value_date from temp_art_initial_obs where concept = 'Date of CrAg test';
 alter table temp_date_of_crag_test add index temp_date_of_crag_test_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_ever_received_art;
-create temporary table temp_ever_received_art as select encounter_id, value_coded from omrs_obs where concept = 'Ever received ART?';
+create temporary table temp_ever_received_art as select encounter_id, value_coded from temp_art_initial_obs where concept = 'Ever received ART?';
 alter table temp_ever_received_art add index temp_ever_received_art_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_height_cm;
-create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
+create temporary table temp_height_cm as select encounter_id, value_numeric from temp_art_initial_obs where concept = 'Height (cm)';
 alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_kaposis_sarcoma_side_effects_worsening_while;
-create temporary table temp_kaposis_sarcoma_side_effects_worsening_while as select encounter_id, value_coded from omrs_obs where concept = 'Kaposis sarcoma side effects worsening while on ARVs?';
+create temporary table temp_kaposis_sarcoma_side_effects_worsening_while as select encounter_id, value_coded from temp_art_initial_obs where concept = 'Kaposis sarcoma side effects worsening while on ARVs?';
 alter table temp_kaposis_sarcoma_side_effects_worsening_while add index temp_ks_side_effects_worsening_while_arvs (encounter_id);
 
 drop temporary table if exists temp_last_antiretroviral_drugs_taken;
-create temporary table temp_last_antiretroviral_drugs_taken as select encounter_id, value_text from omrs_obs where concept = 'Last antiretroviral drugs taken';
+create temporary table temp_last_antiretroviral_drugs_taken as select encounter_id, value_text from temp_art_initial_obs where concept = 'Last antiretroviral drugs taken';
 alter table temp_last_antiretroviral_drugs_taken add index temp_last_antiretroviral_drugs_taken_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_date_art_last_taken;
-create temporary table temp_date_art_last_taken as select encounter_id, value_date from omrs_obs where concept = 'Date ART last taken';
+create temporary table temp_date_art_last_taken as select encounter_id, value_date from temp_art_initial_obs where concept = 'Date ART last taken';
 alter table temp_date_art_last_taken add index temp_date_art_last_taken_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_linkage_to_care_id;
-create temporary table temp_linkage_to_care_id as select encounter_id, value_text from omrs_obs where concept = 'Linkage to Care ID';
+create temporary table temp_linkage_to_care_id as select encounter_id, value_text from temp_art_initial_obs where concept = 'Linkage to Care ID';
 alter table temp_linkage_to_care_id add index temp_linkage_to_care_id_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_pregnant_lactating;
-create temporary table temp_pregnant_lactating as select encounter_id, value_coded from omrs_obs where concept = 'Pregnant/Lactating';
+create temporary table temp_pregnant_lactating as select encounter_id, value_coded from temp_art_initial_obs where concept = 'Pregnant/Lactating';
 alter table temp_pregnant_lactating add index temp_pregnant_lactating_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_presumed_severe_hiv_criteria_present;
-create temporary table temp_presumed_severe_hiv_criteria_present as select encounter_id, value_coded from omrs_obs where concept = 'Presumed severe HIV criteria present';
+create temporary table temp_presumed_severe_hiv_criteria_present as select encounter_id, value_coded from temp_art_initial_obs where concept = 'Presumed severe HIV criteria present';
 alter table temp_presumed_severe_hiv_criteria_present add index temp_presumed_severe_hiv_criteria_present_2 (encounter_id);
 
 drop temporary table if exists temp_tb_registration_number;
-create temporary table temp_tb_registration_number as select encounter_id, value_text from omrs_obs where concept = 'TB registration number';
+create temporary table temp_tb_registration_number as select encounter_id, value_text from temp_art_initial_obs where concept = 'TB registration number';
 alter table temp_tb_registration_number add index temp_tb_registration_number_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_tuberculosis_treatment_status;
-create temporary table temp_tuberculosis_treatment_status as select encounter_id, value_coded from omrs_obs where concept = 'Tuberculosis treatment status';
+create temporary table temp_tuberculosis_treatment_status as select encounter_id, value_coded from temp_art_initial_obs where concept = 'Tuberculosis treatment status';
 alter table temp_tuberculosis_treatment_status add index temp_tuberculosis_treatment_status_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_tuberculosis_drug_treatment_start_date;
-create temporary table temp_tuberculosis_drug_treatment_start_date as select encounter_id, value_date from omrs_obs where concept = 'Tuberculosis drug treatment start date';
+create temporary table temp_tuberculosis_drug_treatment_start_date as select encounter_id, value_date from temp_art_initial_obs where concept = 'Tuberculosis drug treatment start date';
 alter table temp_tuberculosis_drug_treatment_start_date add index temp_tb_drug_treatment_start_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_tb_xpert;
-create temporary table temp_tb_xpert as select encounter_id, value_coded from omrs_obs where concept = 'TB Xpert';
+create temporary table temp_tb_xpert as select encounter_id, value_coded from temp_art_initial_obs where concept = 'TB Xpert';
 alter table temp_tb_xpert add index temp_tb_xpert_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_date_of_tb_xpert_test;
-create temporary table temp_date_of_tb_xpert_test as select encounter_id, value_date from omrs_obs where concept = 'Date of TB Xpert test';
+create temporary table temp_date_of_tb_xpert_test as select encounter_id, value_date from temp_art_initial_obs where concept = 'Date of TB Xpert test';
 alter table temp_date_of_tb_xpert_test add index temp_date_of_tb_xpert_test_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_transfer_in_date;
-create temporary table temp_transfer_in_date as select encounter_id, value_date from omrs_obs where concept = 'Transfer in date';
+create temporary table temp_transfer_in_date as select encounter_id, value_date from temp_art_initial_obs where concept = 'Transfer in date';
 alter table temp_transfer_in_date add index temp_transfer_in_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_urine_lam_crag_result;
-create temporary table temp_urine_lam_crag_result as select encounter_id, value_coded from omrs_obs where concept = 'Urine LAM / CrAg Result';
+create temporary table temp_urine_lam_crag_result as select encounter_id, value_coded from temp_art_initial_obs where concept = 'Urine LAM / CrAg Result';
 alter table temp_urine_lam_crag_result add index temp_urine_lam_crag_result_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_date_of_urine_lam;
-create temporary table temp_date_of_urine_lam as select encounter_id, value_date from omrs_obs where concept = 'Date of Urine Lam';
+create temporary table temp_date_of_urine_lam as select encounter_id, value_date from temp_art_initial_obs where concept = 'Date of Urine Lam';
 alter table temp_date_of_urine_lam add index temp_date_of_urine_lam_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_clinical_conditions_text;
-create temporary table temp_clinical_conditions_text as select encounter_id, value_text from omrs_obs where concept = 'Clinical Conditions Text';
+create temporary table temp_clinical_conditions_text as select encounter_id, value_text from temp_art_initial_obs where concept = 'Clinical Conditions Text';
 alter table temp_clinical_conditions_text add index temp_clinical_conditions_text_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_weight_kg;
-create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
+create temporary table temp_weight_kg as select encounter_id, value_numeric from temp_art_initial_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
 insert into mw_art_initial (patient_id, visit_date, location, art_second_line_regimen_start_date, art_alternative_first_line_regimen_date, art_alternative_first_line_regimen, art_first_line_regimen, art_first_line_regimen_start_date, art_second_line_regimen, art_education_date, art_education_done, age_at_initiation, cd4_count, cd4_date, cd4_percentage, child_hcc_no, clinical_stage, confirmatory_test_date, confirmatory_test_location, confirmatory_test_type, crag_results, crag_test_date, ever_taken_arvs, height, ks_side_effects_worsening_on_arvs, last_arvs_taken, last_arvs_taken_date, link_id, pregnant_or_lactating, presumed_hiv_severe_present, tb_registration_number, tb_status, tb_treatment_start_date, tb_xpert, tb_xpert_date, transfer_in_date, urine_lam, urine_lam_date, who_clinical_conditions, weight)

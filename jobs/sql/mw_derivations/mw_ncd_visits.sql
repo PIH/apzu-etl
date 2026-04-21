@@ -55,100 +55,119 @@ create table mw_ncd_visits
 alter table mw_ncd_visits add index mw_ncd_visit_patient_idx (patient_id);
 alter table mw_ncd_visits add index mw_ncd_visit_patient_location_idx (patient_id, location);
 
+drop temporary table if exists temp_ncd_visits_obs;
+create temporary table temp_ncd_visits_obs as
+select encounter_id, obs_group_id, concept, value_coded, value_numeric, value_date, value_text
+from omrs_obs
+where encounter_type in (
+    'CHRONIC_CARE_INITIAL', 'CHRONIC_CARE_FOLLOWUP',
+    'DIABETES HYPERTENSION INITIAL VISIT', 'DIABETES HYPERTENSION FOLLOWUP',
+    'ASTHMA_INITIAL', 'ASTHMA_FOLLOWUP',
+    'EPILEPSY_INITIAL', 'EPILEPSY_FOLLOWUP',
+    'MENTAL_HEALTH_INITIAL', 'MENTAL_HEALTH_FOLLOWUP',
+    'CKD_INITIAL', 'CKD_FOLLOWUP',
+    'CHF_INITIAL', 'CHF_FOLLOWUP',
+    'NCD_OTHER_INITIAL', 'NCD_OTHER_FOLLOWUP',
+    'SICKLE_CELL_DISEASE_INITIAL', 'SICKLE_CELL_DISEASE_FOLLOWUP'
+);
+alter table temp_ncd_visits_obs add index temp_ncd_visits_obs_concept_idx (concept);
+alter table temp_ncd_visits_obs add index temp_ncd_visits_obs_encounter_idx (encounter_id);
+alter table temp_ncd_visits_obs add index temp_ncd_visits_obs_group_idx (obs_group_id);
+
 drop temporary table if exists temp_appointment_date;
-create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
+create temporary table temp_appointment_date as select encounter_id, value_date from temp_ncd_visits_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_systolic_blood_pressure;
-create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Systolic blood pressure';
+create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from temp_ncd_visits_obs where concept = 'Systolic blood pressure';
 alter table temp_systolic_blood_pressure add index temp_systolic_blood_pressure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diastolic_blood_pressure;
-create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Diastolic blood pressure';
+create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from temp_ncd_visits_obs where concept = 'Diastolic blood pressure';
 alter table temp_diastolic_blood_pressure add index temp_diastolic_blood_pressure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_asthma_classification;
-create temporary table temp_asthma_classification as select encounter_id, value_coded from omrs_obs where concept = 'Asthma classification';
+create temporary table temp_asthma_classification as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Asthma classification';
 alter table temp_asthma_classification add index temp_asthma_classification_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_number_of_seizures;
-create temporary table temp_number_of_seizures as select encounter_id, value_numeric from omrs_obs where concept = 'NUMBER OF SEIZURES';
+create temporary table temp_number_of_seizures as select encounter_id, value_numeric from temp_ncd_visits_obs where concept = 'NUMBER OF SEIZURES';
 alter table temp_number_of_seizures add index temp_number_of_seizures_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_glycated_hemoglobin;
-create temporary table temp_glycated_hemoglobin as select encounter_id, value_numeric from omrs_obs where concept = 'Glycated hemoglobin';
+create temporary table temp_glycated_hemoglobin as select encounter_id, value_numeric from temp_ncd_visits_obs where concept = 'Glycated hemoglobin';
 alter table temp_glycated_hemoglobin add index temp_glycated_hemoglobin_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_serum_glucose;
-create temporary table temp_serum_glucose as select encounter_id, value_numeric from omrs_obs where concept = 'Serum glucose';
+create temporary table temp_serum_glucose as select encounter_id, value_numeric from temp_ncd_visits_obs where concept = 'Serum glucose';
 alter table temp_serum_glucose add index temp_serum_glucose_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_suicide_risk;
-create temporary table temp_suicide_risk as select encounter_id, value_coded from omrs_obs where concept = 'Suicide risk';
+create temporary table temp_suicide_risk as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Suicide risk';
 alter table temp_suicide_risk add index temp_suicide_risk_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_urine_protein;
-create temporary table temp_urine_protein as select encounter_id, value_coded from omrs_obs where concept = 'Urine protein';
+create temporary table temp_urine_protein as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Urine protein';
 alter table temp_urine_protein add index temp_urine_protein_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_creatinine;
-create temporary table temp_creatinine as select encounter_id, value_numeric from omrs_obs where concept = 'Creatinine';
+create temporary table temp_creatinine as select encounter_id, value_numeric from temp_ncd_visits_obs where concept = 'Creatinine';
 alter table temp_creatinine add index temp_creatinine_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_result_of_hiv_test;
-create temporary table temp_result_of_hiv_test as select encounter_id, value_coded from omrs_obs where concept = 'Result of HIV test';
+create temporary table temp_result_of_hiv_test as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Result of HIV test';
 alter table temp_result_of_hiv_test add index temp_result_of_hiv_test_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_visual_acuity_text;
-create temporary table temp_visual_acuity_text as select encounter_id, value_text from omrs_obs where concept = 'Visual acuity (text)';
+create temporary table temp_visual_acuity_text as select encounter_id, value_text from temp_ncd_visits_obs where concept = 'Visual acuity (text)';
 alter table temp_visual_acuity_text add index temp_visual_acuity_text_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_cardiovascular_risk_score;
-create temporary table temp_cardiovascular_risk_score as select encounter_id, value_numeric from omrs_obs where concept = 'Cardiovascular risk score';
+create temporary table temp_cardiovascular_risk_score as select encounter_id, value_numeric from temp_ncd_visits_obs where concept = 'Cardiovascular risk score';
 alter table temp_cardiovascular_risk_score add index temp_cardiovascular_risk_score_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_mental_health_chief_complaint_absent;
-create temporary table temp_mental_health_chief_complaint_absent as select encounter_id, value_coded from omrs_obs where concept = 'Mental health chief complaint absent';
+create temporary table temp_mental_health_chief_complaint_absent as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Mental health chief complaint absent';
 alter table temp_mental_health_chief_complaint_absent add index temp_mental_health_chief_complaint_absent_2 (encounter_id);
 
 drop temporary table if exists temp_current_drugs_used;
-create temporary table temp_current_drugs_used as select encounter_id, value_coded from omrs_obs where concept = 'Current drugs used';
+create temporary table temp_current_drugs_used as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Current drugs used';
 alter table temp_current_drugs_used add index temp_current_drugs_used_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_seizure_activity;
-create temporary table temp_seizure_activity as select encounter_id, value_coded from omrs_obs where concept = 'Seizure activity';
+create temporary table temp_seizure_activity as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Seizure activity';
 alter table temp_seizure_activity add index temp_seizure_activity_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_neuropathy_and_peripheral_vascular_disease;
-create temporary table temp_neuropathy_and_peripheral_vascular_disease as select encounter_id, value_coded from omrs_obs where concept = 'Neuropathy and Peripheral Vascular Disease';
+create temporary table temp_neuropathy_and_peripheral_vascular_disease as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Neuropathy and Peripheral Vascular Disease';
 alter table temp_neuropathy_and_peripheral_vascular_disease add index temp_neuropathy_and_peripheral_vascular_disease_2 (encounter_id);
 
 drop temporary table if exists temp_deformity_of_foot;
-create temporary table temp_deformity_of_foot as select encounter_id, value_coded from omrs_obs where concept = 'Deformity of foot';
+create temporary table temp_deformity_of_foot as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Deformity of foot';
 alter table temp_deformity_of_foot add index temp_deformity_of_foot_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_foot_ulcer_or_infection;
-create temporary table temp_foot_ulcer_or_infection as select encounter_id, value_coded from omrs_obs where concept = 'Foot ulcer or infection';
+create temporary table temp_foot_ulcer_or_infection as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Foot ulcer or infection';
 alter table temp_foot_ulcer_or_infection add index temp_foot_ulcer_or_infection_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_patient_hospitalized_since_last_visit;
-create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Patient hospitalized since last visit';
+create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Patient hospitalized since last visit';
 alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_2 (encounter_id);
 
 drop temporary table if exists temp_hospitalized_mental_health_since_last_visit;
-create temporary table temp_hospitalized_mental_health_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Hospitalized for mental health since last visit';
+create temporary table temp_hospitalized_mental_health_since_last_visit as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Hospitalized for mental health since last visit';
 alter table temp_hospitalized_mental_health_since_last_visit add index temp_hospitalized_mental_health_since_last_visit_2 (encounter_id);
 
 drop temporary table if exists temp_does_patient_have_adverse_effects;
-create temporary table temp_does_patient_have_adverse_effects as select encounter_id, value_coded from omrs_obs where concept = 'Does patient have adverse effects';
+create temporary table temp_does_patient_have_adverse_effects as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Does patient have adverse effects';
 alter table temp_does_patient_have_adverse_effects add index temp_does_patient_adverse_effects_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_stable;
-create temporary table temp_stable as select encounter_id, value_coded from omrs_obs where concept = 'Stable';
+create temporary table temp_stable as select encounter_id, value_coded from temp_ncd_visits_obs where concept = 'Stable';
 alter table temp_stable add index temp_stable_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_fundoscopy;
-create temporary table temp_fundoscopy as select encounter_id, value_text from omrs_obs where concept = 'Fundoscopy';
+create temporary table temp_fundoscopy as select encounter_id, value_text from temp_ncd_visits_obs where concept = 'Fundoscopy';
 alter table temp_fundoscopy add index temp_fundoscopy_encounter_idx (encounter_id);
 
 insert into mw_ncd_visits (patient_id, visit_date, location, visit_types, cc_initial, cc_followup, diabetes_htn_initial, diabetes_htn_followup, asthma_initial, asthma_followup, epilepsy_initial, epilepsy_followup, mental_health_initial, mental_health_followup, ckd_initial, ckd_followup, chf_initial, chf_followup, ncd_other_initial, ncd_other_followup, sickle_cell_initial, sickle_cell_followup, next_appointment_date, systolic_bp, diastolic_bp, on_insulin, asthma_classification, seizure_activity, num_seizures, hba1c, serum_glucose, foot_check, suicide_risk, proteinuria, creatinine, hiv_result, visual_acuity, cv_risk, hospitalized_since_last_visit, mental_status_exam, mental_health_drugs, mental_health_drug_side_effect, mental_stable, fundoscopy)

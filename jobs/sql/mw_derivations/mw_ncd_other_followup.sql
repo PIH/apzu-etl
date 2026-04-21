@@ -27,72 +27,82 @@ create table mw_ncd_other_followup (
   primary key (ncd_other_followup_visit_id)
 );
 
+drop temporary table if exists temp_ncd_other_followup_obs;
+create temporary table temp_ncd_other_followup_obs as
+select encounter_id, obs_group_id, concept, value_coded, value_numeric, value_date, value_text
+from omrs_obs
+where encounter_type = 'NCD_OTHER_FOLLOWUP';
+alter table temp_ncd_other_followup_obs add index temp_ncd_other_followup_obs_concept_idx (concept);
+alter table temp_ncd_other_followup_obs add index temp_ncd_other_followup_obs_encounter_idx (encounter_id);
+alter table temp_ncd_other_followup_obs add index temp_ncd_other_followup_obs_group_idx (obs_group_id);
+
+
 drop temporary table if exists temp_history_of_alcohol_use;
-create temporary table temp_history_of_alcohol_use as select encounter_id, value_coded from omrs_obs where concept = 'History of alcohol use';
+create temporary table temp_history_of_alcohol_use as select encounter_id, value_coded from temp_ncd_other_followup_obs where concept = 'History of alcohol use';
 alter table temp_history_of_alcohol_use add index temp_history_of_alcohol_use_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diastolic_blood_pressure;
-create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Diastolic blood pressure';
+create temporary table temp_diastolic_blood_pressure as select encounter_id, value_numeric from temp_ncd_other_followup_obs where concept = 'Diastolic blood pressure';
 alter table temp_diastolic_blood_pressure add index temp_diastolic_blood_pressure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_systolic_blood_pressure;
-create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from omrs_obs where concept = 'Systolic blood pressure';
+create temporary table temp_systolic_blood_pressure as select encounter_id, value_numeric from temp_ncd_other_followup_obs where concept = 'Systolic blood pressure';
 alter table temp_systolic_blood_pressure add index temp_systolic_blood_pressure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_general_comment;
-create temporary table temp_general_comment as select encounter_id, value_text from omrs_obs where concept = 'General comment';
+create temporary table temp_general_comment as select encounter_id, value_text from temp_ncd_other_followup_obs where concept = 'General comment';
 alter table temp_general_comment add index temp_general_comment_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_days_per_week_of_moderate_exercise;
-create temporary table temp_days_per_week_of_moderate_exercise as select encounter_id, value_numeric from omrs_obs where concept = 'Days per week of moderate exercise';
+create temporary table temp_days_per_week_of_moderate_exercise as select encounter_id, value_numeric from temp_ncd_other_followup_obs where concept = 'Days per week of moderate exercise';
 alter table temp_days_per_week_of_moderate_exercise add index temp_days_per_week_moderate_exercise_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_number_servings_fruits_and_vegetables;
-create temporary table temp_number_servings_fruits_and_vegetables as select encounter_id, value_numeric from omrs_obs where concept = 'Number of servings of fruits and vegetables consumed per day';
+create temporary table temp_number_servings_fruits_and_vegetables as select encounter_id, value_numeric from temp_ncd_other_followup_obs where concept = 'Number of servings of fruits and vegetables consumed per day';
 alter table temp_number_servings_fruits_and_vegetables add index temp_number_servings_fruits_and_vegetables_2 (encounter_id);
 
 drop temporary table if exists temp_pulse;
-create temporary table temp_pulse as select encounter_id, value_numeric from omrs_obs where concept = 'Pulse';
+create temporary table temp_pulse as select encounter_id, value_numeric from temp_ncd_other_followup_obs where concept = 'Pulse';
 alter table temp_pulse add index temp_pulse_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_height_cm;
-create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
+create temporary table temp_height_cm as select encounter_id, value_numeric from temp_ncd_other_followup_obs where concept = 'Height (cm)';
 alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_patient_hospitalized_since_last_visit;
-create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Patient hospitalized since last visit';
+create temporary table temp_patient_hospitalized_since_last_visit as select encounter_id, value_coded from temp_ncd_other_followup_obs where concept = 'Patient hospitalized since last visit';
 alter table temp_patient_hospitalized_since_last_visit add index temp_patient_hospitalized_since_last_visit_2 (encounter_id);
 
 drop temporary table if exists temp_medications_dispensed;
-create temporary table temp_medications_dispensed as select encounter_id, value_text from omrs_obs where concept = 'Medications dispensed';
+create temporary table temp_medications_dispensed as select encounter_id, value_text from temp_ncd_other_followup_obs where concept = 'Medications dispensed';
 alter table temp_medications_dispensed add index temp_medications_dispensed_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_has_the_treatment_changed_at_this_visit;
-create temporary table temp_has_the_treatment_changed_at_this_visit as select encounter_id, value_coded from omrs_obs where concept = 'Has the treatment changed at this visit?';
+create temporary table temp_has_the_treatment_changed_at_this_visit as select encounter_id, value_coded from temp_ncd_other_followup_obs where concept = 'Has the treatment changed at this visit?';
 alter table temp_has_the_treatment_changed_at_this_visit add index temp_has_treatment_changed_this_visit_encounter (encounter_id);
 
 drop temporary table if exists temp_appointment_date;
-create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
+create temporary table temp_appointment_date as select encounter_id, value_date from temp_ncd_other_followup_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_next_appointment_location;
-create temporary table temp_next_appointment_location as select encounter_id, value_coded from omrs_obs where concept = 'Next appointment location';
+create temporary table temp_next_appointment_location as select encounter_id, value_coded from temp_ncd_other_followup_obs where concept = 'Next appointment location';
 alter table temp_next_appointment_location add index temp_next_appointment_location_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_blood_oxygen_saturation;
-create temporary table temp_blood_oxygen_saturation as select encounter_id, value_numeric from omrs_obs where concept = 'Blood oxygen saturation';
+create temporary table temp_blood_oxygen_saturation as select encounter_id, value_numeric from temp_ncd_other_followup_obs where concept = 'Blood oxygen saturation';
 alter table temp_blood_oxygen_saturation add index temp_blood_oxygen_saturation_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_smoking_history;
-create temporary table temp_smoking_history as select encounter_id, value_coded from omrs_obs where concept = 'Smoking history';
+create temporary table temp_smoking_history as select encounter_id, value_coded from temp_ncd_other_followup_obs where concept = 'Smoking history';
 alter table temp_smoking_history add index temp_smoking_history_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_weight_kg;
-create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
+create temporary table temp_weight_kg as select encounter_id, value_numeric from temp_ncd_other_followup_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_weight_change;
-create temporary table temp_weight_change as select encounter_id, value_text from omrs_obs where concept = 'Weight change';
+create temporary table temp_weight_change as select encounter_id, value_text from temp_ncd_other_followup_obs where concept = 'Weight change';
 alter table temp_weight_change add index temp_weight_change_encounter_idx (encounter_id);
 
 insert into mw_ncd_other_followup (patient_id, visit_date, location, alcohol, bp_diastolic, bp_systolic, comments, days_per_week_exercise, fruit_and_vegetable_portions, heart_rate, height, hospitalized_since_last_visit_for_ncd, medications, medications_changed, next_appointment_date, next_appointment_location, spo2, tobacco, weight, weight_change)

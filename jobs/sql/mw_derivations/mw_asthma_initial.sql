@@ -35,76 +35,85 @@ create table mw_asthma_initial
     primary key (asthma_initial_visit_id)
 );
 
+drop temporary table if exists temp_asthma_initial_obs;
+create temporary table temp_asthma_initial_obs as
+select encounter_id, obs_group_id, concept, value_coded, value_numeric, value_date, value_text
+from omrs_obs
+where encounter_type = 'ASTHMA_INITIAL';
+alter table temp_asthma_initial_obs add index temp_asthma_initial_obs_concept_idx (concept);
+alter table temp_asthma_initial_obs add index temp_asthma_initial_obs_encounter_idx (encounter_id);
+alter table temp_asthma_initial_obs add index temp_asthma_initial_obs_group_idx (obs_group_id);
+
 drop temporary table if exists temp_date_antiretrovirals_started;
-create temporary table temp_date_antiretrovirals_started as select encounter_id, value_date from omrs_obs where concept = 'Date antiretrovirals started';
+create temporary table temp_date_antiretrovirals_started as select encounter_id, value_date from temp_asthma_initial_obs where concept = 'Date antiretrovirals started';
 alter table temp_date_antiretrovirals_started add index temp_date_antiretrovirals_started_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_symptom_present;
-create temporary table temp_symptom_present as select encounter_id, value_coded from omrs_obs where concept = 'Symptom present';
+create temporary table temp_symptom_present as select encounter_id, value_coded from temp_asthma_initial_obs where concept = 'Symptom present';
 alter table temp_symptom_present add index temp_symptom_present_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_age_at_cough_onset;
-create temporary table temp_age_at_cough_onset as select encounter_id, value_numeric from omrs_obs where concept = 'Age at cough onset';
+create temporary table temp_age_at_cough_onset as select encounter_id, value_numeric from temp_asthma_initial_obs where concept = 'Age at cough onset';
 alter table temp_age_at_cough_onset add index temp_age_at_cough_onset_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_duration_of_symptom_in_months;
-create temporary table temp_duration_of_symptom_in_months as select encounter_id, value_numeric from omrs_obs where concept = 'Duration of symptom in months';
+create temporary table temp_duration_of_symptom_in_months as select encounter_id, value_numeric from temp_asthma_initial_obs where concept = 'Duration of symptom in months';
 alter table temp_duration_of_symptom_in_months add index temp_duration_of_symptom_in_months_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_location_of_cooking;
-create temporary table temp_location_of_cooking as select encounter_id, value_coded from omrs_obs where concept = 'Location of cooking';
+create temporary table temp_location_of_cooking as select encounter_id, value_coded from temp_asthma_initial_obs where concept = 'Location of cooking';
 alter table temp_location_of_cooking add index temp_location_of_cooking_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_chronic_care_diagnosis;
-create temporary table temp_chronic_care_diagnosis as select encounter_id, value_coded from omrs_obs where concept = 'Chronic care diagnosis';
+create temporary table temp_chronic_care_diagnosis as select encounter_id, value_coded from temp_asthma_initial_obs where concept = 'Chronic care diagnosis';
 alter table temp_chronic_care_diagnosis add index temp_chronic_care_diagnosis_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_diagnosis_date;
-create temporary table temp_diagnosis_date as select encounter_id, value_date from omrs_obs where concept = 'Diagnosis date';
+create temporary table temp_diagnosis_date as select encounter_id, value_date from temp_asthma_initial_obs where concept = 'Diagnosis date';
 alter table temp_diagnosis_date add index temp_diagnosis_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_asthma_family_history;
-create temporary table temp_asthma_family_history as select encounter_id, value_coded from omrs_obs where concept = 'Asthma family history';
+create temporary table temp_asthma_family_history as select encounter_id, value_coded from temp_asthma_initial_obs where concept = 'Asthma family history';
 alter table temp_asthma_family_history add index temp_asthma_family_history_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_copd_family_history;
-create temporary table temp_copd_family_history as select encounter_id, value_coded from omrs_obs where concept = 'COPD family history';
+create temporary table temp_copd_family_history as select encounter_id, value_coded from temp_asthma_initial_obs where concept = 'COPD family history';
 alter table temp_copd_family_history add index temp_copd_family_history_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_hiv_status;
-create temporary table temp_hiv_status as select encounter_id, value_coded from omrs_obs where concept = 'HIV status';
+create temporary table temp_hiv_status as select encounter_id, value_coded from temp_asthma_initial_obs where concept = 'HIV status';
 alter table temp_hiv_status add index temp_hiv_status_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_hiv_test_date;
-create temporary table temp_hiv_test_date as select encounter_id, value_date from omrs_obs where concept = 'HIV test date';
+create temporary table temp_hiv_test_date as select encounter_id, value_date from temp_asthma_initial_obs where concept = 'HIV test date';
 alter table temp_hiv_test_date add index temp_hiv_test_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_exposure;
-create temporary table temp_exposure as select encounter_id, value_coded from omrs_obs where concept = 'Exposure';
+create temporary table temp_exposure as select encounter_id, value_coded from temp_asthma_initial_obs where concept = 'Exposure';
 alter table temp_exposure add index temp_exposure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_date_of_exposure;
-create temporary table temp_date_of_exposure as select encounter_id, value_date from omrs_obs where concept = 'Date of exposure';
+create temporary table temp_date_of_exposure as select encounter_id, value_date from temp_asthma_initial_obs where concept = 'Date of exposure';
 alter table temp_date_of_exposure add index temp_date_of_exposure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_tb_status;
-create temporary table temp_tb_status as select encounter_id, value_coded from omrs_obs where concept = 'TB status';
+create temporary table temp_tb_status as select encounter_id, value_coded from temp_asthma_initial_obs where concept = 'TB status';
 alter table temp_tb_status add index temp_tb_status_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_year_of_tuberculosis_diagnosis;
-create temporary table temp_year_of_tuberculosis_diagnosis as select encounter_id, value_numeric from omrs_obs where concept = 'Year of Tuberculosis diagnosis';
+create temporary table temp_year_of_tuberculosis_diagnosis as select encounter_id, value_numeric from temp_asthma_initial_obs where concept = 'Year of Tuberculosis diagnosis';
 alter table temp_year_of_tuberculosis_diagnosis add index temp_year_of_tuberculosis_diagnosis_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_last_time_person_used_tobacco;
-create temporary table temp_last_time_person_used_tobacco as select encounter_id, value_date from omrs_obs where concept = 'Last time person used tobacco';
+create temporary table temp_last_time_person_used_tobacco as select encounter_id, value_date from temp_asthma_initial_obs where concept = 'Last time person used tobacco';
 alter table temp_last_time_person_used_tobacco add index temp_last_time_person_used_tobacco_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_main_activity;
-create temporary table temp_main_activity as select encounter_id, value_coded from omrs_obs where concept = 'Main activity';
+create temporary table temp_main_activity as select encounter_id, value_coded from temp_asthma_initial_obs where concept = 'Main activity';
 alter table temp_main_activity add index temp_main_activity_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_smoking_history;
-create temporary table temp_smoking_history as select encounter_id, value_coded from omrs_obs where concept = 'Smoking history';
+create temporary table temp_smoking_history as select encounter_id, value_coded from temp_asthma_initial_obs where concept = 'Smoking history';
 alter table temp_smoking_history add index temp_smoking_history_encounter_idx (encounter_id);
 
 insert into mw_asthma_initial (patient_id, visit_date, location, art_start_date, chronic_dry_cough, chronic_dry_cough_age_at_onset, chronic_dry_cough_duration_in_months, cooking_indoor, diagnosis_asthma, diagnosis_copd, diagnosis_date_asthma, diagnosis_date_copd, family_history_asthma, family_history_copd, hiv_status, hiv_test_date, tb_contact, tb_contact_date, tb_status, tb_year, last_smoking_history_date, occupation, occupation_exposure, occupation_exposure_date, second_hand_smoking, second_hand_smoking_date, smoking_history)

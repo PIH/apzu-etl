@@ -120,6 +120,15 @@ create table mw_mental_health_followup
     primary key (mental_health_followup_visit_id)
 );
 
+drop temporary table if exists temp_mh_followup_obs;
+create temporary table temp_mh_followup_obs as
+select encounter_id, obs_group_id, concept, value_coded, value_numeric, value_date, value_text
+from omrs_obs
+where encounter_type = 'MENTAL_HEALTH_FOLLOWUP';
+alter table temp_mh_followup_obs add index temp_mh_followup_obs_concept_idx (concept);
+alter table temp_mh_followup_obs add index temp_mh_followup_obs_encounter_idx (encounter_id);
+alter table temp_mh_followup_obs add index temp_mh_followup_obs_group_idx (obs_group_id);
+
 -- Build temp_medications in three steps to avoid a full scan of the ~20M-row omrs_obs table.
 -- Step 1: pull only the drug-name obs for this encounter type (~20M rows → small set).
 -- Step 2: pull only the detail obs whose obs_group_id appears in step 1 (indexed lookup).
@@ -127,16 +136,15 @@ create table mw_mental_health_followup
 drop temporary table if exists temp_drug_name_obs;
 create temporary table temp_drug_name_obs as
 select obs_id, encounter_id, obs_group_id, value_coded as drug_name
-from omrs_obs
-where concept = 'Current drugs used'
-  and encounter_type = 'MENTAL_HEALTH_FOLLOWUP';
+from temp_mh_followup_obs
+where concept = 'Current drugs used';
 alter table temp_drug_name_obs add index temp_drug_name_obs_group_idx (obs_group_id);
 alter table temp_drug_name_obs add index temp_drug_name_obs_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_drug_detail_obs;
 create temporary table temp_drug_detail_obs as
 select obs_group_id, concept, value_coded, value_numeric
-from omrs_obs
+from temp_mh_followup_obs
 where obs_group_id in (select obs_group_id from temp_drug_name_obs)
   and concept in ('Drug frequency coded', 'Quantity of medication prescribed per dose',
                   'Dosing unit', 'Routes of administration (coded)',
@@ -209,69 +217,69 @@ create temporary table temp_med_amitriptyline as select * from temp_medications 
 alter table temp_med_amitriptyline add index temp_med_amitriptyline_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_able_to_perform_daily_activities;
-create temporary table temp_able_to_perform_daily_activities as select encounter_id, value_coded from omrs_obs where concept = 'Able to perform daily activities';
+create temporary table temp_able_to_perform_daily_activities as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Able to perform daily activities';
 alter table temp_able_to_perform_daily_activities add index temp_able_perform_daily_acts_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_history_of_alcohol_use;
-create temporary table temp_history_of_alcohol_use as select encounter_id, value_coded from omrs_obs where concept = 'History of alcohol use';
+create temporary table temp_history_of_alcohol_use as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'History of alcohol use';
 alter table temp_history_of_alcohol_use add index temp_history_of_alcohol_use_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_mental_health_chief_complaint_absent;
-create temporary table temp_mental_health_chief_complaint_absent as select encounter_id, value_coded from omrs_obs where concept = 'Mental health chief complaint absent';
+create temporary table temp_mental_health_chief_complaint_absent as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Mental health chief complaint absent';
 alter table temp_mental_health_chief_complaint_absent add index temp_mental_health_chief_complaint_absent_2 (encounter_id);
 
 drop temporary table if exists temp_family_planning;
-create temporary table temp_family_planning as select encounter_id, value_coded from omrs_obs where concept = 'Family planning';
+create temporary table temp_family_planning as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Family planning';
 alter table temp_family_planning add index temp_family_planning_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_phq_9_score;
-create temporary table temp_phq_9_score as select encounter_id, value_numeric from omrs_obs where concept = 'PHQ 9 Score';
+create temporary table temp_phq_9_score as select encounter_id, value_numeric from temp_mh_followup_obs where concept = 'PHQ 9 Score';
 alter table temp_phq_9_score add index temp_phq_9_score_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_stable;
-create temporary table temp_stable as select encounter_id, value_coded from omrs_obs where concept = 'Stable';
+create temporary table temp_stable as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Stable';
 alter table temp_stable add index temp_stable_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_suicide_risk;
-create temporary table temp_suicide_risk as select encounter_id, value_coded from omrs_obs where concept = 'Suicide risk';
+create temporary table temp_suicide_risk as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Suicide risk';
 alter table temp_suicide_risk add index temp_suicide_risk_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_clinical_impression_comments;
-create temporary table temp_clinical_impression_comments as select encounter_id, value_text from omrs_obs where concept = 'Clinical impression comments';
+create temporary table temp_clinical_impression_comments as select encounter_id, value_text from temp_mh_followup_obs where concept = 'Clinical impression comments';
 alter table temp_clinical_impression_comments add index temp_clinical_impression_comments_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_height_cm;
-create temporary table temp_height_cm as select encounter_id, value_numeric from omrs_obs where concept = 'Height (cm)';
+create temporary table temp_height_cm as select encounter_id, value_numeric from temp_mh_followup_obs where concept = 'Height (cm)';
 alter table temp_height_cm add index temp_height_cm_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_is_patient_pregnant;
-create temporary table temp_is_patient_pregnant as select encounter_id, value_coded from omrs_obs where concept = 'Is patient pregnant?';
+create temporary table temp_is_patient_pregnant as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Is patient pregnant?';
 alter table temp_is_patient_pregnant add index temp_is_patient_pregnant_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_weight_kg;
-create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
+create temporary table temp_weight_kg as select encounter_id, value_numeric from temp_mh_followup_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_group_counselling;
-create temporary table temp_group_counselling as select encounter_id, value_coded from omrs_obs where concept = 'Group Counselling';
+create temporary table temp_group_counselling as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Group Counselling';
 alter table temp_group_counselling add index temp_group_counselling_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_hospitalized_mental_health_since_last_visit;
-create temporary table temp_hospitalized_mental_health_since_last_visit as select encounter_id, value_coded from omrs_obs where concept = 'Hospitalized for mental health since last visit';
+create temporary table temp_hospitalized_mental_health_since_last_visit as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Hospitalized for mental health since last visit';
 alter table temp_hospitalized_mental_health_since_last_visit add index temp_hospitalized_mental_health_since_last_visit_2 (encounter_id);
 
 drop temporary table if exists temp_does_patient_have_adverse_effects;
-create temporary table temp_does_patient_have_adverse_effects as select encounter_id, value_coded from omrs_obs where concept = 'Does patient have adverse effects';
+create temporary table temp_does_patient_have_adverse_effects as select encounter_id, value_coded from temp_mh_followup_obs where concept = 'Does patient have adverse effects';
 alter table temp_does_patient_have_adverse_effects add index temp_does_patient_adverse_effects_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_appointment_date;
-create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
+create temporary table temp_appointment_date as select encounter_id, value_date from temp_mh_followup_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_current_use_marijuana;
 create temporary table temp_current_use_marijuana as
 select o.encounter_id, o.value_coded
-from omrs_obs o
+from temp_mh_followup_obs o
 where o.obs_group_id in (
     select obs_group_id from omrs_obs_group
     where concept = 'Marijuana use construct'
@@ -282,7 +290,7 @@ alter table temp_current_use_marijuana add index temp_current_use_marijuana_enco
 drop temporary table if exists temp_current_use_other;
 create temporary table temp_current_use_other as
 select o.encounter_id, o.value_coded
-from omrs_obs o
+from temp_mh_followup_obs o
 where o.obs_group_id in (
     select obs_group_id from omrs_obs_group
     where concept = 'Drug use construct'
