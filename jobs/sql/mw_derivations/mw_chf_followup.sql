@@ -144,7 +144,7 @@ alter table temp_chf_followup_obs add index temp_chf_followup_obs_group_idx (obs
 -- Step 3: join the two small tables to produce one row per drug per encounter.
 drop temporary table if exists temp_drug_name_obs;
 create temporary table temp_drug_name_obs as
-select obs_id, encounter_id, obs_group_id, value_coded as drug_name
+select encounter_id, obs_group_id, value_coded as drug_name
 from temp_chf_followup_obs
 where concept = 'Current drugs used';
 alter table temp_drug_name_obs add index temp_drug_name_obs_group_idx (obs_group_id);

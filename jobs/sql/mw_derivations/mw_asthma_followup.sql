@@ -73,7 +73,7 @@ alter table temp_asthma_followup_obs add index temp_asthma_followup_obs_group_id
 -- Step 3: join the two small tables to produce one row per treatment per encounter.
 drop temporary table if exists temp_drug_name_obs;
 create temporary table temp_drug_name_obs as
-select obs_id, encounter_id, obs_group_id, value_coded as treatment_name
+select encounter_id, obs_group_id, value_coded as treatment_name
 from temp_asthma_followup_obs
 where concept = 'Chronic lung disease treatment';
 alter table temp_drug_name_obs add index temp_drug_name_obs_group_idx (obs_group_id);

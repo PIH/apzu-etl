@@ -98,7 +98,7 @@ alter table temp_mhi_obs add index temp_mhi_obs_group_idx (obs_group_id);
 -- Step 1: pull only Chronic care diagnosis obs for this encounter type.
 drop temporary table if exists temp_diagnosis_name_obs;
 create temporary table temp_diagnosis_name_obs as
-select obs_id, obs_group_id, encounter_id, value_coded as diagnosis_name
+select obs_group_id, encounter_id, value_coded as diagnosis_name
 from temp_mhi_obs
 where concept = 'Chronic care diagnosis';
 alter table temp_diagnosis_name_obs add index temp_diagnosis_name_obs_group_idx (obs_group_id);
@@ -124,7 +124,7 @@ alter table temp_diagnoses add index temp_diagnoses_encounter_idx (encounter_id)
 -- Build temp_complaints to pair each chief complaint with its own date via obs_group_id.
 drop temporary table if exists temp_complaint_name_obs;
 create temporary table temp_complaint_name_obs as
-select obs_id, obs_group_id, encounter_id, value_coded as complaint_name
+select obs_group_id, encounter_id, value_coded as complaint_name
 from temp_mhi_obs
 where concept = 'Mental health chief complaint';
 alter table temp_complaint_name_obs add index temp_complaint_name_obs_group_idx (obs_group_id);
@@ -149,7 +149,7 @@ alter table temp_complaints add index temp_complaints_encounter_idx (encounter_i
 -- with its date and duration via obs_group_id.
 drop temporary table if exists temp_exposure_name_obs;
 create temporary table temp_exposure_name_obs as
-select obs_id, obs_group_id, encounter_id, value_coded as exposure_name
+select obs_group_id, encounter_id, value_coded as exposure_name
 from temp_mhi_obs
 where concept = 'History of exposure';
 alter table temp_exposure_name_obs add index temp_exposure_name_obs_group_idx (obs_group_id);
@@ -178,7 +178,7 @@ alter table temp_exposures add index temp_exposures_encounter_idx (encounter_id)
 -- Build temp_alcohol_exposure to pair alcohol exposure with its date and duration via obs_group_id.
 drop temporary table if exists temp_alcohol_name_obs;
 create temporary table temp_alcohol_name_obs as
-select obs_id, obs_group_id, encounter_id, value_coded as exposure_name
+select obs_group_id, encounter_id, value_coded as exposure_name
 from temp_mhi_obs
 where concept = 'History of alcohol use';
 alter table temp_alcohol_name_obs add index temp_alcohol_name_obs_group_idx (obs_group_id);
