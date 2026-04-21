@@ -7,7 +7,6 @@ create table mw_mental_health_initial (
  patient_id 						int not null,
  visit_date 						date default null,
  location						varchar(255) default null,
- 
  diagnosis_bipolar_mood_disorder			varchar(255) default null,
  diagnosis_date_bipolar_mood_disorder			date default null,
  diagnosis_stress_reactive_adjustment_disorder	varchar(255) default null,
@@ -26,7 +25,6 @@ create table mw_mental_health_initial (
  diagnosis_date_mood_affective_disorder_depression 	date default null,
  diagnosis_acute_and_transient_psychotic 		varchar(255) default null,
  diagnosis_date_acute_and_transient_psychotic 	date default null,
- 
  diagnosis_schizoaffective_disorder 		varchar(255) default null,
  diagnosis_date_schizoaffective_disorder 	date default null,
  diagnosis_anxiety_disorder 			varchar(255) default null,
@@ -87,41 +85,127 @@ create table mw_mental_health_initial (
  behavior_problems_family_history 		varchar(255) default null
 ) ;
 
-drop temporary table if exists temp_diagnosis_date;
-create temporary table temp_diagnosis_date as select encounter_id, value_date from omrs_obs where concept = 'Diagnosis date';
-alter table temp_diagnosis_date add index temp_diagnosis_date_encounter_idx (encounter_id);
+-- Build temp_diagnoses in three steps to correctly pair each diagnosis with its own date via obs_group_id.
+-- Step 1: pull only Chronic care diagnosis obs for this encounter type.
+drop temporary table if exists temp_diagnosis_name_obs;
+create temporary table temp_diagnosis_name_obs as
+select obs_id, obs_group_id, encounter_id, value_coded as diagnosis_name
+from omrs_obs
+where concept = 'Chronic care diagnosis'
+  and encounter_type = 'MENTAL_HEALTH_INITIAL';
+alter table temp_diagnosis_name_obs add index temp_diagnosis_name_obs_group_idx (obs_group_id);
+alter table temp_diagnosis_name_obs add index temp_diagnosis_name_obs_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_date_of_exposure;
-create temporary table temp_date_of_exposure as select encounter_id, value_date from omrs_obs where concept = 'Date of exposure';
-alter table temp_date_of_exposure add index temp_date_of_exposure_encounter_idx (encounter_id);
+-- Step 2: pull only Diagnosis date obs that are siblings of a diagnosis from step 1.
+drop temporary table if exists temp_diagnosis_date_obs;
+create temporary table temp_diagnosis_date_obs as
+select obs_group_id, value_date as diagnosis_date
+from omrs_obs
+where concept = 'Diagnosis date'
+  and obs_group_id in (select obs_group_id from temp_diagnosis_name_obs);
+alter table temp_diagnosis_date_obs add index temp_diagnosis_date_obs_group_idx (obs_group_id);
 
-drop temporary table if exists temp_history_of_alcohol_use;
-create temporary table temp_history_of_alcohol_use as select encounter_id, value_coded from omrs_obs where concept = 'History of alcohol use';
-alter table temp_history_of_alcohol_use add index temp_history_of_alcohol_use_encounter_idx (encounter_id);
+-- Step 3: one row per (encounter_id, diagnosis_name, diagnosis_date).
+drop temporary table if exists temp_diagnoses;
+create temporary table temp_diagnoses as
+select n.encounter_id, n.diagnosis_name, d.diagnosis_date
+from temp_diagnosis_name_obs n
+left join temp_diagnosis_date_obs d on d.obs_group_id = n.obs_group_id;
+alter table temp_diagnoses add index temp_diagnoses_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_duration_in_years;
-create temporary table temp_duration_in_years as select encounter_id, value_numeric from omrs_obs where concept = 'Duration in years';
-alter table temp_duration_in_years add index temp_duration_in_years_encounter_idx (encounter_id);
+-- Build temp_complaints to pair each chief complaint with its own date via obs_group_id.
+drop temporary table if exists temp_complaint_name_obs;
+create temporary table temp_complaint_name_obs as
+select obs_id, obs_group_id, encounter_id, value_coded as complaint_name
+from omrs_obs
+where concept = 'Mental health chief complaint'
+  and encounter_type = 'MENTAL_HEALTH_INITIAL';
+alter table temp_complaint_name_obs add index temp_complaint_name_obs_group_idx (obs_group_id);
+alter table temp_complaint_name_obs add index temp_complaint_name_obs_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_complaint_date_obs;
+create temporary table temp_complaint_date_obs as
+select obs_group_id, value_date as complaint_date
+from omrs_obs
+where concept = 'Diagnosis date'
+  and obs_group_id in (select obs_group_id from temp_complaint_name_obs);
+alter table temp_complaint_date_obs add index temp_complaint_date_obs_group_idx (obs_group_id);
+
+drop temporary table if exists temp_complaints;
+create temporary table temp_complaints as
+select n.encounter_id, n.complaint_name, d.complaint_date
+from temp_complaint_name_obs n
+left join temp_complaint_date_obs d on d.obs_group_id = n.obs_group_id;
+alter table temp_complaints add index temp_complaints_encounter_idx (encounter_id);
+
+-- Build temp_exposures to pair each exposure type (marijuana, other drugs, traditional medicine)
+-- with its date and duration via obs_group_id.
+drop temporary table if exists temp_exposure_name_obs;
+create temporary table temp_exposure_name_obs as
+select obs_id, obs_group_id, encounter_id, value_coded as exposure_name
+from omrs_obs
+where concept = 'History of exposure'
+  and encounter_type = 'MENTAL_HEALTH_INITIAL';
+alter table temp_exposure_name_obs add index temp_exposure_name_obs_group_idx (obs_group_id);
+alter table temp_exposure_name_obs add index temp_exposure_name_obs_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_exposure_detail_obs;
+create temporary table temp_exposure_detail_obs as
+select obs_group_id, concept, value_date, value_numeric
+from omrs_obs
+where obs_group_id in (select obs_group_id from temp_exposure_name_obs)
+  and concept in ('Date of exposure', 'Duration in years');
+alter table temp_exposure_detail_obs add index temp_exposure_detail_obs_group_idx (obs_group_id);
+
+drop temporary table if exists temp_exposures;
+create temporary table temp_exposures as
+select
+    n.encounter_id,
+    n.exposure_name,
+    max(case when d.concept = 'Date of exposure' then d.value_date end) as exposure_date,
+    max(case when d.concept = 'Duration in years' then d.value_numeric end) as exposure_years
+from temp_exposure_name_obs n
+left join temp_exposure_detail_obs d on d.obs_group_id = n.obs_group_id
+group by n.encounter_id, n.obs_group_id, n.exposure_name;
+alter table temp_exposures add index temp_exposures_encounter_idx (encounter_id);
+
+-- Build temp_alcohol_exposure to pair alcohol exposure with its date and duration via obs_group_id.
+drop temporary table if exists temp_alcohol_name_obs;
+create temporary table temp_alcohol_name_obs as
+select obs_id, obs_group_id, encounter_id, value_coded as exposure_name
+from omrs_obs
+where concept = 'History of alcohol use'
+  and encounter_type = 'MENTAL_HEALTH_INITIAL';
+alter table temp_alcohol_name_obs add index temp_alcohol_name_obs_group_idx (obs_group_id);
+alter table temp_alcohol_name_obs add index temp_alcohol_name_obs_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_alcohol_detail_obs;
+create temporary table temp_alcohol_detail_obs as
+select obs_group_id, concept, value_date, value_numeric
+from omrs_obs
+where obs_group_id in (select obs_group_id from temp_alcohol_name_obs)
+  and concept in ('Date of exposure', 'Duration in years');
+alter table temp_alcohol_detail_obs add index temp_alcohol_detail_obs_group_idx (obs_group_id);
+
+drop temporary table if exists temp_alcohol_exposure;
+create temporary table temp_alcohol_exposure as
+select
+    n.encounter_id,
+    n.exposure_name as alcohol_exposure,
+    max(case when d.concept = 'Date of exposure' then d.value_date end) as alcohol_date,
+    max(case when d.concept = 'Duration in years' then d.value_numeric end) as alcohol_years
+from temp_alcohol_name_obs n
+left join temp_alcohol_detail_obs d on d.obs_group_id = n.obs_group_id
+group by n.encounter_id, n.obs_group_id, n.exposure_name;
+alter table temp_alcohol_exposure add index temp_alcohol_exposure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_family_history_of_behavioral_problems;
 create temporary table temp_family_history_of_behavioral_problems as select encounter_id, value_coded from omrs_obs where concept = 'Family history of behavioral problems';
 alter table temp_family_history_of_behavioral_problems add index temp_family_history_behavioral_problems_encounter (encounter_id);
 
-drop temporary table if exists temp_mental_health_chief_complaint;
-create temporary table temp_mental_health_chief_complaint as select encounter_id, value_coded from omrs_obs where concept = 'Mental health chief complaint';
-alter table temp_mental_health_chief_complaint add index temp_mental_health_chief_complaint_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_chronic_care_diagnosis;
-create temporary table temp_chronic_care_diagnosis as select encounter_id, value_coded from omrs_obs where concept = 'Chronic care diagnosis';
-alter table temp_chronic_care_diagnosis add index temp_chronic_care_diagnosis_encounter_idx (encounter_id);
-
 drop temporary table if exists temp_family_history_of_epilepsy;
 create temporary table temp_family_history_of_epilepsy as select encounter_id, value_coded from omrs_obs where concept = 'Family history of epilepsy';
 alter table temp_family_history_of_epilepsy add index temp_family_history_of_epilepsy_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_history_of_exposure;
-create temporary table temp_history_of_exposure as select encounter_id, value_coded from omrs_obs where concept = 'History of exposure';
-alter table temp_history_of_exposure add index temp_history_of_exposure_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_family_history_of_mental_illness;
 create temporary table temp_family_history_of_mental_illness as select encounter_id, value_coded from omrs_obs where concept = 'Family history of mental illness';
@@ -156,92 +240,89 @@ select
     e.patient_id,
     date(e.encounter_date) as visit_date,
     e.location,
-    max(diagnosis_date.value_date) as diagnosis_date_mood_affective_disorder_depression,
-    max(date_of_exposure.value_date) as alcohol_date_last_used,
-    max(history_of_alcohol_use.value_coded) as alcohol_exposure,
-    max(duration_in_years.value_numeric) as alcohol_years_exposed,
+    max(case when diagnoses.diagnosis_name = 'Depression' then diagnoses.diagnosis_date end) as diagnosis_date_mood_affective_disorder_depression,
+    max(alcohol_exp.alcohol_date) as alcohol_date_last_used,
+    max(alcohol_exp.alcohol_exposure) as alcohol_exposure,
+    max(alcohol_exp.alcohol_years) as alcohol_years_exposed,
     max(family_history_of_behavioral_problems.value_coded) as behavior_problems_family_history,
-    max(diagnosis_date.value_date) as delusions_date,
-    max(case when mental_health_chief_complaint.value_coded = 'Depressive Disorder' then mental_health_chief_complaint.value_coded end) as depressive_symptoms,
-    max(diagnosis_date.value_date) as depressive_symptoms_date,
-    max(case when chronic_care_diagnosis.value_coded = 'Schizophrenia' then chronic_care_diagnosis.value_coded end) as diagnosis_schizophrenia,
-    max(diagnosis_date.value_date) as diagnosis_date_stress_reactive_adjustment_disorder,
-    max(case when chronic_care_diagnosis.value_coded = 'Acute Psychotic disorder' then chronic_care_diagnosis.value_coded end) as diagnosis_acute_and_transient_psychotic,
-    max(case when chronic_care_diagnosis.value_coded = 'Anxiety disorder' then chronic_care_diagnosis.value_coded end) as diagnosis_anxiety_disorder,
-    max(case when chronic_care_diagnosis.value_coded = 'Mood Affective Disorder (Bipolar)' then chronic_care_diagnosis.value_coded end) as diagnosis_bipolar_mood_disorder,
-    max(diagnosis_date.value_date) as diagnosis_date_schizophrenia,
-    max(diagnosis_date.value_date) as diagnosis_date_acute_and_transient_psychotic,
-    max(diagnosis_date.value_date) as diagnosis_date_anxiety_disorder,
-    max(diagnosis_date.value_date) as diagnosis_date_bipolar_mood_disorder,
-    max(diagnosis_date.value_date) as diagnosis_date_dissociative_mood_disorder,
-    max(diagnosis_date.value_date) as diagnosis_date_drug_use_mental_disorder,
-    max(diagnosis_date.value_date) as diagnosis_date_hyperkinetic_disorder,
-    max(diagnosis_date.value_date) as diagnosis_date_mood_affective_disorder_manic,
-    max(diagnosis_date.value_date) as diagnosis_date_organic_mental_disorder_acute,
-    max(diagnosis_date.value_date) as diagnosis_date_organic_mental_disorder_chronic,
-    max(diagnosis_date.value_date) as diagnosis_date_puerperal_mental_disorder,
-    max(diagnosis_date.value_date) as diagnosis_date_schizoaffective_disorder,
-    max(case when chronic_care_diagnosis.value_coded = 'Dissociative Conversion Disorder' then chronic_care_diagnosis.value_coded end) as diagnosis_dissociative_mood_disorder,
-    max(case when chronic_care_diagnosis.value_coded = 'Drug-induced mental and behavior disorder' then chronic_care_diagnosis.value_coded end) as diagnosis_drug_use_mental_disorder,
-    max(case when chronic_care_diagnosis.value_coded = 'Hyperkinetic Conductal Disorder (ADHD)' then chronic_care_diagnosis.value_coded end) as diagnosis_hyperkinetic_disorder,
-    max(case when chronic_care_diagnosis.value_coded = 'Depression' then chronic_care_diagnosis.value_coded end) as diagnosis_mood_affective_disorder_depression,
-    max(case when chronic_care_diagnosis.value_coded = 'Bipolar Affective Disorder, Manic' then chronic_care_diagnosis.value_coded end) as diagnosis_mood_affective_disorder_manic,
-    max(case when chronic_care_diagnosis.value_coded = 'Organic mental disorder (acute)' then chronic_care_diagnosis.value_coded end) as diagnosis_organic_mental_disorder_acute,
-    max(case when chronic_care_diagnosis.value_coded = 'Organic mental disorder (chronic)' then chronic_care_diagnosis.value_coded end) as diagnosis_organic_mental_disorder_chronic,
-    max(case when chronic_care_diagnosis.value_coded = 'Puerperal Mental Disorder' then chronic_care_diagnosis.value_coded end) as diagnosis_puerperal_mental_disorder,
-    max(case when chronic_care_diagnosis.value_coded = 'Schizoaffective Disorder' then chronic_care_diagnosis.value_coded end) as diagnosis_schizoaffective_disorder,
-    max(case when chronic_care_diagnosis.value_coded = 'Stress Reaction Adjustment Disorder' then chronic_care_diagnosis.value_coded end) as diagnosis_stress_reactive_adjustment_disorder,
-    max(case when mental_health_chief_complaint.value_coded = 'Disruptive Behavior Disorder' then mental_health_chief_complaint.value_coded end) as disorganised_or_disruptive_behaviour,
-    max(case when mental_health_chief_complaint.value_coded = 'Abnormal speech' then mental_health_chief_complaint.value_coded end) as disorganised_speech,
+    max(case when complaints.complaint_name = 'Delusions' then complaints.complaint_date end) as delusions_date,
+    max(case when complaints.complaint_name = 'Depressive Disorder' then complaints.complaint_name end) as depressive_symptoms,
+    max(case when complaints.complaint_name = 'Depressive Disorder' then complaints.complaint_date end) as depressive_symptoms_date,
+    max(case when diagnoses.diagnosis_name = 'Schizophrenia' then diagnoses.diagnosis_name end) as diagnosis_schizophrenia,
+    max(case when diagnoses.diagnosis_name = 'Stress Reaction Adjustment Disorder' then diagnoses.diagnosis_date end) as diagnosis_date_stress_reactive_adjustment_disorder,
+    max(case when diagnoses.diagnosis_name = 'Acute Psychotic disorder' then diagnoses.diagnosis_name end) as diagnosis_acute_and_transient_psychotic,
+    max(case when diagnoses.diagnosis_name = 'Anxiety disorder' then diagnoses.diagnosis_name end) as diagnosis_anxiety_disorder,
+    max(case when diagnoses.diagnosis_name = 'Mood Affective Disorder (Bipolar)' then diagnoses.diagnosis_name end) as diagnosis_bipolar_mood_disorder,
+    max(case when diagnoses.diagnosis_name = 'Schizophrenia' then diagnoses.diagnosis_date end) as diagnosis_date_schizophrenia,
+    max(case when diagnoses.diagnosis_name = 'Acute Psychotic disorder' then diagnoses.diagnosis_date end) as diagnosis_date_acute_and_transient_psychotic,
+    max(case when diagnoses.diagnosis_name = 'Anxiety disorder' then diagnoses.diagnosis_date end) as diagnosis_date_anxiety_disorder,
+    max(case when diagnoses.diagnosis_name = 'Mood Affective Disorder (Bipolar)' then diagnoses.diagnosis_date end) as diagnosis_date_bipolar_mood_disorder,
+    max(case when diagnoses.diagnosis_name = 'Dissociative Conversion Disorder' then diagnoses.diagnosis_date end) as diagnosis_date_dissociative_mood_disorder,
+    max(case when diagnoses.diagnosis_name = 'Drug-induced mental and behavior disorder' then diagnoses.diagnosis_date end) as diagnosis_date_drug_use_mental_disorder,
+    max(case when diagnoses.diagnosis_name = 'Hyperkinetic Conductal Disorder (ADHD)' then diagnoses.diagnosis_date end) as diagnosis_date_hyperkinetic_disorder,
+    max(case when diagnoses.diagnosis_name = 'Bipolar Affective Disorder, Manic' then diagnoses.diagnosis_date end) as diagnosis_date_mood_affective_disorder_manic,
+    max(case when diagnoses.diagnosis_name = 'Organic mental disorder (acute)' then diagnoses.diagnosis_date end) as diagnosis_date_organic_mental_disorder_acute,
+    max(case when diagnoses.diagnosis_name = 'Organic mental disorder (chronic)' then diagnoses.diagnosis_date end) as diagnosis_date_organic_mental_disorder_chronic,
+    max(case when diagnoses.diagnosis_name = 'Puerperal Mental Disorder' then diagnoses.diagnosis_date end) as diagnosis_date_puerperal_mental_disorder,
+    max(case when diagnoses.diagnosis_name = 'Schizoaffective Disorder' then diagnoses.diagnosis_date end) as diagnosis_date_schizoaffective_disorder,
+    max(case when diagnoses.diagnosis_name = 'Dissociative Conversion Disorder' then diagnoses.diagnosis_name end) as diagnosis_dissociative_mood_disorder,
+    max(case when diagnoses.diagnosis_name = 'Drug-induced mental and behavior disorder' then diagnoses.diagnosis_name end) as diagnosis_drug_use_mental_disorder,
+    max(case when diagnoses.diagnosis_name = 'Hyperkinetic Conductal Disorder (ADHD)' then diagnoses.diagnosis_name end) as diagnosis_hyperkinetic_disorder,
+    max(case when diagnoses.diagnosis_name = 'Depression' then diagnoses.diagnosis_name end) as diagnosis_mood_affective_disorder_depression,
+    max(case when diagnoses.diagnosis_name = 'Bipolar Affective Disorder, Manic' then diagnoses.diagnosis_name end) as diagnosis_mood_affective_disorder_manic,
+    max(case when diagnoses.diagnosis_name = 'Organic mental disorder (acute)' then diagnoses.diagnosis_name end) as diagnosis_organic_mental_disorder_acute,
+    max(case when diagnoses.diagnosis_name = 'Organic mental disorder (chronic)' then diagnoses.diagnosis_name end) as diagnosis_organic_mental_disorder_chronic,
+    max(case when diagnoses.diagnosis_name = 'Puerperal Mental Disorder' then diagnoses.diagnosis_name end) as diagnosis_puerperal_mental_disorder,
+    max(case when diagnoses.diagnosis_name = 'Schizoaffective Disorder' then diagnoses.diagnosis_name end) as diagnosis_schizoaffective_disorder,
+    max(case when diagnoses.diagnosis_name = 'Stress Reaction Adjustment Disorder' then diagnoses.diagnosis_name end) as diagnosis_stress_reactive_adjustment_disorder,
+    max(case when complaints.complaint_name = 'Disruptive Behavior Disorder' then complaints.complaint_name end) as disorganised_or_disruptive_behaviour,
+    max(case when complaints.complaint_name = 'Abnormal speech' then complaints.complaint_name end) as disorganised_speech,
     max(family_history_of_epilepsy.value_coded) as epilepsy_family_history,
-    max(diagnosis_date.value_date) as hallucinations_date,
-    max(date_of_exposure.value_date) as marijuana_date_last_used,
-    max(history_of_exposure.value_coded) as marijuana_exposure,
-    max(duration_in_years.value_numeric) as marijuana_years_exposed,
+    max(case when complaints.complaint_name = 'Hallucinations' then complaints.complaint_date end) as hallucinations_date,
+    max(case when exposures.exposure_name = 'Marijuana' then exposures.exposure_date end) as marijuana_date_last_used,
+    max(case when exposures.exposure_name = 'Marijuana' then exposures.exposure_name end) as marijuana_exposure,
+    max(case when exposures.exposure_name = 'Marijuana' then exposures.exposure_years end) as marijuana_years_exposed,
     max(family_history_of_mental_illness.value_coded) as mental_family_history,
-    max(case when mental_health_chief_complaint.value_coded = 'Other non-coded' then mental_health_chief_complaint.value_coded end) as other_complaints,
-    max(diagnosis_date.value_date) as other_complaints_date,
-    max(date_of_exposure.value_date) as other_drugs_date_last_used,
-    max(history_of_exposure.value_coded) as other_drugs_exposure,
-    max(duration_in_years.value_numeric) as other_drugs_years_exposed,
-    max(date_of_exposure.value_date) as traditional_med_date_last_used,
-    max(history_of_exposure.value_coded) as traditional_med_exposure,
-    max(duration_in_years.value_numeric) as traditional_med_years_exposed,
-    max(chronic_care_diagnosis.value_coded) as diagnosis_other_3,
+    max(case when complaints.complaint_name = 'Other non-coded' then complaints.complaint_name end) as other_complaints,
+    max(case when complaints.complaint_name = 'Other non-coded' then complaints.complaint_date end) as other_complaints_date,
+    max(case when exposures.exposure_name = 'Other drugs' then exposures.exposure_date end) as other_drugs_date_last_used,
+    max(case when exposures.exposure_name = 'Other drugs' then exposures.exposure_name end) as other_drugs_exposure,
+    max(case when exposures.exposure_name = 'Other drugs' then exposures.exposure_years end) as other_drugs_years_exposed,
+    max(case when exposures.exposure_name = 'Traditional medicine' then exposures.exposure_date end) as traditional_med_date_last_used,
+    max(case when exposures.exposure_name = 'Traditional medicine' then exposures.exposure_name end) as traditional_med_exposure,
+    max(case when exposures.exposure_name = 'Traditional medicine' then exposures.exposure_years end) as traditional_med_years_exposed,
+    max(diagnoses.diagnosis_name) as diagnosis_other_3,
     max(date_antiretrovirals_started.value_date) as art_start_date,
-    max(case when mental_health_chief_complaint.value_coded = 'Delusions' then mental_health_chief_complaint.value_coded end) as delusions,
-    max(case when chronic_care_diagnosis.value_coded = 'Alcohol-induced mental and behavior disorder' then chronic_care_diagnosis.value_coded end) as diagnosis_alcohol_use_mental_disorder,
-    max(diagnosis_date.value_date) as diagnosis_date_alcohol_use_mental_disorder,
-    max(diagnosis_date.value_date) as diagnosis_date_mental_retardation_disorder,
-    max(diagnosis_date.value_date) as diagnosis_date_other_1,
-    max(diagnosis_date.value_date) as diagnosis_date_other_2,
-    max(diagnosis_date.value_date) as diagnosis_date_other_3,
-    max(diagnosis_date.value_date) as diagnosis_date_personality_disorder,
-    max(diagnosis_date.value_date) as diagnosis_date_psych_development_disorder,
-    max(diagnosis_date.value_date) as diagnosis_date_somatoform_disorder,
-    max(case when chronic_care_diagnosis.value_coded = 'Mental retardation' then chronic_care_diagnosis.value_coded end) as diagnosis_mental_retardation_disorder,
+    max(case when complaints.complaint_name = 'Delusions' then complaints.complaint_name end) as delusions,
+    max(case when diagnoses.diagnosis_name = 'Alcohol-induced mental and behavior disorder' then diagnoses.diagnosis_name end) as diagnosis_alcohol_use_mental_disorder,
+    max(case when diagnoses.diagnosis_name = 'Alcohol-induced mental and behavior disorder' then diagnoses.diagnosis_date end) as diagnosis_date_alcohol_use_mental_disorder,
+    max(case when diagnoses.diagnosis_name = 'Mental retardation' then diagnoses.diagnosis_date end) as diagnosis_date_mental_retardation_disorder,
+    max(diagnoses.diagnosis_date) as diagnosis_date_other_1,
+    max(diagnoses.diagnosis_date) as diagnosis_date_other_2,
+    max(diagnoses.diagnosis_date) as diagnosis_date_other_3,
+    max(case when diagnoses.diagnosis_name = 'Personality Disorder' then diagnoses.diagnosis_date end) as diagnosis_date_personality_disorder,
+    max(case when diagnoses.diagnosis_name = 'Psychological development disorder' then diagnoses.diagnosis_date end) as diagnosis_date_psych_development_disorder,
+    max(case when diagnoses.diagnosis_name = 'Somatoform Disorder' then diagnoses.diagnosis_date end) as diagnosis_date_somatoform_disorder,
+    max(case when diagnoses.diagnosis_name = 'Mental retardation' then diagnoses.diagnosis_name end) as diagnosis_mental_retardation_disorder,
     max(other_non_coded_text.value_text) as diagnosis_other_1,
     max(other_non_coded_text.value_text) as diagnosis_other_2,
-    max(case when chronic_care_diagnosis.value_coded = 'Personality Disorder' then chronic_care_diagnosis.value_coded end) as diagnosis_personality_disorder,
-    max(case when chronic_care_diagnosis.value_coded = 'Psychological development disorder' then chronic_care_diagnosis.value_coded end) as diagnosis_psych_development_disorder,
-    max(case when chronic_care_diagnosis.value_coded = 'Somatoform Disorder' then chronic_care_diagnosis.value_coded end) as diagnosis_somatoform_disorder,
-    max(diagnosis_date.value_date) as disorganised_or_disruptive_behaviour_date,
-    max(diagnosis_date.value_date) as disorganised_speech_date,
-    max(case when mental_health_chief_complaint.value_coded = 'Hallucinations' then mental_health_chief_complaint.value_coded end) as hallucinations,
+    max(case when diagnoses.diagnosis_name = 'Personality Disorder' then diagnoses.diagnosis_name end) as diagnosis_personality_disorder,
+    max(case when diagnoses.diagnosis_name = 'Psychological development disorder' then diagnoses.diagnosis_name end) as diagnosis_psych_development_disorder,
+    max(case when diagnoses.diagnosis_name = 'Somatoform Disorder' then diagnoses.diagnosis_name end) as diagnosis_somatoform_disorder,
+    max(case when complaints.complaint_name = 'Disruptive Behavior Disorder' then complaints.complaint_date end) as disorganised_or_disruptive_behaviour_date,
+    max(case when complaints.complaint_name = 'Abnormal speech' then complaints.complaint_date end) as disorganised_speech_date,
+    max(case when complaints.complaint_name = 'Hallucinations' then complaints.complaint_name end) as hallucinations,
     max(hiv_status.value_coded) as hiv_status,
     max(hiv_test_date.value_date) as hiv_test_date,
     max(tb_status.value_coded) as tb_status,
     max(year_of_tuberculosis_diagnosis.value_numeric) as tb_year
 from omrs_encounter e
-left join temp_diagnosis_date diagnosis_date on e.encounter_id = diagnosis_date.encounter_id
-left join temp_date_of_exposure date_of_exposure on e.encounter_id = date_of_exposure.encounter_id
-left join temp_history_of_alcohol_use history_of_alcohol_use on e.encounter_id = history_of_alcohol_use.encounter_id
-left join temp_duration_in_years duration_in_years on e.encounter_id = duration_in_years.encounter_id
+left join temp_diagnoses diagnoses on e.encounter_id = diagnoses.encounter_id
+left join temp_complaints complaints on e.encounter_id = complaints.encounter_id
+left join temp_exposures exposures on e.encounter_id = exposures.encounter_id
+left join temp_alcohol_exposure alcohol_exp on e.encounter_id = alcohol_exp.encounter_id
 left join temp_family_history_of_behavioral_problems family_history_of_behavioral_problems on e.encounter_id = family_history_of_behavioral_problems.encounter_id
-left join temp_mental_health_chief_complaint mental_health_chief_complaint on e.encounter_id = mental_health_chief_complaint.encounter_id
-left join temp_chronic_care_diagnosis chronic_care_diagnosis on e.encounter_id = chronic_care_diagnosis.encounter_id
 left join temp_family_history_of_epilepsy family_history_of_epilepsy on e.encounter_id = family_history_of_epilepsy.encounter_id
-left join temp_history_of_exposure history_of_exposure on e.encounter_id = history_of_exposure.encounter_id
 left join temp_family_history_of_mental_illness family_history_of_mental_illness on e.encounter_id = family_history_of_mental_illness.encounter_id
 left join temp_date_antiretrovirals_started date_antiretrovirals_started on e.encounter_id = date_antiretrovirals_started.encounter_id
 left join temp_other_non_coded_text other_non_coded_text on e.encounter_id = other_non_coded_text.encounter_id

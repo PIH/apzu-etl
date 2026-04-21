@@ -1,32 +1,6 @@
 -- Derivation script for mw_chf_initial
 -- Generated from Pentaho transform: import-into-mw-chf-initial.ktr
 
-/*
- 590,Chronic care diagnosis
-108,"Current opportunistic infection or comorbidity, confirmed or presumed"
-21,Date antiretrovirals started
-133,Date of general test
-520,Diagnosis date
-63,ECHO imaging result
-6,Electrocardiogram diagnosis
-386,Follow up agreement
-475,Guardian; name and first names
-32,Heart failure diagnosis
-320,HIV status
-238,HIV test date
-10,Method of family planning
-44,Name of community health worker
-112,Next of kin telephone
-45,Other diagnosis
-407,Relationships of contact
-106,TB status
-131,Telephone number
-9,Transfer in date
-12,Year of Tuberculosis diagnosis
- */
-
-
-
 drop table if exists mw_chf_initial;
 create table mw_chf_initial
 (
@@ -88,17 +62,59 @@ drop temporary table if exists temp_other_diagnosis;
 create temporary table temp_other_diagnosis as select encounter_id, value_text from omrs_obs where concept = 'Other diagnosis';
 alter table temp_other_diagnosis add index temp_other_diagnosis_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_chronic_care_diagnosis;
-create temporary table temp_chronic_care_diagnosis as select encounter_id, value_coded from omrs_obs where concept = 'Chronic care diagnosis';
-alter table temp_chronic_care_diagnosis add index temp_chronic_care_diagnosis_encounter_idx (encounter_id);
+-- Build temp_diagnoses in three steps to correctly pair each diagnosis with its own date via obs_group_id.
+-- Step 1: pull only Chronic care diagnosis obs for this encounter type.
+drop temporary table if exists temp_diagnosis_name_obs;
+create temporary table temp_diagnosis_name_obs as
+select obs_id, obs_group_id, encounter_id, value_coded as diagnosis_name
+from omrs_obs
+where concept = 'Chronic care diagnosis'
+  and encounter_type = 'CHF_INITIAL';
+alter table temp_diagnosis_name_obs add index temp_diagnosis_name_obs_group_idx (obs_group_id);
+alter table temp_diagnosis_name_obs add index temp_diagnosis_name_obs_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_diagnosis_date;
-create temporary table temp_diagnosis_date as select encounter_id, value_date, value_numeric from omrs_obs where concept = 'Diagnosis date';
-alter table temp_diagnosis_date add index temp_diagnosis_date_encounter_idx (encounter_id);
+-- Step 2: pull only Diagnosis date obs that are siblings of a diagnosis from step 1.
+drop temporary table if exists temp_diagnosis_date_obs;
+create temporary table temp_diagnosis_date_obs as
+select obs_group_id, value_date as diagnosis_date
+from omrs_obs
+where concept = 'Diagnosis date'
+  and obs_group_id in (select obs_group_id from temp_diagnosis_name_obs);
+alter table temp_diagnosis_date_obs add index temp_diagnosis_date_obs_group_idx (obs_group_id);
 
-drop temporary table if exists temp_date_of_general_test;
-create temporary table temp_date_of_general_test as select encounter_id, value_date from omrs_obs where concept = 'Date of general test';
-alter table temp_date_of_general_test add index temp_date_of_general_test_encounter_idx (encounter_id);
+-- Step 3: one row per (encounter_id, diagnosis_name, diagnosis_date).
+drop temporary table if exists temp_diagnoses;
+create temporary table temp_diagnoses as
+select n.encounter_id, n.diagnosis_name, d.diagnosis_date
+from temp_diagnosis_name_obs n
+left join temp_diagnosis_date_obs d on d.obs_group_id = n.obs_group_id;
+alter table temp_diagnoses add index temp_diagnoses_encounter_idx (encounter_id);
+
+-- ECG test date: Date of general test obs sharing obs_group_id with an Electrocardiogram diagnosis obs.
+drop temporary table if exists temp_ecg_date;
+create temporary table temp_ecg_date as
+select o.encounter_id, o.value_date
+from omrs_obs o
+where o.concept = 'Date of general test'
+  and o.obs_group_id in (
+      select obs_group_id from omrs_obs
+      where concept = 'Electrocardiogram diagnosis'
+        and encounter_type = 'CHF_INITIAL'
+  );
+alter table temp_ecg_date add index temp_ecg_date_encounter_idx (encounter_id);
+
+-- ECHO test date: Date of general test obs sharing obs_group_id with an ECHO imaging result obs.
+drop temporary table if exists temp_echo_date;
+create temporary table temp_echo_date as
+select o.encounter_id, o.value_date
+from omrs_obs o
+where o.concept = 'Date of general test'
+  and o.obs_group_id in (
+      select obs_group_id from omrs_obs
+      where concept = 'ECHO imaging result'
+        and encounter_type = 'CHF_INITIAL'
+  );
+alter table temp_echo_date add index temp_echo_date_encounter_idx (encounter_id);
 
 drop temporary table if exists temp_electrocardiogram_diagnosis;
 create temporary table temp_electrocardiogram_diagnosis as select encounter_id, value_coded from omrs_obs where concept = 'Electrocardiogram diagnosis';
@@ -130,51 +146,51 @@ select
     date(e.encounter_date) as visit_date,
     e.location,
     max(date_antiretrovirals_started.value_date) as art_start_date,
-    max(case when current_oi_or_comorbidity_confirmed_or_presumed.value_coded = 'Chronic kidney disease' then current_oi_or_comorbidity_confirmed_or_presumed.value_coded end) as comorbidities_chronic_kidney_disease,
-    max(case when current_oi_or_comorbidity_confirmed_or_presumed.value_coded = 'Diabetes' then current_oi_or_comorbidity_confirmed_or_presumed.value_coded end) as comorbidities_diabetes,
-    max(case when current_oi_or_comorbidity_confirmed_or_presumed.value_coded = 'Hypertension' then current_oi_or_comorbidity_confirmed_or_presumed.value_coded end) as comorbidities_hypertension,
+    max(case when comorbidity.value_coded = 'Chronic kidney disease' then comorbidity.value_coded end) as comorbidities_chronic_kidney_disease,
+    max(case when comorbidity.value_coded = 'Diabetes' then comorbidity.value_coded end) as comorbidities_diabetes,
+    max(case when comorbidity.value_coded = 'Hypertension' then comorbidity.value_coded end) as comorbidities_hypertension,
     max(other_diagnosis.value_text) as comorbidities_other,
-    max(case when chronic_care_diagnosis.value_coded = 'Irregular rhythm' then chronic_care_diagnosis.value_coded end) as diagnosis_afib,
-    max(case when chronic_care_diagnosis.value_coded = 'Coronary artery disease' then chronic_care_diagnosis.value_coded end) as diagnosis_cad,
-    max(case when chronic_care_diagnosis.value_coded = 'Congenital heart disease' then chronic_care_diagnosis.value_coded end) as diagnosis_congenital,
-    max(diagnosis_date.value_date) as diagnosis_date_rheumatic,
-    max(diagnosis_date.value_date) as diagnosis_date_afib,
-    max(diagnosis_date.value_date) as diagnosis_date_cad,
-    max(diagnosis_date.value_date) as diagnosis_date_congenital,
-    max(diagnosis_date.value_date) as diagnosis_date_dilated,
-    max(diagnosis_date.value_date) as diagnosis_date_dvt,
-    max(diagnosis_date.value_date) as diagnosis_date_other,
-    max(diagnosis_date.value_date) as diagnosis_date_pe,
-    max(diagnosis_date.value_numeric) as diagnosis_date_restricitive,
-    max(diagnosis_date.value_date) as diagnosis_date_stroke,
-    max(diagnosis_date.value_date) as diagnosis_date_unknown,
-    max(diagnosis_date.value_numeric) as diagnosis_date_valvular,
-    max(case when chronic_care_diagnosis.value_coded = 'Dilated cardiomyopathy' then chronic_care_diagnosis.value_coded end) as diagnosis_dilated,
-    max(case when chronic_care_diagnosis.value_coded = 'Deep vein thrombosis' then chronic_care_diagnosis.value_coded end) as diagnosis_dvt,
-    max(chronic_care_diagnosis.value_coded) as diagnosis_other,
-    max(case when chronic_care_diagnosis.value_coded = 'Pulmonary embolism' then chronic_care_diagnosis.value_coded end) as diagnosis_pe,
-    max(case when chronic_care_diagnosis.value_coded = 'Restrictive cardiomyopathy' then chronic_care_diagnosis.value_coded end) as diagnosis_restricitive,
-    max(case when chronic_care_diagnosis.value_coded = 'Rheumatic heart disease' then chronic_care_diagnosis.value_coded end) as diagnosis_rheumatic,
-    max(case when chronic_care_diagnosis.value_coded = 'Acute cerebrovascular attack' then chronic_care_diagnosis.value_coded end) as diagnosis_stroke,
-    max(case when chronic_care_diagnosis.value_coded = 'Unknown' then chronic_care_diagnosis.value_coded end) as diagnosis_unknown,
-    max(case when chronic_care_diagnosis.value_coded = 'Valvular heart disease' then chronic_care_diagnosis.value_coded end) as diagnosis_valvular,
-    max(date_of_general_test.value_date) as ecg_test_date,
+    max(case when diagnoses.diagnosis_name = 'Irregular rhythm' then diagnoses.diagnosis_name end) as diagnosis_afib,
+    max(case when diagnoses.diagnosis_name = 'Coronary artery disease' then diagnoses.diagnosis_name end) as diagnosis_cad,
+    max(case when diagnoses.diagnosis_name = 'Congenital heart disease' then diagnoses.diagnosis_name end) as diagnosis_congenital,
+    max(case when diagnoses.diagnosis_name = 'Rheumatic heart disease' then diagnoses.diagnosis_date end) as diagnosis_date_rheumatic,
+    max(case when diagnoses.diagnosis_name = 'Irregular rhythm' then diagnoses.diagnosis_date end) as diagnosis_date_afib,
+    max(case when diagnoses.diagnosis_name = 'Coronary artery disease' then diagnoses.diagnosis_date end) as diagnosis_date_cad,
+    max(case when diagnoses.diagnosis_name = 'Congenital heart disease' then diagnoses.diagnosis_date end) as diagnosis_date_congenital,
+    max(case when diagnoses.diagnosis_name = 'Dilated cardiomyopathy' then diagnoses.diagnosis_date end) as diagnosis_date_dilated,
+    max(case when diagnoses.diagnosis_name = 'Deep vein thrombosis' then diagnoses.diagnosis_date end) as diagnosis_date_dvt,
+    max(diagnoses.diagnosis_date) as diagnosis_date_other,
+    max(case when diagnoses.diagnosis_name = 'Pulmonary embolism' then diagnoses.diagnosis_date end) as diagnosis_date_pe,
+    max(case when diagnoses.diagnosis_name = 'Restrictive cardiomyopathy' then diagnoses.diagnosis_date end) as diagnosis_date_restricitive,
+    max(case when diagnoses.diagnosis_name = 'Acute cerebrovascular attack' then diagnoses.diagnosis_date end) as diagnosis_date_stroke,
+    max(case when diagnoses.diagnosis_name = 'Unknown' then diagnoses.diagnosis_date end) as diagnosis_date_unknown,
+    max(case when diagnoses.diagnosis_name = 'Valvular heart disease' then diagnoses.diagnosis_date end) as diagnosis_date_valvular,
+    max(case when diagnoses.diagnosis_name = 'Dilated cardiomyopathy' then diagnoses.diagnosis_name end) as diagnosis_dilated,
+    max(case when diagnoses.diagnosis_name = 'Deep vein thrombosis' then diagnoses.diagnosis_name end) as diagnosis_dvt,
+    max(diagnoses.diagnosis_name) as diagnosis_other,
+    max(case when diagnoses.diagnosis_name = 'Pulmonary embolism' then diagnoses.diagnosis_name end) as diagnosis_pe,
+    max(case when diagnoses.diagnosis_name = 'Restrictive cardiomyopathy' then diagnoses.diagnosis_name end) as diagnosis_restricitive,
+    max(case when diagnoses.diagnosis_name = 'Rheumatic heart disease' then diagnoses.diagnosis_name end) as diagnosis_rheumatic,
+    max(case when diagnoses.diagnosis_name = 'Acute cerebrovascular attack' then diagnoses.diagnosis_name end) as diagnosis_stroke,
+    max(case when diagnoses.diagnosis_name = 'Unknown' then diagnoses.diagnosis_name end) as diagnosis_unknown,
+    max(case when diagnoses.diagnosis_name = 'Valvular heart disease' then diagnoses.diagnosis_name end) as diagnosis_valvular,
+    max(ecg_date.value_date) as ecg_test_date,
     max(electrocardiogram_diagnosis.value_coded) as ecg_test_result,
-    max(date_of_general_test.value_date) as echo_test_date,
+    max(echo_date.value_date) as echo_test_date,
     max(echo_imaging_result.value_text) as echo_test_result,
     max(hiv_status.value_coded) as hiv_status,
     max(hiv_test_date.value_date) as hiv_test_date,
     max(tb_status.value_coded) as tb_status,
     max(year_of_tuberculosis_diagnosis.value_numeric) as tb_year,
-    max(diagnosis_date.value_numeric) as diagnosis_date_right_ventricular_failure,
-    max(case when chronic_care_diagnosis.value_coded = 'Right ventricular failure' then chronic_care_diagnosis.value_coded end) as diagnosis_right_ventricular_failure
+    max(case when diagnoses.diagnosis_name = 'Right ventricular failure' then diagnoses.diagnosis_date end) as diagnosis_date_right_ventricular_failure,
+    max(case when diagnoses.diagnosis_name = 'Right ventricular failure' then diagnoses.diagnosis_name end) as diagnosis_right_ventricular_failure
 from omrs_encounter e
 left join temp_date_antiretrovirals_started date_antiretrovirals_started on e.encounter_id = date_antiretrovirals_started.encounter_id
-left join temp_current_oi_or_comorbidity_confirmed_or current_oi_or_comorbidity_confirmed_or_presumed on e.encounter_id = current_oi_or_comorbidity_confirmed_or_presumed.encounter_id
+left join temp_current_oi_or_comorbidity_confirmed_or comorbidity on e.encounter_id = comorbidity.encounter_id
 left join temp_other_diagnosis other_diagnosis on e.encounter_id = other_diagnosis.encounter_id
-left join temp_chronic_care_diagnosis chronic_care_diagnosis on e.encounter_id = chronic_care_diagnosis.encounter_id
-left join temp_diagnosis_date diagnosis_date on e.encounter_id = diagnosis_date.encounter_id
-left join temp_date_of_general_test date_of_general_test on e.encounter_id = date_of_general_test.encounter_id
+left join temp_diagnoses diagnoses on e.encounter_id = diagnoses.encounter_id
+left join temp_ecg_date ecg_date on e.encounter_id = ecg_date.encounter_id
+left join temp_echo_date echo_date on e.encounter_id = echo_date.encounter_id
 left join temp_electrocardiogram_diagnosis electrocardiogram_diagnosis on e.encounter_id = electrocardiogram_diagnosis.encounter_id
 left join temp_echo_imaging_result echo_imaging_result on e.encounter_id = echo_imaging_result.encounter_id
 left join temp_hiv_status hiv_status on e.encounter_id = hiv_status.encounter_id
