@@ -2,6 +2,37 @@ type: "job-pipeline"
 description: "Refresh MySQL reporting database"
 configuration:
   jobs:
+    # Step 1: Create MySQL functions and stored procedures
+    - path: "create-schema.yml"
+
+    # Step 2: Import OpenMRS source tables into the reporting database
+    - type: "iterating-job"
+      description: "Import OpenMRS source tables"
+      configuration:
+        maxConcurrentJobs: 1
+        jobTemplate:
+          path: "import-openmrs-table.yml"
+        iterations:
+          - tableName: "mw_users"
+          - tableName: "omrs_patient"
+          - tableName: "omrs_patient_identifier"
+          - tableName: "omrs_relationship"
+          - tableName: "omrs_program_enrollment"
+          - tableName: "omrs_program_state"
+          - tableName: "omrs_visit"
+          - tableName: "omrs_encounter_provider"
+          - tableName: "omrs_encounter"
+          - tableName: "omrs_obs_group"
+          - tableName: "omrs_obs"
+
+    - type: "sql-execution"
+      description: "Create omrs indexes and views"
+      configuration:
+        datasource: "mysqlReporting.yml"
+        delimiter: ";"
+        scripts:
+          - "sql/omrs_schema/omrs_indexes.sql"
+          - "sql/omrs_schema/omrs_views.sql"
 
     # Step 3: Derive Malawi warehouse tables from omrs_* source tables
     # Table order follows dependency chain from jobs/pentaho/malawi/schema/schema.csv
