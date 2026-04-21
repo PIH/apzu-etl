@@ -134,25 +134,43 @@ drop temporary table if exists temp_appointment_date;
 create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
--- Each chronic lung disease treatment is recorded as a sibling obs group: the treatment name obs
--- (concept='Chronic lung disease treatment') and its detail obs (dose, frequency, route, etc.)
--- share the same obs_group_id under a parent drug-order obs group.  Joining on obs_group_id
--- ensures each treatment's details are scoped to that specific treatment, not just the encounter.
+-- Build temp_medications in three steps to avoid a full scan of the ~20M-row omrs_obs table.
+-- Step 1: pull only the treatment-name obs for this encounter type (~20M rows → small set).
+-- Step 2: pull only the detail obs whose obs_group_id appears in step 1 (indexed lookup).
+-- Step 3: join the two small tables to produce one row per treatment per encounter.
+drop temporary table if exists temp_drug_name_obs;
+create temporary table temp_drug_name_obs as
+select obs_id, encounter_id, obs_group_id, value_coded as treatment_name
+from omrs_obs
+where concept = 'Chronic lung disease treatment'
+  and encounter_type = 'ASTHMA_FOLLOWUP';
+alter table temp_drug_name_obs add index temp_drug_name_obs_group_idx (obs_group_id);
+alter table temp_drug_name_obs add index temp_drug_name_obs_encounter_idx (encounter_id);
+
+drop temporary table if exists temp_drug_detail_obs;
+create temporary table temp_drug_detail_obs as
+select obs_group_id, concept, value_coded, value_numeric
+from omrs_obs
+where obs_group_id in (select obs_group_id from temp_drug_name_obs)
+  and concept in ('Drug frequency coded', 'Quantity of medication prescribed per dose',
+                  'Dosing unit', 'Routes of administration (coded)',
+                  'Medication duration', 'Time units');
+alter table temp_drug_detail_obs add index temp_drug_detail_obs_group_idx (obs_group_id);
+
 drop temporary table if exists temp_medications;
 create temporary table temp_medications as
 select
     t.encounter_id,
-    t.value_coded                                                                             as treatment_name,
-    max(case when d.concept = 'Drug frequency coded' then d.value_coded end)                 as frequency,
+    t.treatment_name,
+    max(case when d.concept = 'Drug frequency coded' then d.value_coded end)                         as frequency,
     max(case when d.concept = 'Quantity of medication prescribed per dose' then d.value_numeric end) as dose,
-    max(case when d.concept = 'Dosing unit' then d.value_coded end)                          as dosing_unit,
-    max(case when d.concept = 'Routes of administration (coded)' then d.value_coded end)     as route,
-    max(case when d.concept = 'Medication duration' then d.value_numeric end)                as duration,
-    max(case when d.concept = 'Time units' then d.value_coded end)                           as duration_units
-from omrs_obs t
-join omrs_obs d on d.obs_group_id = t.obs_group_id
-where t.concept = 'Chronic lung disease treatment'
-group by t.encounter_id, t.obs_group_id, t.value_coded;
+    max(case when d.concept = 'Dosing unit' then d.value_coded end)                                  as dosing_unit,
+    max(case when d.concept = 'Routes of administration (coded)' then d.value_coded end)             as route,
+    max(case when d.concept = 'Medication duration' then d.value_numeric end)                        as duration,
+    max(case when d.concept = 'Time units' then d.value_coded end)                                   as duration_units
+from temp_drug_name_obs t
+join temp_drug_detail_obs d on d.obs_group_id = t.obs_group_id
+group by t.encounter_id, t.obs_group_id, t.treatment_name;
 alter table temp_medications add index temp_medications_encounter_idx (encounter_id);
 alter table temp_medications add index temp_medications_treatment_idx (treatment_name);
 
