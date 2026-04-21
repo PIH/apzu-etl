@@ -122,10 +122,6 @@ drop temporary table if exists temp_daily_inhaled_steroid_use;
 create temporary table temp_daily_inhaled_steroid_use as select encounter_id, value_coded from omrs_obs where concept = 'Daily inhaled steroid use';
 alter table temp_daily_inhaled_steroid_use add index temp_daily_inhaled_steroid_use_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_chronic_lung_disease_treatment;
-create temporary table temp_chronic_lung_disease_treatment as select encounter_id, value_coded from omrs_obs where concept = 'Chronic lung disease treatment';
-alter table temp_chronic_lung_disease_treatment add index temp_chronic_lung_disease_treatment_encounter_idx (encounter_id);
-
 drop temporary table if exists temp_weight_kg;
 create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
@@ -138,82 +134,98 @@ drop temporary table if exists temp_appointment_date;
 create temporary table temp_appointment_date as select encounter_id, value_date from omrs_obs where concept = 'Appointment date';
 alter table temp_appointment_date add index temp_appointment_date_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_drug_frequency_coded;
-create temporary table temp_drug_frequency_coded as select encounter_id, value_coded from omrs_obs where concept = 'Drug frequency coded';
-alter table temp_drug_frequency_coded add index temp_drug_frequency_coded_encounter_idx (encounter_id);
+-- Each chronic lung disease treatment is recorded as a sibling obs group: the treatment name obs
+-- (concept='Chronic lung disease treatment') and its detail obs (dose, frequency, route, etc.)
+-- share the same obs_group_id under a parent drug-order obs group.  Joining on obs_group_id
+-- ensures each treatment's details are scoped to that specific treatment, not just the encounter.
+drop temporary table if exists temp_medications;
+create temporary table temp_medications as
+select
+    t.encounter_id,
+    t.value_coded                                                                             as treatment_name,
+    max(case when d.concept = 'Drug frequency coded' then d.value_coded end)                 as frequency,
+    max(case when d.concept = 'Quantity of medication prescribed per dose' then d.value_numeric end) as dose,
+    max(case when d.concept = 'Dosing unit' then d.value_coded end)                          as dosing_unit,
+    max(case when d.concept = 'Routes of administration (coded)' then d.value_coded end)     as route,
+    max(case when d.concept = 'Medication duration' then d.value_numeric end)                as duration,
+    max(case when d.concept = 'Time units' then d.value_coded end)                           as duration_units
+from omrs_obs t
+join omrs_obs d on d.obs_group_id = t.obs_group_id
+where t.concept = 'Chronic lung disease treatment'
+group by t.encounter_id, t.obs_group_id, t.value_coded;
+alter table temp_medications add index temp_medications_encounter_idx (encounter_id);
+alter table temp_medications add index temp_medications_treatment_idx (treatment_name);
 
-drop temporary table if exists temp_quantity_of_medication_prescribed_per_dose;
-create temporary table temp_quantity_of_medication_prescribed_per_dose as select encounter_id, value_numeric from omrs_obs where concept = 'Quantity of medication prescribed per dose';
-alter table temp_quantity_of_medication_prescribed_per_dose add index temp_quantity_medication_prescribed_per_dose (encounter_id);
+-- MySQL 5.6 cannot reference the same temporary table more than once in a query,
+-- so each treatment type is materialized into its own table before the final join.
+drop temporary table if exists temp_b_agonist;
+create temporary table temp_b_agonist as select * from temp_medications where treatment_name = 'Beta-agonists (inhaled)';
+alter table temp_b_agonist add index temp_b_agonist_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_dosing_unit;
-create temporary table temp_dosing_unit as select encounter_id, value_coded from omrs_obs where concept = 'Dosing unit';
-alter table temp_dosing_unit add index temp_dosing_unit_encounter_idx (encounter_id);
+drop temporary table if exists temp_inhaled_steroid;
+create temporary table temp_inhaled_steroid as select * from temp_medications where treatment_name = 'Inhaled steroid';
+alter table temp_inhaled_steroid add index temp_inhaled_steroid_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_medication_duration;
-create temporary table temp_medication_duration as select encounter_id, value_numeric from omrs_obs where concept = 'Medication duration';
-alter table temp_medication_duration add index temp_medication_duration_encounter_idx (encounter_id);
+drop temporary table if exists temp_oral_steroid;
+create temporary table temp_oral_steroid as select * from temp_medications where treatment_name = 'Oral steroid';
+alter table temp_oral_steroid add index temp_oral_steroid_encounter_idx (encounter_id);
 
-drop temporary table if exists temp_time_units;
-create temporary table temp_time_units as select encounter_id, value_coded from omrs_obs where concept = 'Time units';
-alter table temp_time_units add index temp_time_units_encounter_idx (encounter_id);
-
-drop temporary table if exists temp_routes_of_administration_coded;
-create temporary table temp_routes_of_administration_coded as select encounter_id, value_coded from omrs_obs where concept = 'Routes of administration (coded)';
-alter table temp_routes_of_administration_coded add index temp_routes_of_administration_coded_encounter_idx (encounter_id);
+drop temporary table if exists temp_other_treatment;
+create temporary table temp_other_treatment as select * from temp_medications where treatment_name = 'Other non-coded';
+alter table temp_other_treatment add index temp_other_treatment_encounter_idx (encounter_id);
 
 insert into mw_asthma_followup (patient_id, visit_date, location, asthma_severity, cooking_indoor, copd, day_symptoms, exacerbation_today, height, inhaler_use_frequency_daily, inhaler_use_frequency_monthly, inhaler_use_frequency_weekly, inhaler_use_frequency_yearly, night_symptoms, number_of_cigarettes_per_day, other_diagnosis, passive_smoking, planned_visit, steroid_inhaler_daily, treatment_inhaled_b_agonist, weight, comments, next_appointment_date, other_treatment, treatment_inhaled_b_agonist_frequency, treatment_inhaled_b_agonist_dose, treatment_inhaled_b_agonist_dosing_unit, treatment_inhaled_b_agonist_duration, treatment_inhaled_b_agonist_duration_units, treatment_inhaled_b_agonist_route, treatment_inhaled_steriod, treatment_inhaled_steriod_frequency, treatment_inhaled_steriod_dose, treatment_inhaled_steriod_dosing_unit, treatment_inhaled_steriod_duration, treatment_inhaled_steriod_duration_units, treatment_inhaled_steriod_route, treatment_oral_steroid, treatment_oral_steroid_frequency, treatment_oral_steroid_dose, treatment_oral_steroid_dosing_unit, treatment_oral_steroid_duration, treatment_oral_steroid_duration_units, treatment_oral_steroid_route, other_treatment_frequency, other_treatment_dose, other_treatment_dosing_unit, other_treatment_duration, other_treatment_duration_units, other_treatment_route)
 select
     e.patient_id,
-    date(e.encounter_date) as visit_date,
+    date(e.encounter_date)                                                                                                   as visit_date,
     e.location,
-    max(asthma_classification.value_coded) as asthma_severity,
-    max(location_of_cooking.value_coded) as cooking_indoor,
+    max(asthma_classification.value_coded)                                                                                   as asthma_severity,
+    max(location_of_cooking.value_coded)                                                                                     as cooking_indoor,
     max(case when chronic_care_diagnosis.value_coded = 'Chronic obstructive pulmonary disease' then chronic_care_diagnosis.value_coded end) as copd,
-    max(daytime_symptom_frequency.value_numeric) as day_symptoms,
-    max(asthma_exacerbation_today.value_coded) as exacerbation_today,
-    max(height_cm.value_numeric) as height,
-    max(inhaler_use_per_day.value_numeric) as inhaler_use_frequency_daily,
-    max(inhaler_use_per_month.value_numeric) as inhaler_use_frequency_monthly,
-    max(inhaler_use_per_week.value_numeric) as inhaler_use_frequency_weekly,
-    max(number_of_times_inhaler_is_used_in_a_year.value_numeric) as inhaler_use_frequency_yearly,
-    max(nighttime_symptom_frequency.value_numeric) as night_symptoms,
-    max(number_of_cigarettes_smoked_per_day.value_numeric) as number_of_cigarettes_per_day,
-    max(other_diagnosis.value_text) as other_diagnosis,
-    max(exposed_to_second_hand_smoke.value_coded) as passive_smoking,
-    max(scheduled_visit.value_coded) as planned_visit,
-    max(daily_inhaled_steroid_use.value_coded) as steroid_inhaler_daily,
-    max(case when chronic_lung_disease_treatment.value_coded = 'Beta-agonists (inhaled)' then chronic_lung_disease_treatment.value_coded end) as treatment_inhaled_b_agonist,
-    max(weight_kg.value_numeric) as weight,
-    max(clinical_impression_comments.value_text) as comments,
-    max(appointment_date.value_date) as next_appointment_date,
-    max(case when chronic_lung_disease_treatment.value_coded = 'Other non-coded' then chronic_lung_disease_treatment.value_coded end) as other_treatment,
-    max(drug_frequency_coded.value_coded) as treatment_inhaled_b_agonist_frequency,
-    max(quantity_of_medication_prescribed_per_dose.value_numeric) as treatment_inhaled_b_agonist_dose,
-    max(dosing_unit.value_coded) as treatment_inhaled_b_agonist_dosing_unit,
-    max(medication_duration.value_numeric) as treatment_inhaled_b_agonist_duration,
-    max(time_units.value_coded) as treatment_inhaled_b_agonist_duration_units,
-    max(routes_of_administration_coded.value_coded) as treatment_inhaled_b_agonist_route,
-    max(case when chronic_lung_disease_treatment.value_coded = 'Inhaled steroid' then chronic_lung_disease_treatment.value_coded end) as treatment_inhaled_steriod,
-    max(drug_frequency_coded.value_coded) as treatment_inhaled_steriod_frequency,
-    max(quantity_of_medication_prescribed_per_dose.value_numeric) as treatment_inhaled_steriod_dose,
-    max(dosing_unit.value_coded) as treatment_inhaled_steriod_dosing_unit,
-    max(medication_duration.value_numeric) as treatment_inhaled_steriod_duration,
-    max(time_units.value_coded) as treatment_inhaled_steriod_duration_units,
-    max(routes_of_administration_coded.value_coded) as treatment_inhaled_steriod_route,
-    max(case when chronic_lung_disease_treatment.value_coded = 'Oral steroid' then chronic_lung_disease_treatment.value_coded end) as treatment_oral_steroid,
-    max(drug_frequency_coded.value_coded) as treatment_oral_steroid_frequency,
-    max(quantity_of_medication_prescribed_per_dose.value_numeric) as treatment_oral_steroid_dose,
-    max(dosing_unit.value_coded) as treatment_oral_steroid_dosing_unit,
-    max(medication_duration.value_numeric) as treatment_oral_steroid_duration,
-    max(time_units.value_coded) as treatment_oral_steroid_duration_units,
-    max(routes_of_administration_coded.value_coded) as treatment_oral_steroid_route,
-    max(drug_frequency_coded.value_coded) as other_treatment_frequency,
-    max(quantity_of_medication_prescribed_per_dose.value_numeric) as other_treatment_dose,
-    max(dosing_unit.value_coded) as other_treatment_dosing_unit,
-    max(medication_duration.value_numeric) as other_treatment_duration,
-    max(time_units.value_coded) as other_treatment_duration_units,
-    max(routes_of_administration_coded.value_coded) as other_treatment_route
+    max(daytime_symptom_frequency.value_numeric)                                                                             as day_symptoms,
+    max(asthma_exacerbation_today.value_coded)                                                                               as exacerbation_today,
+    max(height_cm.value_numeric)                                                                                             as height,
+    max(inhaler_use_per_day.value_numeric)                                                                                   as inhaler_use_frequency_daily,
+    max(inhaler_use_per_month.value_numeric)                                                                                 as inhaler_use_frequency_monthly,
+    max(inhaler_use_per_week.value_numeric)                                                                                  as inhaler_use_frequency_weekly,
+    max(number_of_times_inhaler_is_used_in_a_year.value_numeric)                                                             as inhaler_use_frequency_yearly,
+    max(nighttime_symptom_frequency.value_numeric)                                                                           as night_symptoms,
+    max(number_of_cigarettes_smoked_per_day.value_numeric)                                                                   as number_of_cigarettes_per_day,
+    max(other_diagnosis.value_text)                                                                                          as other_diagnosis,
+    max(exposed_to_second_hand_smoke.value_coded)                                                                            as passive_smoking,
+    max(scheduled_visit.value_coded)                                                                                         as planned_visit,
+    max(daily_inhaled_steroid_use.value_coded)                                                                               as steroid_inhaler_daily,
+    max(b_agonist.treatment_name)                                                                                            as treatment_inhaled_b_agonist,
+    max(weight_kg.value_numeric)                                                                                             as weight,
+    max(clinical_impression_comments.value_text)                                                                             as comments,
+    max(appointment_date.value_date)                                                                                         as next_appointment_date,
+    max(other_treatment.treatment_name)                                                                                      as other_treatment,
+    max(b_agonist.frequency)                                                                                                 as treatment_inhaled_b_agonist_frequency,
+    max(b_agonist.dose)                                                                                                      as treatment_inhaled_b_agonist_dose,
+    max(b_agonist.dosing_unit)                                                                                               as treatment_inhaled_b_agonist_dosing_unit,
+    max(b_agonist.duration)                                                                                                  as treatment_inhaled_b_agonist_duration,
+    max(b_agonist.duration_units)                                                                                            as treatment_inhaled_b_agonist_duration_units,
+    max(b_agonist.route)                                                                                                     as treatment_inhaled_b_agonist_route,
+    max(inhaled_steroid.treatment_name)                                                                                      as treatment_inhaled_steriod,
+    max(inhaled_steroid.frequency)                                                                                           as treatment_inhaled_steriod_frequency,
+    max(inhaled_steroid.dose)                                                                                                as treatment_inhaled_steriod_dose,
+    max(inhaled_steroid.dosing_unit)                                                                                         as treatment_inhaled_steriod_dosing_unit,
+    max(inhaled_steroid.duration)                                                                                            as treatment_inhaled_steriod_duration,
+    max(inhaled_steroid.duration_units)                                                                                      as treatment_inhaled_steriod_duration_units,
+    max(inhaled_steroid.route)                                                                                               as treatment_inhaled_steriod_route,
+    max(oral_steroid.treatment_name)                                                                                         as treatment_oral_steroid,
+    max(oral_steroid.frequency)                                                                                              as treatment_oral_steroid_frequency,
+    max(oral_steroid.dose)                                                                                                   as treatment_oral_steroid_dose,
+    max(oral_steroid.dosing_unit)                                                                                            as treatment_oral_steroid_dosing_unit,
+    max(oral_steroid.duration)                                                                                               as treatment_oral_steroid_duration,
+    max(oral_steroid.duration_units)                                                                                         as treatment_oral_steroid_duration_units,
+    max(oral_steroid.route)                                                                                                  as treatment_oral_steroid_route,
+    max(other_treatment.frequency)                                                                                           as other_treatment_frequency,
+    max(other_treatment.dose)                                                                                                as other_treatment_dose,
+    max(other_treatment.dosing_unit)                                                                                         as other_treatment_dosing_unit,
+    max(other_treatment.duration)                                                                                            as other_treatment_duration,
+    max(other_treatment.duration_units)                                                                                      as other_treatment_duration_units,
+    max(other_treatment.route)                                                                                               as other_treatment_route
 from omrs_encounter e
 left join temp_asthma_classification asthma_classification on e.encounter_id = asthma_classification.encounter_id
 left join temp_location_of_cooking location_of_cooking on e.encounter_id = location_of_cooking.encounter_id
@@ -231,15 +243,12 @@ left join temp_other_diagnosis other_diagnosis on e.encounter_id = other_diagnos
 left join temp_exposed_to_second_hand_smoke exposed_to_second_hand_smoke on e.encounter_id = exposed_to_second_hand_smoke.encounter_id
 left join temp_scheduled_visit scheduled_visit on e.encounter_id = scheduled_visit.encounter_id
 left join temp_daily_inhaled_steroid_use daily_inhaled_steroid_use on e.encounter_id = daily_inhaled_steroid_use.encounter_id
-left join temp_chronic_lung_disease_treatment chronic_lung_disease_treatment on e.encounter_id = chronic_lung_disease_treatment.encounter_id
 left join temp_weight_kg weight_kg on e.encounter_id = weight_kg.encounter_id
 left join temp_clinical_impression_comments clinical_impression_comments on e.encounter_id = clinical_impression_comments.encounter_id
 left join temp_appointment_date appointment_date on e.encounter_id = appointment_date.encounter_id
-left join temp_drug_frequency_coded drug_frequency_coded on e.encounter_id = drug_frequency_coded.encounter_id
-left join temp_quantity_of_medication_prescribed_per_dose quantity_of_medication_prescribed_per_dose on e.encounter_id = quantity_of_medication_prescribed_per_dose.encounter_id
-left join temp_dosing_unit dosing_unit on e.encounter_id = dosing_unit.encounter_id
-left join temp_medication_duration medication_duration on e.encounter_id = medication_duration.encounter_id
-left join temp_time_units time_units on e.encounter_id = time_units.encounter_id
-left join temp_routes_of_administration_coded routes_of_administration_coded on e.encounter_id = routes_of_administration_coded.encounter_id
+left join temp_b_agonist b_agonist on e.encounter_id = b_agonist.encounter_id
+left join temp_inhaled_steroid inhaled_steroid on e.encounter_id = inhaled_steroid.encounter_id
+left join temp_oral_steroid oral_steroid on e.encounter_id = oral_steroid.encounter_id
+left join temp_other_treatment other_treatment on e.encounter_id = other_treatment.encounter_id
 where e.encounter_type in ('ASTHMA_FOLLOWUP')
 group by e.patient_id, e.encounter_date, e.location;
