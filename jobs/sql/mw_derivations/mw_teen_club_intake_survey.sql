@@ -107,7 +107,6 @@ select
     max(case when concept = 'Challenges you face in daily life'                                                                                       then value_text    end) as challenges_in_daily_life,
     max(case when concept = 'Fuel for household cooking'                                                                                              then value_coded   end) as cooking_fuel,
     max(case when concept = 'Current School class'                                                                                                    then value_text    end) as current_class,
-    max(case when concept = 'What you don'                                                                                                            then value_text    end) as like_most_1,
     max(case when concept = 'Dropped out School Class'                                                                                                then value_text    end) as dropout_class,
     max(case when concept = 'Enrolled in teen club'                                                                                                   then value_coded   end) as enrolled_in_teen_club,
     max(case when concept = 'Have you ever used elicit drugs?'                                                                                        then value_coded   end) as ever_used_elicit_drugs,
@@ -134,7 +133,7 @@ select
     max(case when concept = 'Answer for Kind of teen club support'                                                                                    then value_text    end) as kind_of_teen_club_social_support,
     max(case when concept = 'Answer for Kind of teen club support would you like to get'                                                              then value_text    end) as what_kind_of_teen_club_support,
     max(case when concept = 'Kind of toilet facility used by household members'                                                                       then value_coded   end) as kind_of_toilet,
-    max(case when concept = 'What you like most at teen club?'                                                                                        then value_text    end) as like_most_2,
+    max(case when concept = 'What you like most at teen club?'                                                                                        then value_text    end) as like_most,
     max(case when concept = 'Literate'                                                                                                                then value_coded   end) as literate,
     max(case when concept = 'Own a mobile telephone'                                                                                                  then value_coded   end) as mobile_phone,
     max(case when concept = 'Own a motorcycle'                                                                                                        then value_coded   end) as motorcycle,
@@ -162,7 +161,7 @@ from temp_teen_club_obs
 group by encounter_id;
 alter table temp_single_values add index temp_single_values_encounter_idx (encounter_id);
 
-insert into mw_teen_club_intake_survey (patient_id, visit_date, location, animal_drawn_cart, teen_club_activities, teen_club_purpose, teen_club_topics, are_people_afraid_to_be_around_you, area_of_study_interest, bicycle, can_a_healthy_person_have_hiv, can_an_hiv_person_live_longer, can_hiv_be_cured, car, career_after_school, careers_or_industries_interested, challenges_in_daily_life, cooking_fuel, current_class, like_most, dropout_class, enrolled_in_teen_club, ever_used_elicit_drugs, extracurricular_activities, fridge, gender, got_vocational_training, happy_with_teen_club, have_role_models, have_sex_in_exchange_for_money, have_sex_under_alcohol_influence, have_sex_with_someone_older_or_younger, have_you_started_thinking_about_your_future, health_facility, how_is_hiv_prevented, how_is_hiv_transmitted, in_school, injectable_drugs, interview_date, interviewer_name, involed_in_extra_curricular_activities, is_hiv_a_punishment, is_hiv_bad_luck, kind_of_teen_club_social_support, what_kind_of_teen_club_support, kind_of_toilet, like_most, literate, mobile_phone, motorcycle, num_of_household_members, parents_location, plans_after_school, primary_guardian, radio, rate_changes_from_social_support, rate_social_support, rate_your_hiv_knowledge, staying_with_single_paren_reason, role_models, should_a_positive_student_be_allowed_at_your_school, social_support_from_teen_club, source_of_drinking_water, source_of_lighting, television, toilet_at_home, type_of_house_floor, type_of_house_roof, village_name, what_do_you_want_to_do, what_exactly_do_you_want_to_do, what_kind_of_teen_club_support)
+insert into mw_teen_club_intake_survey (patient_id, visit_date, location, animal_drawn_cart, teen_club_activities, teen_club_purpose, teen_club_topics, are_people_afraid_to_be_around_you, area_of_study_interest, bicycle, can_a_healthy_person_have_hiv, can_an_hiv_person_live_longer, can_hiv_be_cured, car, career_after_school, careers_or_industries_interested, challenges_in_daily_life, cooking_fuel, current_class, like_most, dropout_class, enrolled_in_teen_club, ever_used_elicit_drugs, extracurricular_activities, fridge, gender, got_vocational_training, happy_with_teen_club, have_role_models, have_sex_in_exchange_for_money, have_sex_under_alcohol_influence, have_sex_with_someone_older_or_younger, have_you_started_thinking_about_your_future, health_facility, how_is_hiv_prevented, how_is_hiv_transmitted, in_school, injectable_drugs, interview_date, interviewer_name, involed_in_extra_curricular_activities, is_hiv_a_punishment, is_hiv_bad_luck, kind_of_teen_club_social_support, what_kind_of_teen_club_support, kind_of_toilet, literate, mobile_phone, motorcycle, num_of_household_members, parents_location, plans_after_school, primary_guardian, radio, rate_changes_from_social_support, rate_social_support, rate_your_hiv_knowledge, staying_with_single_paren_reason, role_models, should_a_positive_student_be_allowed_at_your_school, social_support_from_teen_club, source_of_drinking_water, source_of_lighting, television, toilet_at_home, type_of_house_floor, type_of_house_roof, village_name, what_do_you_want_to_do, what_exactly_do_you_want_to_do)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -183,7 +182,7 @@ select
     sv.challenges_in_daily_life,
     sv.cooking_fuel,
     sv.current_class,
-    sv.like_most_1,
+    sv.like_most,
     sv.dropout_class,
     sv.enrolled_in_teen_club,
     sv.ever_used_elicit_drugs,
@@ -210,7 +209,6 @@ select
     sv.kind_of_teen_club_social_support,
     sv.what_kind_of_teen_club_support,
     sv.kind_of_toilet,
-    sv.like_most_2,
     sv.literate,
     sv.mobile_phone,
     sv.motorcycle,
@@ -234,8 +232,7 @@ select
     sv.type_of_house_roof,
     sv.village_name,
     sv.what_do_you_want_to_do,
-    sv.what_exactly_do_you_want_to_do,
-    sv.what_kind_of_teen_club_support
+    sv.what_exactly_do_you_want_to_do
 from omrs_encounter e
 left join temp_single_values sv on sv.encounter_id = e.encounter_id
 where e.encounter_type in ('TEEN_CLUB_INTAKE_SURVEY')
