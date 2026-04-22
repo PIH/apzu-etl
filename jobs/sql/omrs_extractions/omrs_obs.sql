@@ -18,7 +18,7 @@ create temporary table temp_concept_answer as select * from temp_concept_questio
 alter table temp_concept_answer add index temp_concept_answer_concept_idx (concept_id);
 
 drop temporary table if exists temp_obs_group;
-create temporary table temp_obs_group as select obs_group_id from obs where obs_group_id is not null and voided = 0;
+create temporary table temp_obs_group as select distinct obs_group_id from obs where obs_group_id is not null;
 alter table temp_obs_group add index temp_obs_group_idx (obs_group_id);
 
 select      o.obs_id,
