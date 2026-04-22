@@ -12,13 +12,13 @@ select
     login_stats.num_logins_recorded,
     mfa.mfa_status
 from users u
-join users creator on creator.user_id = u.creator
-join person_name pn on pn.person_id = u.person_id and pn.voided = 0
+left join users creator on creator.user_id = u.creator
+left join person_name pn on pn.person_id = u.person_id
     and pn.person_name_id = (
         select pn2.person_name_id
         from person_name pn2
         where pn2.person_id = u.person_id and pn2.voided = 0
-        order by pn2.preferred desc, pn2.person_name_id asc
+        order by pn2.preferred desc, pn2.person_name_id
         limit 1
     )
 left join (
