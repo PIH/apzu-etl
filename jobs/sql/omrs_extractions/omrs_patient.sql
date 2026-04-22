@@ -28,7 +28,7 @@ select      p.person_id as patient_id,
              where cn.concept_id = p.cause_of_death and cn.voided = 0
              order by if(cn.concept_name_type='FULLY_SPECIFIED',0,1), if(cn.locale='en',0,1), cn.locale_preferred desc limit 1) as cause_of_death,
             mothers_attr.value as mothers_name,
-            fathers_attr.value as fathers_name,
+            null as fathers_name,
             hc_loc.name as health_center,
             date(pat.date_created) as date_created
 from        patient pat
@@ -53,36 +53,49 @@ left join   person_address addr on addr.person_id = p.person_id
             )
 -- Phone number attribute
 left join   person_attribute phone_attr on phone_attr.person_id = p.person_id
-            and phone_attr.voided = 0
-            and phone_attr.person_attribute_type_id = (
-                select  pat2.person_attribute_type_id
-                from    person_attribute_type pat2
-                where   pat2.name = 'Cell Phone Number' limit 1
+            and phone_attr.person_attribute_id = (
+                select      pa.person_attribute_id
+                from        person_attribute pa
+                inner join  person_attribute_type pat2 on pa.person_attribute_type_id = pat2.person_attribute_type_id
+                where       pa.voided = 0
+                and         pa.person_id = p.person_id
+                and         pat2.name = 'Cell Phone Number'
+                order by    pa.date_created desc limit 1
             )
 -- Mother's name attribute
 left join   person_attribute mothers_attr on mothers_attr.person_id = p.person_id
-            and mothers_attr.voided = 0
-            and mothers_attr.person_attribute_type_id = (
-                select  pat2.person_attribute_type_id
-                from    person_attribute_type pat2
-                where   pat2.name = 'Mother''s Name' limit 1
+            and mothers_attr.person_attribute_id = (
+                select      pa.person_attribute_id
+                from        person_attribute pa
+                inner join  person_attribute_type pat2 on pa.person_attribute_type_id = pat2.person_attribute_type_id
+                where       pa.voided = 0
+                  and       pa.person_id = p.person_id
+                  and       pat2.name = 'Mother''s Name'
+                order by    pa.date_created desc limit 1
             )
--- Father's name attribute
-left join   person_attribute fathers_attr on fathers_attr.person_id = p.person_id
-            and fathers_attr.voided = 0
-            and fathers_attr.person_attribute_type_id = (
-                select  pat2.person_attribute_type_id
-                from    person_attribute_type pat2
-                where   pat2.name = '' limit 1
+-- Test Patient attribute
+left join   person_attribute test_patient_attr on test_patient_attr.person_id = p.person_id
+            and test_patient_attr.person_attribute_id = (
+                select      pa.person_attribute_id
+                from        person_attribute pa
+                inner join  person_attribute_type pat2 on pa.person_attribute_type_id = pat2.person_attribute_type_id
+                where       pa.voided = 0
+                  and       pa.person_id = p.person_id
+                  and       pat2.name = 'Test Patient'
+                order by    pa.date_created desc limit 1
             )
 -- Health center attribute (stored as location_id string)
 left join   person_attribute hc_attr on hc_attr.person_id = p.person_id
-            and hc_attr.voided = 0
-            and hc_attr.person_attribute_type_id = (
-                select  pat2.person_attribute_type_id
-                from    person_attribute_type pat2
-                where   pat2.name = 'Health Center' limit 1
+            and hc_attr.person_attribute_id = (
+                select      pa.person_attribute_id
+                from        person_attribute pa
+                inner join  person_attribute_type pat2 on pa.person_attribute_type_id = pat2.person_attribute_type_id
+                where       pa.voided = 0
+                  and       pa.person_id = p.person_id
+                  and       pat2.name = 'Health Center'
+                order by    pa.date_created desc limit 1
             )
 left join   location hc_loc on hc_loc.location_id = CAST(hc_attr.value as UNSIGNED)
 where       pat.voided = 0
 and         p.voided = 0
+and         (test_patient_attr.value is null or test_patient_attr.value != 'true')
