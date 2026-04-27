@@ -1,5 +1,6 @@
 select      p.person_id as patient_id,
             p.uuid as patient_uuid,
+            i.identifier,
             n.given_name as first_name,
             n.middle_name as middle_name,
             CONCAT_WS(' ', n.family_name_prefix, n.family_name, n.family_name2, n.family_name_suffix) as last_name,
@@ -41,6 +42,15 @@ left join   person_name n on n.person_id = p.person_id
                 where   n2.voided = 0
                 and     n2.person_id = p.person_id
                 order by n2.preferred desc, n2.date_created desc limit 1
+            )
+-- Preferred identifier
+left join   patient_identifier i on i.patient_id = p.person_id
+            and i.patient_identifier_id = (
+                select    i.patient_identifier_id
+                from      patient_identifier i
+                where     i.voided = 0
+                and       i.patient_id = p.person_id
+                order by  i.preferred desc, i.date_created desc limit 1
             )
 -- Preferred address
 left join   person_address addr on addr.person_id = p.person_id
