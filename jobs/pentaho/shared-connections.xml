@@ -19,6 +19,7 @@
       <attribute><code>EXTRA_OPTION_MYSQL.useCompression</code><attribute>true</attribute></attribute>
       <attribute><code>EXTRA_OPTION_MYSQL.useCursorFetch</code><attribute>true</attribute></attribute>
       <attribute><code>EXTRA_OPTION_MYSQL.userServerPrepStmts</code><attribute>false</attribute></attribute>
+      <attribute><code>EXTRA_OPTION_MYSQL.serverTimezone</code><attribute>Africa/Blantyre</attribute></attribute>
       <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
       <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
       <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
@@ -79,6 +80,7 @@
       <attribute><code>EXTRA_OPTION_MYSQL.useCursorFetch</code><attribute>true</attribute></attribute>
       <attribute><code>EXTRA_OPTION_MYSQL.userServerPrepStmts</code><attribute>false</attribute></attribute>
       <attribute><code>EXTRA_OPTION_MYSQL.zeroDateTimeBehavior</code><attribute>convertToNull</attribute></attribute>
+      <attribute><code>EXTRA_OPTION_MYSQL.serverTimezone</code><attribute>Africa/Blantyre</attribute></attribute>
       <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
       <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
       <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>

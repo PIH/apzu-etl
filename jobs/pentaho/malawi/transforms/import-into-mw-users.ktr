@@ -629,6 +629,8 @@ GROUP BY user_id; </sql>
     <execute_each_row>N</execute_each_row>
     <variables_active>N</variables_active>
     <lazy_conversion_active>N</lazy_conversion_active>
+    <cached_row_meta_active>N</cached_row_meta_active>
+    <row-meta/>
     <attributes/>
     <cluster_schema/>
     <remotesteps>
@@ -685,6 +687,8 @@ GROUP BY u.user_id;</sql>
     <execute_each_row>N</execute_each_row>
     <variables_active>N</variables_active>
     <lazy_conversion_active>N</lazy_conversion_active>
+    <cached_row_meta_active>N</cached_row_meta_active>
+    <row-meta/>
     <attributes/>
     <cluster_schema/>
     <remotesteps>
@@ -720,6 +724,8 @@ GROUP BY u.user_id;</sql>
     <execute_each_row>N</execute_each_row>
     <variables_active>N</variables_active>
     <lazy_conversion_active>N</lazy_conversion_active>
+    <cached_row_meta_active>N</cached_row_meta_active>
+    <row-meta/>
     <attributes/>
     <cluster_schema/>
     <remotesteps>
@@ -750,20 +756,28 @@ GROUP BY u.user_id;</sql>
        given_name As first_name,
 	   family_name As last_name,
        u.email,
-       CASE WHEN u.retired = 'Y' THEN '0' ELSE '1' END AS account_enabled,
+       CASE WHEN u.retired = 1 THEN 0 ELSE 1 END AS account_enabled,
        u.username,
        t.username As created_by,
        u.date_created AS created_date
 FROM users u
-JOIN users t
-ON u.creator = t.user_id
-JOIN person_name pn
-ON pn.person_id=u.person_id</sql>
+LEFT JOIN users t ON u.creator = t.user_id
+LEFT JOIN person_name pn
+ON pn.person_id=u.person_id
+    and pn.person_name_id = (
+        select pn2.person_name_id
+        from person_name pn2
+        where pn2.person_id = u.person_id and pn2.voided = 0
+        order by pn2.preferred desc, pn2.person_name_id
+        limit 1
+    )</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
     <variables_active>N</variables_active>
     <lazy_conversion_active>N</lazy_conversion_active>
+    <cached_row_meta_active>N</cached_row_meta_active>
+    <row-meta/>
     <attributes/>
     <cluster_schema/>
     <remotesteps>
