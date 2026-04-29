@@ -41,7 +41,7 @@ drop temporary table if exists temp_viral_load_counseling;
 create temporary table temp_viral_load_counseling as select encounter_id, value_coded from omrs_obs where concept = 'Viral load counseling';
 alter table temp_viral_load_counseling add index temp_viral_load_counseling_encounter_idx (encounter_id);
 
-insert into mw_poc_adherence_counseling (patient_id, visit_date, location, adherence_counselling, adherence_session_number, medication_adherence_percent, name_of_support_provider, number_of_missed_medication_doses_in_past_week, viral_load_counseling)
+insert into mw_poc_adherence_counseling (patient_id, visit_date, location, adherence_counselling, adherence_session_number, medication_adherence_percent, name_of_support_provider, number_of_missed_medication_doses_in_past_week, viral_load_counseling, creator)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -51,7 +51,8 @@ select
     max(medication_adherence_percent.value_numeric) as medication_adherence_percent,
     max(name_of_support_provider.value_text) as name_of_support_provider,
     max(number_of_missed_medication_doses_in_past_7_days.value_numeric) as number_of_missed_medication_doses_in_past_week,
-    max(viral_load_counseling.value_coded) as viral_load_counseling
+    max(viral_load_counseling.value_coded) as viral_load_counseling,
+    max(e.created_by) as creator
 from omrs_encounter e
 left join temp_adherence_counseling_coded adherence_counseling_coded on e.encounter_id = adherence_counseling_coded.encounter_id
 left join temp_adherence_session_number adherence_session_number on e.encounter_id = adherence_session_number.encounter_id

@@ -11,10 +11,11 @@ create table mw_poc_checkin (
   primary key (poc_checkin_visit_id)
 );
 
-insert into mw_poc_checkin (patient_id, visit_date, location)
+insert into mw_poc_checkin (patient_id, visit_date, location, creator)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
-    e.location
+    e.location,
+    e.created_by as creator
 from omrs_encounter e
-group by e.patient_id, e.encounter_date, e.location;
+where e.encounter_type = 'Check-in';

@@ -66,7 +66,7 @@ drop temporary table if exists temp_units_of_age_of_child;
 create temporary table temp_units_of_age_of_child as select encounter_id, value_coded from omrs_obs where concept = 'Units of age of child';
 alter table temp_units_of_age_of_child add index temp_units_of_age_of_child_encounter_idx (encounter_id);
 
-insert into mw_poc_eid (patient_id, visit_date, location, age, date_of_blood_sample, date_of_returned_result, date_result_to_guardian, hiv_test_time_period, hiv_test_type, lab_test_serial_number, reason_for_no_sample_eid, reason_for_testing_coded, result_of_hiv_test, units_of_age_of_child)
+insert into mw_poc_eid (patient_id, visit_date, location, age, date_of_blood_sample, date_of_returned_result, date_result_to_guardian, hiv_test_time_period, hiv_test_type, lab_test_serial_number, reason_for_no_sample_eid, reason_for_testing_coded, result_of_hiv_test, units_of_age_of_child, creator)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -81,7 +81,8 @@ select
     max(reason_for_no_sample.value_coded) as reason_for_no_sample_eid,
     max(reason_for_testing_coded.value_coded) as reason_for_testing_coded,
     max(result_of_hiv_test.value_coded) as result_of_hiv_test,
-    max(units_of_age_of_child.value_coded) as units_of_age_of_child
+    max(units_of_age_of_child.value_coded) as units_of_age_of_child,
+    max(e.created_by) as creator
 from omrs_encounter e
 left join temp_age age on e.encounter_id = age.encounter_id
 left join temp_date_of_blood_sample date_of_blood_sample on e.encounter_id = date_of_blood_sample.encounter_id

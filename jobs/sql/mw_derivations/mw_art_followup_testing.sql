@@ -50,4 +50,5 @@ left join temp_cd4 cd4 on e.encounter_id = cd4.encounter_id
 left join temp_phq_9_score phq_9_score on e.encounter_id = phq_9_score.encounter_id
 left join temp_serum_glucose serum_glucose on e.encounter_id = serum_glucose.encounter_id
 left join temp_blood_sugar_test_type blood_sugar_test_type on e.encounter_id = blood_sugar_test_type.encounter_id
+where e.encounter_type = 'ART_FOLLOWUP_UP_TESTING'
 group by e.patient_id, e.encounter_date, e.location;

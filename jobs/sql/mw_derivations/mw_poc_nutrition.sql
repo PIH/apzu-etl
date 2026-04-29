@@ -31,7 +31,7 @@ drop temporary table if exists temp_weight_kg;
 create temporary table temp_weight_kg as select encounter_id, value_numeric from omrs_obs where concept = 'Weight (kg)';
 alter table temp_weight_kg add index temp_weight_kg_encounter_idx (encounter_id);
 
-insert into mw_poc_nutrition (patient_id, visit_date, location, height, muac, is_patient_preg, weight)
+insert into mw_poc_nutrition (patient_id, visit_date, location, height, muac, is_patient_preg, weight, creator)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -39,7 +39,8 @@ select
     max(height_cm.value_numeric) as height,
     max(middle_upper_arm_circumference_cm.value_numeric) as muac,
     max(is_patient_pregnant.value_coded) as is_patient_preg,
-    max(weight_kg.value_numeric) as weight
+    max(weight_kg.value_numeric) as weight,
+    max(e.created_by) as creator
 from omrs_encounter e
 left join temp_height_cm height_cm on e.encounter_id = height_cm.encounter_id
 left join temp_middle_upper_arm_circumference_cm middle_upper_arm_circumference_cm on e.encounter_id = middle_upper_arm_circumference_cm.encounter_id

@@ -21,13 +21,14 @@ drop temporary table if exists temp_symptom_present;
 create temporary table temp_symptom_present as select encounter_id, value_coded from omrs_obs where concept = 'Symptom present';
 alter table temp_symptom_present add index temp_symptom_present_encounter_idx (encounter_id);
 
-insert into mw_poc_tb_screening (patient_id, visit_date, location, symptom_absent, symptom_present)
+insert into mw_poc_tb_screening (patient_id, visit_date, location, symptom_absent, symptom_present, creator)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
     e.location,
     max(symptom_absent.value_coded) as symptom_absent,
-    max(symptom_present.value_coded) as symptom_present
+    max(symptom_present.value_coded) as symptom_present,
+    max(e.created_by) as creator
 from omrs_encounter e
 left join temp_symptom_absent symptom_absent on e.encounter_id = symptom_absent.encounter_id
 left join temp_symptom_present symptom_present on e.encounter_id = symptom_present.encounter_id

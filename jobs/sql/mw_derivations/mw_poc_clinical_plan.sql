@@ -46,7 +46,7 @@ drop temporary table if exists temp_transfer_out_to;
 create temporary table temp_transfer_out_to as select encounter_id, value_text from omrs_obs where concept = 'Transfer out to';
 alter table temp_transfer_out_to add index temp_transfer_out_to_encounter_idx (encounter_id);
 
-insert into mw_poc_clinical_plan (patient_id, visit_date, location, appointment_date, clinical_impression_comments, outcome, qualitative_time, reason_to_stop_care, refer_to_screening_station, transfer_out_to)
+insert into mw_poc_clinical_plan (patient_id, visit_date, location, appointment_date, clinical_impression_comments, outcome, qualitative_time, reason_to_stop_care, refer_to_screening_station, transfer_out_to, creator)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -57,7 +57,8 @@ select
     max(qualitative_time.value_coded) as qualitative_time,
     max(reason_to_stop_care_text.value_text) as reason_to_stop_care,
     max(refer_to_screening_station.value_coded) as refer_to_screening_station,
-    max(transfer_out_to.value_text) as transfer_out_to
+    max(transfer_out_to.value_text) as transfer_out_to,
+    max(e.created_by) as creator
 from omrs_encounter e
 left join temp_appointment_date appointment_date on e.encounter_id = appointment_date.encounter_id
 left join temp_clinical_impression_comments clinical_impression_comments on e.encounter_id = clinical_impression_comments.encounter_id

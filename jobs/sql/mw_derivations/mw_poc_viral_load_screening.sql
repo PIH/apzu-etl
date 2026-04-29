@@ -66,7 +66,7 @@ drop temporary table if exists temp_symptom_present;
 create temporary table temp_symptom_present as select encounter_id, value_coded from omrs_obs where concept = 'Symptom present';
 alter table temp_symptom_present add index temp_symptom_present_encounter_idx (encounter_id);
 
-insert into mw_poc_viral_load_screening (patient_id, visit_date, location, sample_taken_for_viral_load, lab_id, lab_location, less_than_limit, lower_than_detection_limit, reason_for_no_result, reason_for_no_sample, reason_for_testing, viral_load_sample_id, symptom_absent, symptom_present)
+insert into mw_poc_viral_load_screening (patient_id, visit_date, location, sample_taken_for_viral_load, lab_id, lab_location, less_than_limit, lower_than_detection_limit, reason_for_no_result, reason_for_no_sample, reason_for_testing, viral_load_sample_id, symptom_absent, symptom_present, creator)
 select
     e.patient_id,
     date(e.encounter_date) as visit_date,
@@ -81,7 +81,8 @@ select
     max(reason_for_testing_coded.value_coded) as reason_for_testing,
     max(viral_load_sample_id.value_text) as viral_load_sample_id,
     max(symptom_absent.value_coded) as symptom_absent,
-    max(symptom_present.value_coded) as symptom_present
+    max(symptom_present.value_coded) as symptom_present,
+    max(e.created_by) as creator
 from omrs_encounter e
 left join temp_sample_taken_for_viral_load sample_taken_for_viral_load on e.encounter_id = sample_taken_for_viral_load.encounter_id
 left join temp_lab_id lab_id on e.encounter_id = lab_id.encounter_id
