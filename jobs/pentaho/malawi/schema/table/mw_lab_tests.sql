@@ -11,5 +11,3 @@ CREATE TABLE mw_lab_tests (
   result_numeric       DECIMAL(10,2),
   result_exception     VARCHAR(100)
 );
-alter table mw_lab_tests add index mw_lab_tests_patient_idx (patient_id);
-alter table mw_lab_tests add index mw_lab_tests_patient_type_idx (patient_id, test_type);

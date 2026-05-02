@@ -16,4 +16,3 @@ CREATE TABLE mw_patient (
   death_date            DATE,
   patient_uuid	 	 CHAR(38)
 );
-alter table mw_patient add index mw_patient_id_idx (patient_id);

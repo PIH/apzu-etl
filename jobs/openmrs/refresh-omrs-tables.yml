@@ -81,18 +81,12 @@ configuration:
               scripts:
                 - "sql/mysql/drop-schema-object.sql"
           - type: "sql-execution"
-            description: "Create omrs_obs"
+            description: "Create omrs_obs and omrs_obs_group"
             configuration:
               datasource: "mysqlReporting.yml"
               delimiter: ";"
               scripts:
                 - "pentaho/openmrs/schema/table/omrs_obs.sql"
-          - type: "sql-execution"
-            description: "Create omrs_obs_group"
-            configuration:
-              datasource: "mysqlReporting.yml"
-              delimiter: ";"
-              scripts:
                 - "pentaho/openmrs/schema/table/omrs_obs_group.sql"
           - type: "iterating-job"
             description: "Load omrs_obs (also fills omrs_obs_group)"
@@ -102,16 +96,10 @@ configuration:
               jobTemplate:
                 path: "execute-pentaho-job.yml"
           - type: "sql-execution"
-            description: "Index omrs_obs"
+            description: "Index omrs_obs and omrs_obs_group"
             configuration:
               datasource: "mysqlReporting.yml"
               delimiter: ";"
               scripts:
                 - "pentaho/openmrs/schema/index/omrs_obs.sql"
-          - type: "sql-execution"
-            description: "Index omrs_obs_group"
-            configuration:
-              datasource: "mysqlReporting.yml"
-              delimiter: ";"
-              scripts:
                 - "pentaho/openmrs/schema/index/omrs_obs_group.sql"

@@ -1,31 +1,21 @@
-# Drops and recreates every Malawi-specific schema object (table, function,
-# procedure) listed below, in this order. Each iteration runs the type-appropriate
-# DROP statement and then executes the object's .sql file under
+# Drops and recreates every Malawi-specific function and procedure listed
+# below, in this order. Each iteration runs the type-appropriate DROP statement
+# and then executes the object's body file under
 # jobs/pentaho/malawi/schema/<type>/<name>.sql.
 #
 # Functions and procedures use an empty delimiter so their BEGIN ... END bodies
 # (which contain internal semicolons) are sent to the database as a single
-# statement; tables use ";" so multi-statement DDL files (CREATE TABLE plus
-# CREATE INDEX) are split correctly.
+# statement.
+#
+# Tables are NOT created here — they are managed per-table by
+# malawi/refresh-mw-tables.yml (drop, create, load, index).
 type: "iterating-job"
-description: "Create Malawi schema objects (tables, functions, procedures)"
+description: "Create Malawi schema objects (functions, procedures)"
 configuration:
   maxConcurrentJobs: 1
   jobTemplate:
     path: "malawi/drop-and-create-malawi-schema-object.yml"
   iterations:
-    - { type: "table", name: "mw_patient", delimiter: ";" }
-    - { type: "table", name: "mw_lab_tests", delimiter: ";" }
-    - { type: "table", name: "mw_eid_visits", delimiter: ";" }
-    - { type: "table", name: "mw_eid_register", delimiter: ";" }
-    - { type: "table", name: "mw_pre_art_visits", delimiter: ";" }
-    - { type: "table", name: "mw_pre_art_register", delimiter: ";" }
-    - { type: "table", name: "mw_art_visits", delimiter: ";" }
-    - { type: "table", name: "mw_art_register", delimiter: ";" }
-    - { type: "table", name: "mw_ncd_diagnoses", delimiter: ";" }
-    - { type: "table", name: "mw_ncd_visits", delimiter: ";" }
-    - { type: "table", name: "mw_ncd_register", delimiter: ";" }
-    - { type: "table", name: "mw_pdc_register", delimiter: ";" }
     - { type: "function", name: "first_date_no_breastfeeding", delimiter: "" }
     - { type: "function", name: "first_test_result_by_date_entered", delimiter: "" }
     - { type: "function", name: "latest_test_result_by_date_entered", delimiter: "" }
@@ -86,73 +76,3 @@ configuration:
     - { type: "procedure", name: "create_rpt_patients_expected", delimiter: "" }
     - { type: "procedure", name: "create_rpt_ic3_data", delimiter: "" }
     - { type: "procedure", name: "create_rpt_mh_data", delimiter: "" }
-    - { type: "table", name: "mw_lab_tests_recent_period", delimiter: ";" }
-    - { type: "table", name: "mw_last_obs_in_period", delimiter: ";" }
-    - { type: "table", name: "mw_selected_periods", delimiter: ";" }
-    - { type: "table", name: "mw_concepts_selected", delimiter: ";" }
-    - { type: "table", name: "mw_art_regimen", delimiter: ";" }
-    - { type: "table", name: "mw_art_initial", delimiter: ";" }
-    - { type: "table", name: "mw_art_followup", delimiter: ";" }
-    - { type: "table", name: "mw_diabetes_hypertension_initial", delimiter: ";" }
-    - { type: "table", name: "mw_diabetes_hypertension_followup", delimiter: ";" }
-    - { type: "table", name: "mw_asthma_followup", delimiter: ";" }
-    - { type: "table", name: "mw_asthma_initial", delimiter: ";" }
-    - { type: "table", name: "mw_chf_initial", delimiter: ";" }
-    - { type: "table", name: "mw_chf_followup", delimiter: ";" }
-    - { type: "table", name: "mw_ckd_initial", delimiter: ";" }
-    - { type: "table", name: "mw_ckd_followup", delimiter: ";" }
-    - { type: "table", name: "mw_epilepsy_initial", delimiter: ";" }
-    - { type: "table", name: "mw_epilepsy_followup", delimiter: ";" }
-    - { type: "table", name: "mw_mental_health_followup", delimiter: ";" }
-    - { type: "table", name: "mw_mental_health_initial", delimiter: ";" }
-    - { type: "table", name: "mw_eid_initial", delimiter: ";" }
-    - { type: "table", name: "mw_eid_followup", delimiter: ";" }
-    - { type: "table", name: "mw_ncd_other_initial", delimiter: ";" }
-    - { type: "table", name: "mw_ncd_other_followup", delimiter: ";" }
-    - { type: "table", name: "mw_art_viral_load", delimiter: ";" }
-    - { type: "table", name: "mw_pdc_initial", delimiter: ";" }
-    - { type: "table", name: "mw_pdc_trisomy_21_followup", delimiter: ";" }
-    - { type: "table", name: "mw_pdc_developmental_delay_followup", delimiter: ";" }
-    - { type: "table", name: "mw_pdc_other_diagnosis_followup", delimiter: ";" }
-    - { type: "table", name: "mw_pdc_history_of_hospitalization", delimiter: ";" }
-    - { type: "table", name: "mw_pdc_cleft_lip_palate_followup", delimiter: ";" }
-    - { type: "table", name: "mw_pdc_diagnoses", delimiter: ";" }
-    - { type: "table", name: "mw_pdc_vision_test", delimiter: ";" }
-    - { type: "table", name: "mw_pdc_radiology", delimiter: ";" }
-    - { type: "table", name: "mw_pdc_complications", delimiter: ";" }
-    - { type: "table", name: "mw_pdc_hearing_test", delimiter: ";" }
-    - { type: "table", name: "mw_eid_lab_tests", delimiter: ";" }
-    - { type: "table", name: "mw_pdc_visits", delimiter: ";" }
-    - { type: "table", name: "mw_diabetes_hypertension_annual_lab_tests", delimiter: ";" }
-    - { type: "table", name: "mw_art_followup_testing", delimiter: ";" }
-    - { type: "table", name: "mw_nutrition_adult_initial", delimiter: ";" }
-    - { type: "table", name: "mw_nutrition_adult_followup", delimiter: ";" }
-    - { type: "table", name: "mw_nutrition_pdc_initial", delimiter: ";" }
-    - { type: "table", name: "mw_nutrition_pdc_followup", delimiter: ";" }
-    - { type: "table", name: "mw_nutrition_teen_initial", delimiter: ";" }
-    - { type: "table", name: "mw_nutrition_teen_followup", delimiter: ";" }
-    - { type: "table", name: "mw_nutrition_infant_initial", delimiter: ";" }
-    - { type: "table", name: "mw_nutrition_infant_followup", delimiter: ";" }
-    - { type: "table", name: "mw_teen_club_followup", delimiter: ";" }
-    - { type: "table", name: "mw_users", delimiter: ";" }
-    - { type: "table", name: "mw_poc", delimiter: ";" }
-    - { type: "table", name: "mw_poc_checkin", delimiter: ";" }
-    - { type: "table", name: "mw_poc_clinical_plan", delimiter: ";" }
-    - { type: "table", name: "mw_poc_adherence_counseling", delimiter: ";" }
-    - { type: "table", name: "mw_poc_bp", delimiter: ";" }
-    - { type: "table", name: "mw_poc_cervical_cancer", delimiter: ";" }
-    - { type: "table", name: "mw_poc_eid", delimiter: ";" }
-    - { type: "table", name: "mw_poc_htc", delimiter: ";" }
-    - { type: "table", name: "mw_poc_nutrition", delimiter: ";" }
-    - { type: "table", name: "mw_poc_tb_screening", delimiter: ";" }
-    - { type: "table", name: "mw_poc_viral_load_screening", delimiter: ";" }
-    - { type: "table", name: "mw_sickle_cell_disease_initial", delimiter: ";" }
-    - { type: "table", name: "mw_sickle_cell_disease_quarterly_screening", delimiter: ";" }
-    - { type: "table", name: "mw_sickle_cell_disease_annual_screening", delimiter: ";" }
-    - { type: "table", name: "mw_sickle_cell_disease_history_of_hospitalization", delimiter: ";" }
-    - { type: "table", name: "mw_sickle_cell_disease_followup", delimiter: ";" }
-    - { type: "table", name: "mw_teen_club_intake_survey", delimiter: ";" }
-    - { type: "table", name: "mw_tb_initial", delimiter: ";" }
-    - { type: "table", name: "mw_tb_followup", delimiter: ";" }
-    - { type: "table", name: "mw_tb_post_lung_disease", delimiter: ";" }
-    - { type: "table", name: "mw_tb_test_results", delimiter: ";" }

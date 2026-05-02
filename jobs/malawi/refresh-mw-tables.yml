@@ -1,0 +1,268 @@
+# Refreshes every Malawi-specific warehouse table (mw_*). Each table is its own
+# self-contained job — drop, create (without indexes), load, then create
+# indexes — using the shared refresh-warehouse-table.yml template. Indexes are
+# created per-table immediately after that table's load (fast for bulk inserts;
+# any cross-table joins by later loads still benefit).
+#
+# Functions and procedures must already exist when this runs (transforms call
+# them); they are created upstream by malawi/create-schema.yml.
+#
+# Special cases — handled inline below the main iteration:
+#   * mw_lab_tests is loaded by two transforms (HIV + viral-load).
+#   * mw_pdc_history_of_hospitalization is loaded by two transforms (the
+#     legitimate one plus a misrouted sickle-cell-disease transform; see
+#     KNOWN_ISSUES.md).
+#   * mw_selected_periods + mw_concepts_selected are written together by a
+#     single transform (load-selected-periods-and-concepts.ktr).
+#   * mw_sickle_cell_disease_history_of_hospitalization has no transform that
+#     writes to it — see KNOWN_ISSUES.md. The table is still created and
+#     indexed (currently a no-op index file) so its DDL is exercised.
+type: "job-pipeline"
+description: "Refresh Malawi mw_* warehouse tables"
+configuration:
+  jobs:
+
+    # --- 1. Standard 1:1 table refreshes (drop → create → load → index) ---
+    - type: "iterating-job"
+      description: "Refresh standard mw_* tables"
+      parameters:
+        schemaDir: "pentaho/malawi/schema"
+      configuration:
+        maxConcurrentJobs: 1
+        jobTemplate:
+          path: "refresh-warehouse-table.yml"
+        iterations:
+          - { tableName: "mw_patient",                                 jobPath: "pentaho/malawi/transforms/import-into-mw-patient.ktr" }
+          - { tableName: "mw_eid_visits",                              jobPath: "pentaho/malawi/transforms/import-into-mw-eid-visits.ktr" }
+          - { tableName: "mw_eid_register",                            jobPath: "pentaho/malawi/transforms/import-into-mw-eid-register.ktr" }
+          - { tableName: "mw_pre_art_visits",                          jobPath: "pentaho/malawi/transforms/import-into-mw-pre-art-visits.ktr" }
+          - { tableName: "mw_pre_art_register",                        jobPath: "pentaho/malawi/transforms/import-into-mw-pre-art-register.ktr" }
+          - { tableName: "mw_art_visits",                              jobPath: "pentaho/malawi/transforms/import-into-mw-art-visits.ktr" }
+          - { tableName: "mw_art_register",                            jobPath: "pentaho/malawi/transforms/import-into-mw-art-register.ktr" }
+          - { tableName: "mw_ncd_diagnoses",                           jobPath: "pentaho/malawi/transforms/import-into-mw-ncd-diagnoses.ktr" }
+          - { tableName: "mw_ncd_visits",                              jobPath: "pentaho/malawi/transforms/import-into-mw-ncd-visits.ktr" }
+          - { tableName: "mw_ncd_register",                            jobPath: "pentaho/malawi/transforms/import-into-mw-ncd-register.ktr" }
+          - { tableName: "mw_pdc_register",                            jobPath: "pentaho/malawi/transforms/import-into-mw-pdc-register.ktr" }
+          - { tableName: "mw_lab_tests_recent_period",                 jobPath: "pentaho/malawi/transforms/Most-recent-labs.ktr" }
+          - { tableName: "mw_last_obs_in_period",                      jobPath: "pentaho/malawi/transforms/most-recent-obs-for-period.ktr" }
+          - { tableName: "mw_art_regimen",                             jobPath: "pentaho/malawi/transforms/art-regimen.ktr" }
+          - { tableName: "mw_art_initial",                             jobPath: "pentaho/malawi/transforms/import-into-mw-art-initial.ktr" }
+          - { tableName: "mw_art_followup",                            jobPath: "pentaho/malawi/transforms/import-into-mw-art-followup.ktr" }
+          - { tableName: "mw_diabetes_hypertension_initial",           jobPath: "pentaho/malawi/transforms/import-into-mw-diabetes-hypertension-initial.ktr" }
+          - { tableName: "mw_diabetes_hypertension_followup",          jobPath: "pentaho/malawi/transforms/import-into-mw-diabetes-hypertension-followup.ktr" }
+          - { tableName: "mw_asthma_followup",                         jobPath: "pentaho/malawi/transforms/import-into-mw-asthma-followup.ktr" }
+          - { tableName: "mw_asthma_initial",                          jobPath: "pentaho/malawi/transforms/import-into-mw-asthma-initial.ktr" }
+          - { tableName: "mw_chf_initial",                             jobPath: "pentaho/malawi/transforms/import-into-mw-chf-initial.ktr" }
+          - { tableName: "mw_chf_followup",                            jobPath: "pentaho/malawi/transforms/import-into-mw-chf-followup.ktr" }
+          - { tableName: "mw_ckd_initial",                             jobPath: "pentaho/malawi/transforms/import-into-mw-ckd-initial.ktr" }
+          - { tableName: "mw_ckd_followup",                            jobPath: "pentaho/malawi/transforms/import-into-mw-ckd-followup.ktr" }
+          - { tableName: "mw_epilepsy_initial",                        jobPath: "pentaho/malawi/transforms/import-into-mw-epilepsy-initial.ktr" }
+          - { tableName: "mw_epilepsy_followup",                       jobPath: "pentaho/malawi/transforms/import-into-mw-epilepsy-followup.ktr" }
+          - { tableName: "mw_mental_health_followup",                  jobPath: "pentaho/malawi/transforms/import-into-mw-mental-health-followup.ktr" }
+          - { tableName: "mw_mental_health_initial",                   jobPath: "pentaho/malawi/transforms/import-into-mental-health-initial.ktr" }
+          - { tableName: "mw_eid_initial",                             jobPath: "pentaho/malawi/transforms/import-into-mw-eid-initial.ktr" }
+          - { tableName: "mw_eid_followup",                            jobPath: "pentaho/malawi/transforms/import-into-mw-eid-followup.ktr" }
+          - { tableName: "mw_ncd_other_initial",                       jobPath: "pentaho/malawi/transforms/import-into-mw-ncd-other-initial.ktr" }
+          - { tableName: "mw_ncd_other_followup",                      jobPath: "pentaho/malawi/transforms/import-into-mw-ncd-other-followup.ktr" }
+          - { tableName: "mw_art_viral_load",                          jobPath: "pentaho/malawi/transforms/import-into-art-viral-load.ktr" }
+          - { tableName: "mw_pdc_initial",                             jobPath: "pentaho/malawi/transforms/import-into-pdc-initial.ktr" }
+          - { tableName: "mw_pdc_trisomy_21_followup",                 jobPath: "pentaho/malawi/transforms/import-into-pdc-trisomy-21-visits.ktr" }
+          - { tableName: "mw_pdc_developmental_delay_followup",        jobPath: "pentaho/malawi/transforms/import-into-pdc-developmental-delay-visit.ktr" }
+          - { tableName: "mw_pdc_other_diagnosis_followup",            jobPath: "pentaho/malawi/transforms/import-into-pdc-other-diagnosis-visits.ktr" }
+          - { tableName: "mw_pdc_cleft_lip_palate_followup",           jobPath: "pentaho/malawi/transforms/import-into-pdc-cleft-lip-palate-visits.ktr" }
+          - { tableName: "mw_pdc_diagnoses",                           jobPath: "pentaho/malawi/transforms/import-into-pdc-diagnoses.ktr" }
+          - { tableName: "mw_pdc_vision_test",                         jobPath: "pentaho/malawi/transforms/import-into-pdc-vision-test.ktr" }
+          - { tableName: "mw_pdc_radiology",                           jobPath: "pentaho/malawi/transforms/import-into-pdc-radiology.ktr" }
+          - { tableName: "mw_pdc_complications",                       jobPath: "pentaho/malawi/transforms/import-into-pdc-complications.ktr" }
+          - { tableName: "mw_pdc_hearing_test",                        jobPath: "pentaho/malawi/transforms/import-into-pdc-hearing_test.ktr" }
+          - { tableName: "mw_eid_lab_tests",                           jobPath: "pentaho/malawi/transforms/import-into-mw-eid-lab-test.ktr" }
+          - { tableName: "mw_pdc_visits",                              jobPath: "pentaho/malawi/transforms/import-into-pdc-visits.ktr" }
+          - { tableName: "mw_diabetes_hypertension_annual_lab_tests",  jobPath: "pentaho/malawi/transforms/import-into-mw-diabetes-hypertension-annual-lab-tests.ktr" }
+          - { tableName: "mw_art_followup_testing",                    jobPath: "pentaho/malawi/transforms/import-into-mw-art-followup-testing.ktr" }
+          - { tableName: "mw_nutrition_adult_initial",                 jobPath: "pentaho/malawi/transforms/import-into-mw-nutrition-adult-initial.ktr" }
+          - { tableName: "mw_nutrition_adult_followup",                jobPath: "pentaho/malawi/transforms/import-into-mw-nutrition-adult-followup.ktr" }
+          - { tableName: "mw_nutrition_pdc_initial",                   jobPath: "pentaho/malawi/transforms/import-into-mw-nutrition-pdc-initial.ktr" }
+          - { tableName: "mw_nutrition_pdc_followup",                  jobPath: "pentaho/malawi/transforms/import-into-mw-nutrition-pdc-followup.ktr" }
+          - { tableName: "mw_nutrition_teen_initial",                  jobPath: "pentaho/malawi/transforms/import-into-mw-nutrition-teen-initial.ktr" }
+          - { tableName: "mw_nutrition_teen_followup",                 jobPath: "pentaho/malawi/transforms/import-into-mw-nutrition-teen-followup.ktr" }
+          - { tableName: "mw_nutrition_infant_initial",                jobPath: "pentaho/malawi/transforms/import-into-mw-nutrition-infant-initial.ktr" }
+          - { tableName: "mw_nutrition_infant_followup",               jobPath: "pentaho/malawi/transforms/import-into-mw-nutrition-infant-followup.ktr" }
+          - { tableName: "mw_teen_club_followup",                      jobPath: "pentaho/malawi/transforms/import-into-mw-teen-club-followup.ktr" }
+          - { tableName: "mw_users",                                   jobPath: "pentaho/malawi/transforms/import-into-mw-users.ktr" }
+          - { tableName: "mw_poc",                                     jobPath: "pentaho/malawi/transforms/import-into-mw-poc.ktr" }
+          - { tableName: "mw_poc_checkin",                             jobPath: "pentaho/malawi/transforms/import-into-mw-poc-checkin.ktr" }
+          - { tableName: "mw_poc_clinical_plan",                       jobPath: "pentaho/malawi/transforms/import-into-mw-poc-clinical-plan.ktr" }
+          - { tableName: "mw_poc_adherence_counseling",                jobPath: "pentaho/malawi/transforms/import-into-mw-poc-adherence-counseling.ktr" }
+          - { tableName: "mw_poc_bp",                                  jobPath: "pentaho/malawi/transforms/import-into-mw-poc-bp-screening.ktr" }
+          - { tableName: "mw_poc_cervical_cancer",                     jobPath: "pentaho/malawi/transforms/import-into-mw-poc-cervical-cancer.ktr" }
+          - { tableName: "mw_poc_eid",                                 jobPath: "pentaho/malawi/transforms/import-into-mw-poc-eid.ktr" }
+          - { tableName: "mw_poc_htc",                                 jobPath: "pentaho/malawi/transforms/import-into-mw-poc-htc.ktr" }
+          - { tableName: "mw_poc_nutrition",                           jobPath: "pentaho/malawi/transforms/import-into-mw-poc-nutrition.ktr" }
+          - { tableName: "mw_poc_tb_screening",                        jobPath: "pentaho/malawi/transforms/import-into-mw-poc-tb-screening.ktr" }
+          - { tableName: "mw_poc_viral_load_screening",                jobPath: "pentaho/malawi/transforms/import-into-mw-poc-viral-load-screening.ktr" }
+          - { tableName: "mw_sickle_cell_disease_initial",             jobPath: "pentaho/malawi/transforms/import-into-mw-sickle-cell-disease-initial.ktr" }
+          - { tableName: "mw_sickle_cell_disease_quarterly_screening", jobPath: "pentaho/malawi/transforms/import-into-mw-sickle-cell-disease-quarterly-screening.ktr" }
+          - { tableName: "mw_sickle_cell_disease_annual_screening",    jobPath: "pentaho/malawi/transforms/import-into-mw-sickle-cell-disease-annual-screening.ktr" }
+          - { tableName: "mw_sickle_cell_disease_followup",            jobPath: "pentaho/malawi/transforms/import-into-mw-sickle-cell-disease-followup.ktr" }
+          - { tableName: "mw_teen_club_intake_survey",                 jobPath: "pentaho/malawi/transforms/import-into-mw-teen-club-intake-survey.ktr" }
+          - { tableName: "mw_tb_initial",                              jobPath: "pentaho/malawi/transforms/import-into-mw-tb-initial.ktr" }
+          - { tableName: "mw_tb_followup",                             jobPath: "pentaho/malawi/transforms/import-into-mw-tb-followup.ktr" }
+          - { tableName: "mw_tb_post_lung_disease",                    jobPath: "pentaho/malawi/transforms/import-into-mw-tb-post-lung-disease.ktr" }
+          - { tableName: "mw_tb_test_results",                         jobPath: "pentaho/malawi/transforms/import-into-mw-tb-test-results.ktr" }
+
+    # --- 2. mw_lab_tests: loaded by two transforms (HIV + viral-load) ---
+    - type: "job-pipeline"
+      description: "Refresh mw_lab_tests (loaded by both HIV and viral-load transforms)"
+      configuration:
+        jobs:
+          - type: "sql-execution"
+            description: "Drop mw_lab_tests"
+            parameters:
+              type: "table"
+              name: "mw_lab_tests"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "sql/mysql/drop-schema-object.sql"
+          - type: "sql-execution"
+            description: "Create mw_lab_tests"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "pentaho/malawi/schema/table/mw_lab_tests.sql"
+          - type: "iterating-job"
+            description: "Load mw_lab_tests"
+            configuration:
+              maxConcurrentJobs: 1
+              jobTemplate:
+                path: "execute-pentaho-job.yml"
+              iterations:
+                - jobPath: "pentaho/malawi/transforms/import-lab-tests-hiv.ktr"
+                - jobPath: "pentaho/malawi/transforms/import-lab-tests-viral-load.ktr"
+          - type: "sql-execution"
+            description: "Index mw_lab_tests"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "pentaho/malawi/schema/index/mw_lab_tests.sql"
+
+    # --- 3. mw_pdc_history_of_hospitalization: loaded by two transforms ---
+    # (the legitimate import-into-pdc-history-of-hospitalization plus the
+    # misrouted import-into-mw-sickle-cell-disease-history-of-hospitalization;
+    # see KNOWN_ISSUES.md).
+    - type: "job-pipeline"
+      description: "Refresh mw_pdc_history_of_hospitalization (loaded by two transforms; see KNOWN_ISSUES.md)"
+      configuration:
+        jobs:
+          - type: "sql-execution"
+            description: "Drop mw_pdc_history_of_hospitalization"
+            parameters:
+              type: "table"
+              name: "mw_pdc_history_of_hospitalization"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "sql/mysql/drop-schema-object.sql"
+          - type: "sql-execution"
+            description: "Create mw_pdc_history_of_hospitalization"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "pentaho/malawi/schema/table/mw_pdc_history_of_hospitalization.sql"
+          - type: "iterating-job"
+            description: "Load mw_pdc_history_of_hospitalization"
+            configuration:
+              maxConcurrentJobs: 1
+              jobTemplate:
+                path: "execute-pentaho-job.yml"
+              iterations:
+                - jobPath: "pentaho/malawi/transforms/import-into-pdc-history-of-hospitalization.ktr"
+                - jobPath: "pentaho/malawi/transforms/import-into-mw-sickle-cell-disease-history-of-hospitalization.ktr"
+          - type: "sql-execution"
+            description: "Index mw_pdc_history_of_hospitalization"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "pentaho/malawi/schema/index/mw_pdc_history_of_hospitalization.sql"
+
+    # --- 4. mw_selected_periods + mw_concepts_selected: written together by
+    #         load-selected-periods-and-concepts.ktr ---
+    - type: "job-pipeline"
+      description: "Refresh mw_selected_periods and mw_concepts_selected (loaded together)"
+      configuration:
+        jobs:
+          - type: "sql-execution"
+            description: "Drop mw_selected_periods"
+            parameters:
+              type: "table"
+              name: "mw_selected_periods"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "sql/mysql/drop-schema-object.sql"
+          - type: "sql-execution"
+            description: "Drop mw_concepts_selected"
+            parameters:
+              type: "table"
+              name: "mw_concepts_selected"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "sql/mysql/drop-schema-object.sql"
+          - type: "sql-execution"
+            description: "Create mw_selected_periods and mw_concepts_selected"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "pentaho/malawi/schema/table/mw_selected_periods.sql"
+                - "pentaho/malawi/schema/table/mw_concepts_selected.sql"
+          - type: "iterating-job"
+            description: "Load mw_selected_periods and mw_concepts_selected"
+            configuration:
+              iterations:
+                - jobPath: "pentaho/malawi/transforms/load-selected-periods-and-concepts.ktr"
+              jobTemplate:
+                path: "execute-pentaho-job.yml"
+          - type: "sql-execution"
+            description: "Index mw_selected_periods and mw_concepts_selected"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "pentaho/malawi/schema/index/mw_selected_periods.sql"
+                - "pentaho/malawi/schema/index/mw_concepts_selected.sql"
+
+    # --- 5. mw_sickle_cell_disease_history_of_hospitalization: no loader
+    #         (see KNOWN_ISSUES.md). Drop and recreate the empty table so its
+    #         DDL is exercised; index file is currently empty. ---
+    - type: "job-pipeline"
+      description: "Refresh mw_sickle_cell_disease_history_of_hospitalization (no loader; see KNOWN_ISSUES.md)"
+      configuration:
+        jobs:
+          - type: "sql-execution"
+            description: "Drop mw_sickle_cell_disease_history_of_hospitalization"
+            parameters:
+              type: "table"
+              name: "mw_sickle_cell_disease_history_of_hospitalization"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "sql/mysql/drop-schema-object.sql"
+          - type: "sql-execution"
+            description: "Create and index mw_sickle_cell_disease_history_of_hospitalization"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "pentaho/malawi/schema/table/mw_sickle_cell_disease_history_of_hospitalization.sql"
+                - "pentaho/malawi/schema/index/mw_sickle_cell_disease_history_of_hospitalization.sql"

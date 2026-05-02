@@ -7,18 +7,7 @@ configuration:
 
     - path: "malawi/create-schema.yml"
 
-    - type: "iterating-job"
-      description: "Load Malawi-specific reporting data"
-      configuration:
-        iterations:
-          - jobPath: "pentaho/malawi/jobs/load-malawi-data-ART.kjb"
-          - jobPath: "pentaho/malawi/jobs/load-malawi-data-NCD.kjb"
-          - jobPath: "pentaho/malawi/jobs/load-malawi-data-PDC.kjb"
-          - jobPath: "pentaho/malawi/jobs/load-malawi-data-Nutrition.kjb"
-          - jobPath: "pentaho/malawi/jobs/load-malawi-data-POC.kjb"
-          - jobPath: "pentaho/malawi/jobs/load-malawi-data-users.kjb"
-        jobTemplate:
-          path: "execute-pentaho-job.yml"
+    - path: "malawi/refresh-mw-tables.yml"
 
     - type: "iterating-job"
       description: "Refresh OpenMRS Derived MySQL Data"

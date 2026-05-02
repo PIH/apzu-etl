@@ -7,5 +7,3 @@ CREATE TABLE mw_art_visits (
   art_drug_regimen      VARCHAR(255),
   next_appointment_date DATE
 );
-alter table mw_art_visits add index mw_art_visit_patient_idx (patient_id);
-alter table mw_art_visits add index mw_art_visit_patient_location_idx (patient_id, location);

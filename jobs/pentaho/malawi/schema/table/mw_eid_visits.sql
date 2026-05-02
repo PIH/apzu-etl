@@ -9,5 +9,3 @@ CREATE TABLE mw_eid_visits (
   mother_status	        VARCHAR(100),
   next_appointment_date DATE
 );
-alter table mw_eid_visits add index mw_eid_visit_patient_idx (patient_id);
-alter table mw_eid_visits add index mw_eid_visit_patient_location_idx (patient_id, location);

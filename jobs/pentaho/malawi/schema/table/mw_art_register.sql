@@ -11,5 +11,3 @@ CREATE TABLE mw_art_register (
   last_viral_load_test_id   INT,
   last_viral_load_result_id INT
 );
-alter table mw_art_register add index mw_art_register_patient_idx (patient_id);
-alter table mw_art_register add index mw_art_register_patient_location_idx (patient_id, location);
