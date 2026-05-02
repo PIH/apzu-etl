@@ -3,14 +3,14 @@ description: "Refreshing OpenMRS data"
 configuration:
   jobs:
 
+    - path: "openmrs/refresh-omrs-tables.yml"
+
+    - path: "malawi/create-schema.yml"
+
     - type: "iterating-job"
-      description: "Execute OpenMRS Pentaho pipeline"
+      description: "Load Malawi-specific reporting data"
       configuration:
         iterations:
-          - jobPath: "pentaho/openmrs/create-omrs-schema.kjb"
-          - jobPath: "pentaho/malawi/jobs/create-schema.kjb"
-          - jobPath: "pentaho/openmrs/load-from-openmrs.kjb"
-          - jobPath: "pentaho/openmrs/create-omrs-indexes.kjb"
           - jobPath: "pentaho/malawi/jobs/load-malawi-data-ART.kjb"
           - jobPath: "pentaho/malawi/jobs/load-malawi-data-NCD.kjb"
           - jobPath: "pentaho/malawi/jobs/load-malawi-data-PDC.kjb"

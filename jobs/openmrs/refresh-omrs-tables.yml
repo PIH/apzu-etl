@@ -1,0 +1,117 @@
+# Refreshes the OMRS warehouse end-to-end. Each main warehouse table is its own
+# self-contained job: drop, create (without indexes), load, then create indexes.
+# Indexes are created per-table immediately after that table's load — fast for
+# bulk inserts, and any cross-table joins by later loads still benefit.
+type: "job-pipeline"
+description: "Refresh OMRS warehouse"
+configuration:
+  jobs:
+
+    # --- 1. Helper function used by downstream MySQL queries ---
+    - type: "sql-execution"
+      description: "Drop function nextStateForEnrollment"
+      parameters:
+        type: "function"
+        name: "nextStateForEnrollment"
+      configuration:
+        datasource: "mysqlReporting.yml"
+        delimiter: ";"
+        scripts:
+          - "sql/mysql/drop-schema-object.sql"
+    - type: "sql-execution"
+      description: "Create function nextStateForEnrollment"
+      configuration:
+        datasource: "mysqlReporting.yml"
+        delimiter: ""    # function body has internal semicolons
+        scripts:
+          - "pentaho/openmrs/schema/function/nextStateForEnrollment.sql"
+
+    # --- 2. Reference-data lookup tables (created and populated together by
+    #         the legacy Pentaho job; required before main-table loads) ---
+    - type: "iterating-job"
+      description: "Load OMRS reference-data lookup tables"
+      configuration:
+        iterations:
+          - jobPath: "pentaho/openmrs/load-reference-data.kjb"
+        jobTemplate:
+          path: "execute-pentaho-job.yml"
+
+    # --- 3. Standard 1:1 table refreshes (drop → create → load → index) ---
+    - type: "iterating-job"
+      description: "Refresh OMRS warehouse tables"
+      parameters:
+        schemaDir: "pentaho/openmrs/schema"
+      configuration:
+        maxConcurrentJobs: 1
+        jobTemplate:
+          path: "refresh-warehouse-table.yml"
+        iterations:
+          - { tableName: "omrs_patient",            jobPath: "pentaho/openmrs/transforms/import-into-omrs-patient.ktr" }
+          - { tableName: "omrs_patient_identifier", jobPath: "pentaho/openmrs/transforms/import-into-omrs-patient-identifier.ktr" }
+          - { tableName: "omrs_relationship",       jobPath: "pentaho/openmrs/transforms/import-into-omrs-relationship.ktr" }
+          - { tableName: "omrs_visit",              jobPath: "pentaho/openmrs/transforms/import-into-omrs-visit.ktr" }
+          - { tableName: "omrs_program_enrollment", jobPath: "pentaho/openmrs/transforms/import-into-omrs-program-enrollment.ktr" }
+          - { tableName: "omrs_program_state",      jobPath: "pentaho/openmrs/transforms/import-into-omrs-program-state.ktr" }
+          - { tableName: "omrs_encounter_provider", jobPath: "pentaho/openmrs/transforms/import-into-omrs-encounter-provider.ktr" }
+          - { tableName: "omrs_encounter",          jobPath: "pentaho/openmrs/transforms/import-into-omrs-encounter.ktr" }
+
+    # --- 4. omrs_obs + omrs_obs_group: a single .ktr writes to both tables ---
+    - type: "job-pipeline"
+      description: "Refresh omrs_obs and omrs_obs_group (loaded together by import-into-omrs-obs.ktr)"
+      configuration:
+        jobs:
+          - type: "sql-execution"
+            description: "Drop omrs_obs"
+            parameters:
+              type: "table"
+              name: "omrs_obs"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "sql/mysql/drop-schema-object.sql"
+          - type: "sql-execution"
+            description: "Drop omrs_obs_group"
+            parameters:
+              type: "table"
+              name: "omrs_obs_group"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "sql/mysql/drop-schema-object.sql"
+          - type: "sql-execution"
+            description: "Create omrs_obs"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "pentaho/openmrs/schema/table/omrs_obs.sql"
+          - type: "sql-execution"
+            description: "Create omrs_obs_group"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "pentaho/openmrs/schema/table/omrs_obs_group.sql"
+          - type: "iterating-job"
+            description: "Load omrs_obs (also fills omrs_obs_group)"
+            configuration:
+              iterations:
+                - jobPath: "pentaho/openmrs/transforms/import-into-omrs-obs.ktr"
+              jobTemplate:
+                path: "execute-pentaho-job.yml"
+          - type: "sql-execution"
+            description: "Index omrs_obs"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "pentaho/openmrs/schema/index/omrs_obs.sql"
+          - type: "sql-execution"
+            description: "Index omrs_obs_group"
+            configuration:
+              datasource: "mysqlReporting.yml"
+              delimiter: ";"
+              scripts:
+                - "pentaho/openmrs/schema/index/omrs_obs_group.sql"

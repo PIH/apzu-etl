@@ -1,0 +1,40 @@
+# Per-iteration template that fully refreshes a single warehouse table:
+#   1. drops the table if it exists
+#   2. creates the table (without secondary indexes)
+#   3. loads the table by running its Pentaho transform
+#   4. creates the table's indexes (deferred for bulk-load performance)
+#
+# Iteration variables:
+#   ${schemaDir}   - e.g., "pentaho/openmrs/schema"; must contain table/ and index/ subdirs
+#   ${tableName}   - e.g., "omrs_patient"; matches the .sql basename in both subdirs
+#   ${jobPath}     - e.g., "pentaho/openmrs/transforms/import-into-omrs-patient.ktr";
+#                    consumed by execute-pentaho-job.yml
+type: "job-pipeline"
+description: "Refresh ${tableName}"
+configuration:
+  jobs:
+    - type: "sql-execution"
+      description: "Drop ${tableName}"
+      parameters:
+        type: "table"
+        name: "${tableName}"
+      configuration:
+        datasource: "mysqlReporting.yml"
+        delimiter: ";"
+        scripts:
+          - "sql/mysql/drop-schema-object.sql"
+    - type: "sql-execution"
+      description: "Create ${tableName}"
+      configuration:
+        datasource: "mysqlReporting.yml"
+        delimiter: ";"
+        scripts:
+          - "${schemaDir}/table/${tableName}.sql"
+    - path: "execute-pentaho-job.yml"
+    - type: "sql-execution"
+      description: "Index ${tableName}"
+      configuration:
+        datasource: "mysqlReporting.yml"
+        delimiter: ";"
+        scripts:
+          - "${schemaDir}/index/${tableName}.sql"

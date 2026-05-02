@@ -1,0 +1,24 @@
+# Per-iteration template for malawi/create-schema.yml.
+# Drops the existing schema object then runs its SQL definition file.
+# Iteration variables:
+#   ${type}      - "table", "function", or "procedure"
+#   ${name}      - object name (also the SQL file basename)
+#   ${delimiter} - ";" for tables (multi-statement files), "" for function/procedure bodies
+type: "job-pipeline"
+description: "Drop and recreate ${type} ${name}"
+configuration:
+  jobs:
+    - type: "sql-execution"
+      description: "Drop ${type} ${name}"
+      configuration:
+        datasource: "mysqlReporting.yml"
+        delimiter: ";"
+        scripts:
+          - "sql/mysql/drop-schema-object.sql"
+    - type: "sql-execution"
+      description: "Create ${type} ${name}"
+      configuration:
+        datasource: "mysqlReporting.yml"
+        delimiter: "${delimiter}"
+        scripts:
+          - "pentaho/malawi/schema/${type}/${name}.sql"
