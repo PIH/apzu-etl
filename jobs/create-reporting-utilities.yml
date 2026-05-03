@@ -1,20 +1,20 @@
-# Drops and recreates every Malawi-specific function and procedure listed
-# below, in this order. Each iteration runs the type-appropriate DROP statement
-# and then executes the object's body file under
-# jobs/pentaho/malawi/schema/<type>/<name>.sql.
+# Drops and recreates the reporting utility objects (MySQL functions and
+# stored procedures) used by downstream warehouse loads, in the order listed
+# below. Each iteration runs the type-appropriate DROP statement and then
+# executes the object's body file under jobs/pentaho/malawi/schema/<type>/<name>.sql.
 #
 # Functions and procedures use an empty delimiter so their BEGIN ... END bodies
 # (which contain internal semicolons) are sent to the database as a single
 # statement.
 #
 # Tables are NOT created here — they are managed per-table by
-# malawi/refresh-mw-tables.yml (drop, create, load, index).
+# refresh-mw-tables.yml (drop, create, load, index).
 type: "iterating-job"
-description: "Create Malawi schema objects (functions, procedures)"
+description: "Create reporting utilities (functions, procedures)"
 configuration:
   maxConcurrentJobs: 1
   jobTemplate:
-    path: "malawi/drop-and-create-malawi-schema-object.yml"
+    path: "drop-and-create.yml"
   iterations:
     - { type: "function", name: "first_date_no_breastfeeding", delimiter: "" }
     - { type: "function", name: "first_test_result_by_date_entered", delimiter: "" }

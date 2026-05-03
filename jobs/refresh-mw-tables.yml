@@ -10,7 +10,7 @@
 # fully refreshed before any consumer runs. Reordering will break the build.
 #
 # Functions and procedures must already exist when this runs (transforms call
-# them); they are created upstream by malawi/create-schema.yml.
+# them); they are created upstream by create-reporting-utilities.yml.
 #
 # Special cases — handled as inline job-pipelines at the position of their
 # first occurrence in legacy load order:
@@ -55,7 +55,7 @@ configuration:
               datasource: "mysqlReporting.yml"
               delimiter: ";"
               scripts:
-                - "sql/mysql/drop-schema-object.sql"
+                - "sql/drop-schema-object.sql"
           - type: "sql-execution"
             description: "Create mw_lab_tests"
             configuration:
@@ -106,7 +106,7 @@ configuration:
               datasource: "mysqlReporting.yml"
               delimiter: ";"
               scripts:
-                - "sql/mysql/drop-schema-object.sql"
+                - "sql/drop-schema-object.sql"
           - type: "sql-execution"
             description: "Drop mw_concepts_selected"
             parameters:
@@ -116,7 +116,7 @@ configuration:
               datasource: "mysqlReporting.yml"
               delimiter: ";"
               scripts:
-                - "sql/mysql/drop-schema-object.sql"
+                - "sql/drop-schema-object.sql"
           - type: "sql-execution"
             description: "Create mw_selected_periods and mw_concepts_selected"
             configuration:
@@ -195,7 +195,7 @@ configuration:
               datasource: "mysqlReporting.yml"
               delimiter: ";"
               scripts:
-                - "sql/mysql/drop-schema-object.sql"
+                - "sql/drop-schema-object.sql"
           - type: "sql-execution"
             description: "Create mw_pdc_history_of_hospitalization"
             configuration:
@@ -292,7 +292,7 @@ configuration:
               datasource: "mysqlReporting.yml"
               delimiter: ";"
               scripts:
-                - "sql/mysql/drop-schema-object.sql"
+                - "sql/drop-schema-object.sql"
           - type: "sql-execution"
             description: "Create and index mw_sickle_cell_disease_history_of_hospitalization"
             configuration:

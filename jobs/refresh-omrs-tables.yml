@@ -17,7 +17,7 @@ configuration:
         datasource: "mysqlReporting.yml"
         delimiter: ";"
         scripts:
-          - "sql/mysql/drop-schema-object.sql"
+          - "sql/drop-schema-object.sql"
     - type: "sql-execution"
       description: "Create function nextStateForEnrollment"
       configuration:
@@ -81,7 +81,7 @@ configuration:
               datasource: "mysqlReporting.yml"
               delimiter: ";"
               scripts:
-                - "sql/mysql/drop-schema-object.sql"
+                - "sql/drop-schema-object.sql"
           - type: "sql-execution"
             description: "Drop omrs_obs_group"
             parameters:
@@ -91,7 +91,7 @@ configuration:
               datasource: "mysqlReporting.yml"
               delimiter: ";"
               scripts:
-                - "sql/mysql/drop-schema-object.sql"
+                - "sql/drop-schema-object.sql"
           - type: "sql-execution"
             description: "Create omrs_obs and omrs_obs_group"
             configuration:

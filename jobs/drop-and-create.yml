@@ -1,4 +1,4 @@
-# Per-iteration template for malawi/create-schema.yml.
+# Per-iteration template for create-reporting-utilities.yml.
 # Drops the existing schema object then runs its SQL definition file.
 # Iteration variables:
 #   ${type}      - "table", "function", or "procedure"
@@ -14,7 +14,7 @@ configuration:
         datasource: "mysqlReporting.yml"
         delimiter: ";"
         scripts:
-          - "sql/mysql/drop-schema-object.sql"
+          - "sql/drop-schema-object.sql"
     - type: "sql-execution"
       description: "Create ${type} ${name}"
       configuration:

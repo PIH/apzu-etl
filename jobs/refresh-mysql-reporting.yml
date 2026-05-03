@@ -3,11 +3,11 @@ description: "Refreshing OpenMRS data"
 configuration:
   jobs:
 
-    - path: "openmrs/refresh-omrs-tables.yml"
+    - path: "refresh-omrs-tables.yml"
 
-    - path: "malawi/create-schema.yml"
+    - path: "create-reporting-utilities.yml"
 
-    - path: "malawi/refresh-mw-tables.yml"
+    - path: "refresh-mw-tables.yml"
 
     - type: "iterating-job"
       description: "Refresh OpenMRS Derived MySQL Data"

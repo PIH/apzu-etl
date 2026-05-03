@@ -22,7 +22,7 @@ configuration:
         datasource: "mysqlReporting.yml"
         delimiter: ";"
         scripts:
-          - "sql/mysql/drop-schema-object.sql"
+          - "sql/drop-schema-object.sql"
     - type: "sql-execution"
       description: "Create ${tableName}"
       configuration:

@@ -1,7 +1,7 @@
 # Template that takes in the following parameters
 # ${datasource}
 # ${tableName}
-# The purpose of this job is to execute a script named ${tableName}.sql in the sql/mysql directory against the ${datasource} DB
+# The purpose of this job is to execute a script named ${tableName}.sql in the sql directory against the ${datasource} DB
 type: "sql-execution"
 parameters:
   datasource: ""
@@ -10,4 +10,4 @@ configuration:
   datasource: "${datasourceName}.yml"
   delimiter: ";"
   scripts:
-    - "sql/mysql/${tableName}.sql"
+    - "sql/${tableName}.sql"
