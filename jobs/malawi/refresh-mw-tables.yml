@@ -5,7 +5,7 @@
 # any cross-table joins by later loads still benefit).
 #
 # IMPORTANT — execution order: the iteration order below preserves the legacy
-# load order (extracted from load-malawi-data.kjb hop graph). Several .ktr
+# load order (extracted from the legacy Pentaho job hop graph). Several .ktr
 # transforms read from other mw_* tables in their SQL, so the producer must be
 # fully refreshed before any consumer runs. Reordering will break the build.
 #

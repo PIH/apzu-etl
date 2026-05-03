@@ -26,15 +26,27 @@ configuration:
         scripts:
           - "pentaho/openmrs/schema/function/nextStateForEnrollment.sql"
 
-    # --- 2. Reference-data lookup tables (created and populated together by
-    #         the legacy Pentaho job; required before main-table loads) ---
+    # --- 2. Reference-data lookup tables (lookup_*); required before main-table
+    #         loads. Each is a self-contained drop → create → load → index job. ---
     - type: "iterating-job"
-      description: "Load OMRS reference-data lookup tables"
+      description: "Refresh OMRS reference-data lookup tables"
+      parameters:
+        schemaDir: "pentaho/openmrs/schema"
       configuration:
-        iterations:
-          - jobPath: "pentaho/openmrs/load-reference-data.kjb"
+        maxConcurrentJobs: 1
         jobTemplate:
-          path: "execute-pentaho-job.yml"
+          path: "refresh-warehouse-table.yml"
+        iterations:
+          - { tableName: "lookup_concept",         jobPath: "pentaho/openmrs/transforms/setup-reference-concepts.ktr" }
+          - { tableName: "lookup_location",        jobPath: "pentaho/openmrs/transforms/setup-reference-locations.ktr" }
+          - { tableName: "lookup_identifier_type", jobPath: "pentaho/openmrs/transforms/setup-reference-identifier-types.ktr" }
+          - { tableName: "lookup_encounter_type",  jobPath: "pentaho/openmrs/transforms/setup-reference-encounter-types.ktr" }
+          - { tableName: "lookup_user",            jobPath: "pentaho/openmrs/transforms/setup-reference-users.ktr" }
+          - { tableName: "lookup_person_name",     jobPath: "pentaho/openmrs/transforms/setup-reference-person-name.ktr" }
+          - { tableName: "lookup_provider_name",   jobPath: "pentaho/openmrs/transforms/setup-reference-provider-name.ktr" }
+          - { tableName: "lookup_form",            jobPath: "pentaho/openmrs/transforms/setup-reference-forms.ktr" }
+          - { tableName: "lookup_drug",            jobPath: "pentaho/openmrs/transforms/setup-reference-drugs.ktr" }
+          - { tableName: "lookup_visit_type",      jobPath: "pentaho/openmrs/transforms/setup-reference-visit-types.ktr" }
 
     # --- 3. Standard 1:1 table refreshes (drop → create → load → index) ---
     - type: "iterating-job"
