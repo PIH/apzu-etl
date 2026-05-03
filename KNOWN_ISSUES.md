@@ -13,9 +13,8 @@ writes to the table `mw_pdc_history_of_hospitalization`, not the
 `mw_sickle_cell_disease_history_of_hospitalization` table that its filename
 implies.
 
-- The table `mw_sickle_cell_disease_history_of_hospitalization` is declared in
-  `jobs/pentaho/malawi/schema/schema.csv` and has a DDL file at
-  `jobs/pentaho/malawi/schema/table/mw_sickle_cell_disease_history_of_hospitalization.sql`,
+- The table `mw_sickle_cell_disease_history_of_hospitalization` has a DDL file
+  at `jobs/pentaho/malawi/schema/table/mw_sickle_cell_disease_history_of_hospitalization.sql`,
   but no transform writes to it — so it is created empty on every refresh.
 - A side effect is that `mw_pdc_history_of_hospitalization` ends up with two
   writers (the legitimate `import-into-pdc-history-of-hospitalization.ktr`
@@ -65,15 +64,28 @@ If anyone backports per-table self-contained jobs to a different branch,
 they need to make sure no transform is invoked more than once, or that
 TableOutput truncates before loading.
 
-## Orphaned / dead code
+## Latent inconsistencies
 
-### `import-into-mw-art-trace.ktr` and `import-into-mw-eid-trace.ktr`
+### `get_parent_health_facility` function is referenced but never created
 
-These transforms write to tables `mw_art_trace` and `mw_eid_trace`. Neither
-table is declared in `schema.csv`, neither table name appears anywhere else in
-the repository, and no job (`.kjb`), pipeline (`.yml`), or other transform
-references either `.ktr` file. They appear to be dead code.
+`jobs/pentaho/malawi/schema/function/get_parent_health_facility.sql` exists
+in the schema dir but is not in `jobs/create-reporting-utilities.yml`, so
+the function is never created at runtime.
 
-Recommended action: delete both transforms (and confirm with the team that
-nothing external invokes them) as part of the Pentaho cleanup phase of the
-PETL converge effort.
+The procedure `create_changed_regimen_list`
+(`jobs/pentaho/malawi/schema/procedure/create_changed_regimen_list.sql`)
+calls `get_parent_health_facility(...)` in its body. MySQL resolves the
+function lazily (at procedure-call time, not at procedure-create time), so
+the procedure is created without error — but if anything ever invokes
+`create_changed_regimen_list`, MySQL will raise "FUNCTION ... does not
+exist".
+
+Either:
+
+- the function should be added to `jobs/create-reporting-utilities.yml`
+  (if `create_changed_regimen_list` is in active use), or
+- both the function file and the call site should be removed (if the
+  feature is dead).
+
+The right call depends on whether anything in the reporting layer actually
+calls `create_changed_regimen_list`.
