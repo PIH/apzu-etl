@@ -47,6 +47,24 @@ Likely intent: the index should have been on
 existing (buggy) behavior — the orphan index lives in the `mw_lab_tests`
 index file.
 
+### `mw_patient` was being loaded 6× in the legacy pipeline (now fixed)
+
+In the legacy pipeline (master, pre-MLW-1813), every program-specific job —
+`load-malawi-data-{ART,NCD,PDC,Nutrition,POC,users}.kjb` — had
+`import-into-mw-patient.ktr` as its first step. Because the TableOutput step
+in that transform has `<truncate>N</truncate>`, each invocation appended
+rather than replaced, so `mw_patient` ended up with 6× the actual patient
+count (e.g. 497,130 rows for ~82,855 unique patients).
+
+The MLW-1813 refactor incidentally fixed this: the per-table refresh in
+`jobs/malawi/refresh-mw-tables.yml` drops and creates `mw_patient` once and
+runs `import-into-mw-patient.ktr` exactly once. Row counts now match the
+underlying OpenMRS patient count.
+
+If anyone backports per-table self-contained jobs to a different branch,
+they need to make sure no transform is invoked more than once, or that
+TableOutput truncates before loading.
+
 ## Orphaned / dead code
 
 ### `import-into-mw-art-trace.ktr` and `import-into-mw-eid-trace.ktr`
