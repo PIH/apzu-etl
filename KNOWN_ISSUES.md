@@ -27,25 +27,6 @@ The current refactor preserves this behavior unchanged so as not to mix a fix
 with a structural refactor. Resolving it likely means redirecting the
 TableOutput step in the .ktr to its matching table.
 
-### `mw_lab_tests_recent_period.sql` adds an index to the wrong table
-
-`jobs/pentaho/malawi/schema/table/mw_lab_tests_recent_period.sql` ends with:
-
-```sql
-alter table mw_lab_tests add index mw_lab_tests_recent_idx (patient_id);
-```
-
-i.e. it creates the `mw_lab_tests_recent_period` table but then alters the
-unrelated `mw_lab_tests` table — and the index it adds (`patient_id`) is
-already covered by `mw_lab_tests_patient_idx` from `mw_lab_tests.sql`, so it's
-a misnamed duplicate. The `mw_lab_tests_recent_period` table itself is left
-without any indexes.
-
-Likely intent: the index should have been on
-`mw_lab_tests_recent_period(patient_id)`. The current refactor preserves the
-existing (buggy) behavior — the orphan index lives in the `mw_lab_tests`
-index file.
-
 ### `mw_patient` was being loaded 6× in the legacy pipeline (now fixed)
 
 In the legacy pipeline (master, pre-MLW-1813), every program-specific job —

@@ -66,8 +66,6 @@ configuration:
     - tableName: "mw_epilepsy_followup"
     - tableName: "mw_epilepsy_initial"
     - tableName: "mw_lab_tests"
-    - tableName: "mw_lab_tests_recent_period"
-    - tableName: "mw_last_obs_in_period"
     - tableName: "mw_mental_health_followup"
     - tableName: "mw_mental_health_initial"
     - tableName: "mw_ncd_diagnoses"

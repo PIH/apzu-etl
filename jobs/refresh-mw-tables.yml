@@ -18,8 +18,6 @@
 #   * mw_pdc_history_of_hospitalization is loaded by two transforms (the
 #     legitimate one plus a misrouted sickle-cell-disease transform; see
 #     KNOWN_ISSUES.md).
-#   * mw_selected_periods + mw_concepts_selected are written together by a
-#     single transform (load-selected-periods-and-concepts.ktr).
 #   * mw_sickle_cell_disease_history_of_hospitalization has no transform that
 #     writes to it (see KNOWN_ISSUES.md). Its DDL is still exercised at the
 #     end so the table exists.
@@ -92,55 +90,6 @@ configuration:
         iterations:
           - { tableName: "mw_pre_art_visits", jobPath: "pentaho/malawi/transforms/import-into-mw-pre-art-visits.ktr" }
 
-    # --- mw_selected_periods + mw_concepts_selected (loaded together) ---
-    - type: "job-pipeline"
-      description: "Refresh mw_selected_periods and mw_concepts_selected"
-      configuration:
-        jobs:
-          - type: "sql-execution"
-            description: "Drop mw_selected_periods"
-            parameters:
-              type: "table"
-              name: "mw_selected_periods"
-            configuration:
-              datasource: "mysqlReporting.yml"
-              delimiter: ";"
-              scripts:
-                - "sql/drop-schema-object.sql"
-          - type: "sql-execution"
-            description: "Drop mw_concepts_selected"
-            parameters:
-              type: "table"
-              name: "mw_concepts_selected"
-            configuration:
-              datasource: "mysqlReporting.yml"
-              delimiter: ";"
-              scripts:
-                - "sql/drop-schema-object.sql"
-          - type: "sql-execution"
-            description: "Create mw_selected_periods and mw_concepts_selected"
-            configuration:
-              datasource: "mysqlReporting.yml"
-              delimiter: ";"
-              scripts:
-                - "pentaho/malawi/schema/table/mw_selected_periods.sql"
-                - "pentaho/malawi/schema/table/mw_concepts_selected.sql"
-          - type: "iterating-job"
-            description: "Load mw_selected_periods and mw_concepts_selected"
-            configuration:
-              iterations:
-                - jobPath: "pentaho/malawi/transforms/load-selected-periods-and-concepts.ktr"
-              jobTemplate:
-                path: "execute-pentaho-job.yml"
-          - type: "sql-execution"
-            description: "Index mw_selected_periods and mw_concepts_selected"
-            configuration:
-              datasource: "mysqlReporting.yml"
-              delimiter: ";"
-              scripts:
-                - "pentaho/malawi/schema/index/mw_selected_periods.sql"
-                - "pentaho/malawi/schema/index/mw_concepts_selected.sql"
-
     # --- Chunk 3: standard 1:1 table refreshes ---
     - type: "iterating-job"
       description: "Refresh standard mw_* tables (chunk 3)"
@@ -160,8 +109,6 @@ configuration:
           - { tableName: "mw_eid_visits", jobPath: "pentaho/malawi/transforms/import-into-mw-eid-visits.ktr" }
           - { tableName: "mw_art_visits", jobPath: "pentaho/malawi/transforms/import-into-mw-art-visits.ktr" }
           - { tableName: "mw_pre_art_register", jobPath: "pentaho/malawi/transforms/import-into-mw-pre-art-register.ktr" }
-          - { tableName: "mw_last_obs_in_period", jobPath: "pentaho/malawi/transforms/most-recent-obs-for-period.ktr" }
-          - { tableName: "mw_lab_tests_recent_period", jobPath: "pentaho/malawi/transforms/Most-recent-labs.ktr" }
           - { tableName: "mw_pdc_trisomy_21_followup", jobPath: "pentaho/malawi/transforms/import-into-pdc-trisomy-21-visits.ktr" }
           - { tableName: "mw_nutrition_adult_followup", jobPath: "pentaho/malawi/transforms/import-into-mw-nutrition-adult-followup.ktr" }
           - { tableName: "mw_poc_bp", jobPath: "pentaho/malawi/transforms/import-into-mw-poc-bp-screening.ktr" }
