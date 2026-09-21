@@ -23,58 +23,28 @@ Add to `~/openmrs/malawi-reporting/env`:
     openmrs-docker malawi-reporting start
     openmrs-docker malawi-reporting run-service petl
 
-## Known issues that block this procedure today
+## Why this image has its own entrypoint wrapper
 
-Two gaps were found by driving the whole pipeline end-to-end (see
-Verification below). Both need to be fixed before this runbook works
-unmodified. Neither is in this repo's `docs/` scope to fix, so they're
-recorded here rather than patched silently.
+`Dockerfile.runtime` overrides the base `partnersinhealth/petl` image's
+entrypoint with `docker-entrypoint-wrapper.sh`, which creates the
+`warehouse` MySQL database (idempotently, `CREATE DATABASE IF NOT EXISTS`)
+before delegating to the base image's own `/docker-entrypoint.sh` (which
+bootstraps the PETL MySQL user and grants). The base image's bootstrap
+step only ever handles the user/grants — it assumes `warehouse` already
+exists — and since the standard `mysql` image always auto-creates the
+`openmrs` user/database from env vars regardless of how the instance was
+seeded, nothing else in the stack ever creates `warehouse` on a fresh
+instance. This wrapper is apzu-etl-specific (not a petl-repo change)
+because `refresh-full.yml`'s `warehouse` schema is a concern of this
+per-country image, not of the base ETL runtime.
 
-1. **`application-docker.yml` is missing a `mysqlOpenmrs` datasource
-   block.** `jobs/execute-pentaho-job.yml` resolves the OpenMRS *source*
-   connection used by every `.ktr` transform under
-   `jobs/pentaho/openmrs/transforms/` and `jobs/pentaho/malawi/transforms/`
-   via `${mysqlOpenmrs.host}`, `.port`, `.databaseName`, `.user`,
-   `.password`. `application-docker.yml` defines `mysqlReporting` and
-   `sqlServerReporting` but never `mysqlOpenmrs`, so every OpenMRS-source
-   transform fails at step-initialization with:
-
-       Cannot load connection class because of underlying exception:
-       com.mysql.cj.exceptions.WrongArgumentException: Failed to parse the
-       host:port pair '${mysqlOpenmrs.host}:${mysqlOpenmrs.port}'.
-
-   This is a hard blocker for `refresh-omrs-tables.yml` and
-   `refresh-mw-tables.yml` in **any** deployment, not specific to a test
-   fixture. Fix: add to `application-docker.yml` (mirroring the
-   `mysqlReporting` block, pointed at the source `openmrs` database instead
-   of `warehouse`):
-
-       mysqlOpenmrs:
-         host: ${petl.mysql.host}
-         port: ${petl.mysql.port}
-         databaseName: "openmrs"
-         user: ${petl.mysql.user}
-         password: ${petl.mysql.password}
-         options: ""
-
-2. **Nothing creates the `warehouse` database.** `docker-entrypoint.sh` in
-   the `petl` image (`bootstrap_petl_mysql_user`) only creates the PETL
-   MySQL user and grants it `ALL PRIVILEGES ON *.*` — it never issues
-   `CREATE DATABASE warehouse`. Against a brand-new `openmrs-db` (or any
-   `openmrs-db` where the `openmrs`/`openmrs` user/db already exist, which
-   is every instance, since the standard `mysql` image env vars always
-   create them), `run-service petl` fails immediately with:
-
-       Caused by: com.mysql.cj.exceptions.CJException: Unknown database
-       'warehouse'
-
-   Until this is fixed upstream (likely: `CREATE DATABASE IF NOT EXISTS
-   warehouse` added to the bootstrap step, or a `createDatabaseIfNotExist=
-   true` option on the `mysqlReporting` datasource), it must be created by
-   hand once per fresh instance:
-
-       docker exec <instance>-openmrs-db mysql -uroot -p"$OPENMRS_DB_ROOT_PASSWORD" \
-         -e "CREATE DATABASE IF NOT EXISTS warehouse;"
+Similarly, `application-docker.yml` defines a `mysqlOpenmrs` datasource
+block (alongside `mysqlReporting`/`sqlServerReporting`) so that
+`jobs/execute-pentaho-job.yml` can resolve `${mysqlOpenmrs.host}` etc. for
+the OpenMRS *source* connection every `.ktr` transform under
+`jobs/pentaho/openmrs/transforms/` and `jobs/pentaho/malawi/transforms/`
+uses. It mirrors `mysqlReporting`'s `${petl.mysql.*}` indirection, just
+pointed at the source `openmrs` database instead of `warehouse`.
 
 ## Verification
 
@@ -130,22 +100,22 @@ ever touching `openmrs-docker`.
     OPENMRS_DOCKER_HOME=/tmp/openmrs-docker-test \
       openmrs-docker malawi-reporting-test restore --from-dump <fixture.sql>
     OPENMRS_DOCKER_HOME=/tmp/openmrs-docker-test openmrs-docker malawi-reporting-test start
-    # workaround for known issue 2 above:
-    docker exec malawi-reporting-test-openmrs-db mysql -uroot -popenmrs \
-      -e "CREATE DATABASE IF NOT EXISTS warehouse;"
-    # workaround for known issue 1 above: PETL_IMAGE_TAG pointed at a locally
-    # built image = partnersinhealth/apzu-etl:local plus a corrected
-    # application.yml adding the mysqlOpenmrs block shown above
     OPENMRS_DOCKER_HOME=/tmp/openmrs-docker-test openmrs-docker malawi-reporting-test run-service petl
 
-With both workarounds applied, `refresh-full.yml` completed successfully:
+No manual workarounds needed — `refresh-full.yml` completed successfully
+on the first attempt, using the real `partnersinhealth/apzu-etl:local`
+image built by this repo's own `build-runtime-docker-image.sh`:
 
+    Ensuring warehouse database exists...
+    Bootstrapping PETL MySQL user 'openmrs'...
+    PETL MySQL user 'openmrs' already exists, not re-creating
+    ...
     ================================================================================
     PETL Run Summary
     ================================================================================
       Job:        refresh-full.yml
       Status:     SUCCEEDED
-      Duration:   9m 34s
+      Duration:   9m 39s
 
     PETL execution completed successfully
 

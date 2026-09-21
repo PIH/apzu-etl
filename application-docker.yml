@@ -7,6 +7,14 @@ petl:
     user: ${PETL_MYSQL_USER}
     password: ${PETL_MYSQL_PASSWORD}
 
+mysqlOpenmrs:
+  host: ${petl.mysql.host}
+  port: ${petl.mysql.port}
+  databaseName: "openmrs"
+  user: ${petl.mysql.user}
+  password: ${petl.mysql.password}
+  options: ""
+
 mysqlReporting:
   host: ${petl.mysql.host}
   port: ${petl.mysql.port}
