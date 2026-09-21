@@ -1,0 +1,5 @@
+FROM partnersinhealth/petl:local
+
+COPY datasources /home/petl/configurations/datasources
+COPY jobs /home/petl/configurations/jobs
+COPY application-docker.yml /home/petl/bin/application.yml

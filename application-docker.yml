@@ -1,0 +1,23 @@
+petl:
+  datasourceDir: "${petl.homeDir}/configurations/datasources"
+  jobDir: "${petl.homeDir}/configurations/jobs"
+  mysql:
+    host: ${PETL_MYSQL_HOST}
+    port: ${PETL_MYSQL_PORT:3306}
+    user: ${PETL_MYSQL_USER}
+    password: ${PETL_MYSQL_PASSWORD}
+
+mysqlReporting:
+  host: ${petl.mysql.host}
+  port: ${petl.mysql.port}
+  databaseName: "warehouse"
+  user: ${petl.mysql.user}
+  password: ${petl.mysql.password}
+  options: ""
+
+sqlServerReporting:
+  host: ${PETL_SQLSERVER_HOST}
+  port: ${PETL_SQLSERVER_PORT:1433}
+  databaseName: "openmrs_reporting"
+  user: ${PETL_SQLSERVER_USER}
+  password: ${PETL_SQLSERVER_PASSWORD}
