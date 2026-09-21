@@ -2,7 +2,7 @@ name: Build and push apzu-etl runtime image
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - "Dockerfile.runtime"
       - "application-docker.yml"
