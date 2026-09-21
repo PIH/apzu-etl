@@ -6,8 +6,10 @@ on:
     paths:
       - "Dockerfile.runtime"
       - "application-docker.yml"
+      - "docker-entrypoint-wrapper.sh"
       - "datasources/**"
       - "jobs/**"
+      - ".github/workflows/build-and-push-runtime-image.yml"
   workflow_dispatch: {}
 
 jobs:
