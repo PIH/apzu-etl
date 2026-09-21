@@ -18,7 +18,9 @@ mysqlOpenmrs:
 mysqlReporting:
   host: ${petl.mysql.host}
   port: ${petl.mysql.port}
-  databaseName: "warehouse"
+  # Must stay in sync with docker-entrypoint-wrapper.sh, which creates this
+  # database from the same env var and default.
+  databaseName: ${PETL_WAREHOUSE_DATABASE:openmrs_warehouse}
   user: ${petl.mysql.user}
   password: ${petl.mysql.password}
   options: ""
@@ -26,6 +28,8 @@ mysqlReporting:
 sqlServerReporting:
   host: ${PETL_SQLSERVER_HOST}
   port: ${PETL_SQLSERVER_PORT:1433}
-  databaseName: "openmrs_reporting"
+  # Same env var (and default) the petl-sqlserver service uses to decide which
+  # database to create, so overriding it does not silently desynchronize them.
+  databaseName: ${PETL_SQLSERVER_DATABASE:openmrs_reporting}
   user: ${PETL_SQLSERVER_USER}
   password: ${PETL_SQLSERVER_PASSWORD}
