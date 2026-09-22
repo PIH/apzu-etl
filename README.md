@@ -135,9 +135,15 @@ override dropped into the instance directory in addition to the `env` file entry
           PETL_WAREHOUSE_DATABASE: ${PETL_WAREHOUSE_DATABASE:-openmrs_warehouse}
           PETL_SQLSERVER_DATABASE: ${PETL_SQLSERVER_DATABASE:-openmrs_reporting}
 
-Restoring from a real (password-protected `.7z`) backup needs `PETL_BACKUP_PASSWORD` set in the
-instance's own `env` file *before* running `restore` — not on the `restore` command line, which
-gets overwritten by `openmrs-docker`'s own env-file sourcing.
+Restoring the source `openmrs-db` from a real backup (to refresh a reporting instance, or set up a
+new one) isn't a dedicated command — it's `openmrs-docker`'s `initialize`, which only runs
+immediately after `create`. For a password-protected `.7z` dump:
+
+    DUMP=$(ARCHIVE_PASSWORD=<password> $DISTRO_TOOLS_HOME/utils/extract-archive.sh --path=/path/to/backup.sql.gz.7z)
+    RESTORE_MYSQL_DUMP_PATH="$DUMP" openmrs-docker <name> initialize
+
+See distro-tools' own README ("Initializing a server") for the full mechanism, including the
+`RESTORE_MYSQL_DATA_PATH`/percona-backup path.
 
 # Troubleshooting
 
