@@ -79,6 +79,38 @@
                             <outputDirectory>${project.build.directory}/apzu-etl/</outputDirectory>
                         </configuration>
                     </execution>
+                    <!--
+                    A separate copy from package-datasources-and-jobs above: this one assembles the
+                    Docker build context (target/docker/), so the image is built from the same
+                    packaged/filtered datasources and jobs published in the Maven zip artifact,
+                    never from the source tree directly. Kept apart from target/apzu-etl/ so the
+                    Docker-only files (Dockerfile, docker-entrypoint-wrapper.sh, application-docker.yml)
+                    don't end up in the implementer-facing zip.
+                    -->
+                    <execution>
+                        <id>package-docker-context</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>datasources/**</include>
+                                        <include>jobs/**</include>
+                                        <include>application-docker.yml</include>
+                                        <include>docker-entrypoint-wrapper.sh</include>
+                                        <include>Dockerfile</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.directory}/docker/</outputDirectory>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>

@@ -93,6 +93,52 @@ To execute the ETL pipeline, simply run from the installation directory:
 java -jar petl.jar
 ```
 
+# Docker Image
+
+`partnersinhealth/apzu-etl` layers this project's `datasources`/`jobs`/`application-docker.yml`
+on top of the [PETL](https://github.com/PIH/petl) base image (`partnersinhealth/petl`). CI builds
+and pushes it (`Dockerfile`, build context `target/docker/` — populated by `mvn package`, never
+built from source directly) on every push to `master` and on every release. To build it locally:
+`./build-runtime-docker-image.sh`, which layers on `partnersinhealth/petl:local` instead.
+
+It's meant to be run via
+[`openmrs-docker`](https://github.com/PIH/openmrs-contrib-distro-tools)'s `petl` service, either
+attached to an existing `openmrs`/`openmrs-db` instance (production — `add-service petl`) or as
+part of a self-contained reporting instance (`SERVICES=openmrs-db,petl,petl-sqlserver`). Either
+way, add to the instance's `env` file:
+
+    PETL_IMAGE_NAME=partnersinhealth/apzu-etl
+    PETL_FULL_REFRESH_JOBS=refresh-full.yml           # or refresh-mysql-reporting.yml for production, which never touches SQL Server
+    PETL_MYSQL_ROOT_PASSWORD=<same value as this instance's OPENMRS_DB_ROOT_PASSWORD>
+
+`PETL_MYSQL_ROOT_PASSWORD` is required, not optional: both the base image's MySQL user/grant
+bootstrap and this image's own warehouse-database creation (`docker-entrypoint-wrapper.sh`,
+needed because the base image assumes that database already exists) are skipped entirely when
+it's unset, and the run then fails with `Access denied ... to database '<warehouse db>'`.
+
+Two database names are configurable, both read by `application-docker.yml` alongside whatever
+creates them:
+
+| Variable | Default | Also read/created by |
+| --- | --- | --- |
+| `PETL_WAREHOUSE_DATABASE` | `openmrs_warehouse` | `docker-entrypoint-wrapper.sh` (creates it) |
+| `PETL_SQLSERVER_DATABASE` | `openmrs_reporting` | the `petl-sqlserver` service (creates it) |
+
+Caveat: `openmrs-contrib-distro-tools`'s `docker/services/petl.yaml` doesn't currently pass either
+variable through to the `petl` container, so overriding either default needs a small compose
+override dropped into the instance directory in addition to the `env` file entry, e.g.
+`petl-db-names.yaml`:
+
+    services:
+      petl:
+        environment:
+          PETL_WAREHOUSE_DATABASE: ${PETL_WAREHOUSE_DATABASE:-openmrs_warehouse}
+          PETL_SQLSERVER_DATABASE: ${PETL_SQLSERVER_DATABASE:-openmrs_reporting}
+
+Restoring from a real (password-protected `.7z`) backup needs `PETL_BACKUP_PASSWORD` set in the
+instance's own `env` file *before* running `restore` — not on the `restore` command line, which
+gets overwritten by `openmrs-docker`'s own env-file sourcing.
+
 # Troubleshooting
 
 1. Could not acquire change log lock.
