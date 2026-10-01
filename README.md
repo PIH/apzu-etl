@@ -118,7 +118,7 @@ SQL Server login and database. Two database names are configurable, both read by
 
 | Variable | Default | Created by |
 | --- | --- | --- |
-| `PETL_MYSQL_REPORTING_DATABASE` | `openmrs_warehouse` | distro-tools' `openmrs-db-accounts` |
+| `PETL_MYSQL_REPORTING_DATABASE` | none: set it (Malawi: `openmrs_warehouse`) | distro-tools' `openmrs-db-accounts` |
 | `PETL_SQLSERVER_DATABASE` | `openmrs_reporting` | distro-tools' `sqlserver` service |
 
 Restoring the source `openmrs-db` from a backup (to refresh a reporting instance, or set up a new
