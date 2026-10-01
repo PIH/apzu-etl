@@ -84,7 +84,7 @@
                     Docker build context (target/docker/), so the image is built from the same
                     packaged/filtered datasources and jobs published in the Maven zip artifact,
                     never from the source tree directly. Kept apart from target/apzu-etl/ so the
-                    Docker-only files (Dockerfile, docker-entrypoint-wrapper.sh, application-docker.yml)
+                    Docker-only files (Dockerfile, application-docker.yml)
                     don't end up in the implementer-facing zip.
                     -->
                     <execution>
@@ -103,7 +103,6 @@
                                         <include>datasources/**</include>
                                         <include>jobs/**</include>
                                         <include>application-docker.yml</include>
-                                        <include>docker-entrypoint-wrapper.sh</include>
                                         <include>Dockerfile</include>
                                     </includes>
                                 </resource>
