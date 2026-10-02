@@ -99,51 +99,30 @@ java -jar petl.jar
 on top of the [PETL](https://github.com/PIH/petl) base image (`partnersinhealth/petl`). CI builds
 and pushes it (`Dockerfile`, build context `target/docker/` — populated by `mvn package`, never
 built from source directly) on every push to `master` and on every release. To build it locally:
-`./build-runtime-docker-image.sh`, which layers on `partnersinhealth/petl:local` instead.
+`./build-runtime-docker-image.sh`, which layers on `partnersinhealth/petl:local` instead. It builds on `partnersinhealth/petl:latest` (the `Dockerfile`'s `PETL_BASE_IMAGE` default).
 
-It's meant to be run via
-[`openmrs-docker`](https://github.com/PIH/openmrs-contrib-distro-tools)'s `petl` service, either
-attached to an existing `openmrs`/`openmrs-db` instance (production — `add-service petl`) or as
-part of a self-contained reporting instance (`SERVICES=openmrs-db,petl,petl-sqlserver`). Either
-way, add to the instance's `env` file:
+It's meant to be run as
+[openmrs-contrib-distro-tools](https://github.com/PIH/openmrs-contrib-distro-tools)' `petl` service
+(see its `docs/services.md`), either attached to an existing `openmrs`/`openmrs-db` instance
+(production: `add-service petl`) or as part of a self-contained reporting instance
+(`SERVICES=openmrs-db,petl,sqlserver`). Either way, the instance's `env` file has:
 
     PETL_IMAGE_NAME=partnersinhealth/apzu-etl
     PETL_FULL_REFRESH_JOBS=refresh-full.yml           # or refresh-mysql-reporting.yml for production, which never touches SQL Server
-    PETL_MYSQL_ROOT_PASSWORD=<same value as this instance's OPENMRS_DB_ROOT_PASSWORD>
+    PETL_MYSQL_REPORTING_DATABASE=openmrs_warehouse   # the MySQL reporting database
 
-`PETL_MYSQL_ROOT_PASSWORD` is required, not optional: both the base image's MySQL user/grant
-bootstrap and this image's own warehouse-database creation (`docker-entrypoint-wrapper.sh`,
-needed because the base image assumes that database already exists) are skipped entirely when
-it's unset, and the run then fails with `Access denied ... to database '<warehouse db>'`.
+distro-tools sets up what the run needs before it starts: PETL's MySQL account, and the MySQL
+reporting database granted to it (`openmrs-db-accounts`), and, with its `sqlserver` service, PETL's
+SQL Server login and database. Two database names are configurable, both read by
+`application-docker.yml`:
 
-Two database names are configurable, both read by `application-docker.yml` alongside whatever
-creates them:
-
-| Variable | Default | Also read/created by |
+| Variable | Default | Created by |
 | --- | --- | --- |
-| `PETL_WAREHOUSE_DATABASE` | `openmrs_warehouse` | `docker-entrypoint-wrapper.sh` (creates it) |
-| `PETL_SQLSERVER_DATABASE` | `openmrs_reporting` | the `petl-sqlserver` service (creates it) |
+| `PETL_MYSQL_REPORTING_DATABASE` | none: set it (Malawi: `openmrs_warehouse`) | distro-tools' `openmrs-db-accounts` |
+| `PETL_SQLSERVER_DATABASE` | `openmrs_reporting` | distro-tools' `sqlserver` service |
 
-Caveat: `openmrs-contrib-distro-tools`'s `docker/services/petl.yaml` doesn't currently pass either
-variable through to the `petl` container, so overriding either default needs a small compose
-override dropped into the instance directory in addition to the `env` file entry, e.g.
-`petl-db-names.yaml`:
-
-    services:
-      petl:
-        environment:
-          PETL_WAREHOUSE_DATABASE: ${PETL_WAREHOUSE_DATABASE:-openmrs_warehouse}
-          PETL_SQLSERVER_DATABASE: ${PETL_SQLSERVER_DATABASE:-openmrs_reporting}
-
-Restoring the source `openmrs-db` from a real backup (to refresh a reporting instance, or set up a
-new one) isn't a dedicated command — it's `openmrs-docker`'s `initialize`, which only runs
-immediately after `create`. For a password-protected `.7z` dump:
-
-    DUMP=$(ARCHIVE_PASSWORD=<password> $DISTRO_TOOLS_HOME/utils/extract-archive.sh --path=/path/to/backup.sql.gz.7z)
-    RESTORE_MYSQL_DUMP_PATH="$DUMP" openmrs-docker <name> initialize
-
-See distro-tools' own README ("Initializing a server") for the full mechanism, including the
-`RESTORE_MYSQL_DATA_PATH`/percona-backup path.
+Restoring the source `openmrs-db` from a backup (to refresh a reporting instance, or set up a new
+one) is distro-tools' `initialize`, run right after `create`: see its `docs/restore.md`.
 
 # Troubleshooting
 

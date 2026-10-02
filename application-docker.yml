@@ -18,9 +18,10 @@ mysqlOpenmrs:
 mysqlReporting:
   host: ${petl.mysql.host}
   port: ${petl.mysql.port}
-  # Must stay in sync with docker-entrypoint-wrapper.sh, which creates this
-  # database from the same env var and default.
-  databaseName: ${PETL_WAREHOUSE_DATABASE:openmrs_warehouse}
+  # Created, and granted to PETL's MySQL account, by distro-tools' openmrs-db-accounts. No default
+  # here: distro-tools always sets PETL_MYSQL_REPORTING_DATABASE (empty unless configured), and Spring
+  # only uses a default for an unset variable. Set it, e.g. to openmrs_warehouse.
+  databaseName: ${PETL_MYSQL_REPORTING_DATABASE}
   user: ${petl.mysql.user}
   password: ${petl.mysql.password}
   options: ""
@@ -28,8 +29,7 @@ mysqlReporting:
 sqlServerReporting:
   host: ${PETL_SQLSERVER_HOST}
   port: ${PETL_SQLSERVER_PORT:1433}
-  # Same env var (and default) the petl-sqlserver service uses to decide which
-  # database to create, so overriding it does not silently desynchronize them.
+  # The database distro-tools creates PETL's SQL Server login on (PETL_SQLSERVER_DATABASE).
   databaseName: ${PETL_SQLSERVER_DATABASE:openmrs_reporting}
   user: ${PETL_SQLSERVER_USER}
   password: ${PETL_SQLSERVER_PASSWORD}
