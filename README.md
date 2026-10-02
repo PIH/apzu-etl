@@ -99,10 +99,7 @@ java -jar petl.jar
 on top of the [PETL](https://github.com/PIH/petl) base image (`partnersinhealth/petl`). CI builds
 and pushes it (`Dockerfile`, build context `target/docker/` — populated by `mvn package`, never
 built from source directly) on every push to `master` and on every release. To build it locally:
-`./build-runtime-docker-image.sh`, which layers on `partnersinhealth/petl:local` instead. The `Dockerfile` pins
-the PETL base image by digest; Renovate (`renovate.json`) opens a PR when a newer image is published
-for the tag it follows, merged automatically once its checks pass. To stay on a PETL version, pin
-that version's tag instead of `latest`.
+`./build-runtime-docker-image.sh`, which layers on `partnersinhealth/petl:local` instead. It builds on `partnersinhealth/petl:latest` (the `Dockerfile`'s `PETL_BASE_IMAGE` default).
 
 It's meant to be run as
 [openmrs-contrib-distro-tools](https://github.com/PIH/openmrs-contrib-distro-tools)' `petl` service
