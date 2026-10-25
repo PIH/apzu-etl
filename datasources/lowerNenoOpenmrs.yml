@@ -1,0 +1,7 @@
+databaseType: "mysql"
+host: ${lowerNenoOpenmrs.host}
+port: ${lowerNenoOpenmrs.port}
+databaseName: ${lowerNenoOpenmrs.databaseName}
+user: ${lowerNenoOpenmrs.user}
+password: ${lowerNenoOpenmrs.password}
+options: ${lowerNenoOpenmrs.options}
